@@ -33,7 +33,7 @@ public class CommonInit {
             bus.addListener(this::clientSetup);
         });
 
-        ForgeEvents.register();
+        ApiForgeEvents.register();
 
         ExileEvents.ON_PLAYER_LOGIN.register(new EventConsumer<ExileEvents.OnPlayerLogin>() {
             @Override

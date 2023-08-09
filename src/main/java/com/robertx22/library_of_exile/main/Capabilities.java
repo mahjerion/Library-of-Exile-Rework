@@ -8,7 +8,7 @@ public class Capabilities {
     public static void reg() {
 
 
-        ForgeEvents.registerForgeEvent(RegisterCapabilitiesEvent.class, x -> {
+        ApiForgeEvents.registerForgeEvent(RegisterCapabilitiesEvent.class, x -> {
             x.register(EntityInfoComponent.DefaultImpl.class);
         });
 

@@ -22,6 +22,7 @@ public class ExileText {
         return new ExileText(Component.literal(s));
     }
 
+
     public static ExileText emptyLine() {
         return new ExileText(Component.literal(""));
     }

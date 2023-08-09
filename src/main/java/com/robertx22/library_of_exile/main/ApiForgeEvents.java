@@ -20,10 +20,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.function.Consumer;
 
-public class ForgeEvents {
+public class ApiForgeEvents {
 
     public static <T extends Event> void registerForgeEvent(Class<T> clazz, Consumer<T> event, EventPriority priority) {
-        if (clazz.isAssignableFrom(IModBusEvent.class)) { // todo
+        if (IModBusEvent.class.isAssignableFrom(clazz) || clazz.isAssignableFrom(IModBusEvent.class)) {
             FMLJavaModLoadingContext.get()
                     .getModEventBus()
                     .addListener(priority, event);

@@ -7,12 +7,9 @@ import net.minecraft.world.entity.player.Player;
 public class CommandUtils {
 
     public static void execute(Player player, String command) {
-
         CommandSourceStack source = getCommandSource(player);
+        player.getServer().getCommands().performPrefixedCommand(source, command);
 
-        player.getServer()
-                .getCommands()
-                .performCommand(player.getServer().getCommands().getDispatcher().parse(command, source), command);
     }
 
     public static CommandSourceStack getCommandSource(Entity entity) {
