@@ -3,7 +3,6 @@ package com.robertx22.library_of_exile.main;
 import com.robertx22.library_of_exile.components.OnMobDamaged;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
-import com.robertx22.library_of_exile.packets.registry.TellClientToRegisterFromPackets;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
 import com.robertx22.library_of_exile.registry.Database;
@@ -41,8 +40,8 @@ public class CommonInit {
                 ServerPlayer player = event.player;
 
                 Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
-                Packets.sendToClient(player, new TellClientToRegisterFromPackets());
-                Database.restoreFromBackupifEmpty();
+                //Packets.sendToClient(player, new TellClientToRegisterFromPackets()); // todo do i need to delay this or what
+                // todo  Database.restoreFromBackupifEmpty();
             }
         });
 
@@ -70,7 +69,7 @@ public class CommonInit {
     public static void onDatapacksReloaded() {
         try {
 
-            Database.backup();
+            //  Database.backup();
             Database.checkGuidValidity();
             Database.unregisterInvalidEntries();
             Database.getAllRegistries()

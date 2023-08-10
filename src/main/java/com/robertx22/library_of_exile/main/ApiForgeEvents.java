@@ -3,7 +3,6 @@ package com.robertx22.library_of_exile.main;
 import com.robertx22.library_of_exile.components.EntityInfoComponent;
 import com.robertx22.library_of_exile.components.PlayerCapabilities;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
-import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
@@ -62,9 +61,12 @@ public class ApiForgeEvents {
             ExileEvents.LIVING_ENTITY_TICK.callEvents(new ExileEvents.OnEntityTick(entity));
         });
 
+        /*
         registerForgeEvent(AddReloadListenerEvent.class, event -> {
             ExileRegistryType.registerJsonListeners(event);
         });
+
+         */
 
         registerForgeEvent(LivingDeathEvent.class, event -> {
             if (event.getEntity() instanceof Player == false && event.getSource()

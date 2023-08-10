@@ -10,7 +10,7 @@ import java.util.List;
 public class Database {
 
     private static HashMap<ExileRegistryType, ExileRegistryContainer> SERVER = new HashMap<>();
-    private static HashMap<ExileRegistryType, ExileRegistryContainer> BACKUP = new HashMap<>();
+    //  private static HashMap<ExileRegistryType, ExileRegistryContainer> BACKUP = new HashMap<>();
 
     public static boolean areDatapacksLoaded(Level world) {
         return ExileRegistryType.getInRegisterOrder(SyncTime.ON_LOGIN)
@@ -19,6 +19,7 @@ public class Database {
                         .isRegistrationDone());
     }
 
+    /*
     public static void backup() {
         BACKUP = new HashMap<>(SERVER);
     }
@@ -33,6 +34,8 @@ public class Database {
             restoreBackup();
         }
     }
+
+     */
 
     public static List<ExileRegistryContainer> getAllRegistries() {
         return new ArrayList<>(SERVER.values());

@@ -4,9 +4,6 @@ import com.google.common.base.Preconditions;
 import com.robertx22.library_of_exile.main.LibraryOfExile;
 import com.robertx22.library_of_exile.main.Packets;
 import com.robertx22.library_of_exile.packets.registry.EfficientRegistryPacket;
-import com.robertx22.library_of_exile.packets.registry.RegistryPacket;
-import com.robertx22.library_of_exile.registry.serialization.IByteBuf;
-import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
@@ -55,18 +52,8 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
         Preconditions.checkNotNull(cachedBuf, type.id + " error, cachedbuf is null!!!");
 
-        if (type.ser instanceof IByteBuf) {
-            Packets.sendToClient(player, new EfficientRegistryPacket(this.type, getList()));
-        } else {
-            var list = getFromDatapacks()
-                    .stream()
-                    .map(x -> ((ISerializable) x).toJsonString())
-                    .collect(Collectors.toList());
-            if (list != null && !list.isEmpty()) {
-                ListStringData data = new ListStringData(list);
-                Packets.sendToClient(player, new RegistryPacket(this.type, data));
-            }
-        }
+        Packets.sendToClient(player, new EfficientRegistryPacket(this.type, Database.getRegistry(type).getFromDatapacks()));
+
     }
 
     public void onAllDatapacksLoaded() {
@@ -78,16 +65,9 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
             cachedBuf = new FriendlyByteBuf(Unpooled.buffer());
             // save the packetbytebuf, this should save at least 0.1 sec for each time anyone logs in.
             // SUPER important for big mmorpg servers!
-            if (type.ser instanceof IByteBuf) {
-                new EfficientRegistryPacket(type, Database.getRegistry(type)
-                        .getFromDatapacks()).saveToData(cachedBuf);
-            } else {
-                ListStringData data = new ListStringData(getFromDatapacks()
-                        .stream()
-                        .map(x -> ((ISerializable) x).toJsonString())
-                        .collect(Collectors.toList()));
-                new RegistryPacket(type, data).saveToData(cachedBuf);
-            }
+
+            new EfficientRegistryPacket(type, Database.getRegistry(type).getFromDatapacks()).saveToData(cachedBuf);
+
             Preconditions.checkNotNull(cachedBuf);
         }
     }

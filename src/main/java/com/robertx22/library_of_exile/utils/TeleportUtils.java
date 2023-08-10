@@ -1,6 +1,5 @@
 package com.robertx22.library_of_exile.utils;
 
-import com.robertx22.library_of_exile.events.base.StaticServerPlayerTickEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -19,12 +18,8 @@ public class TeleportUtils {
         teleport(player, pos, dimension);
     }
 
+
     public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
-        teleport(player, pos, dimension, true);
-    }
-
-
-    public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension, Boolean addSafety) {
         try {
 
 
@@ -35,9 +30,6 @@ public class TeleportUtils {
                 return;
             }
 
-            if (addSafety) {
-                StaticServerPlayerTickEvent.makeSureTeleport(player, pos, dimension);
-            }
             String command = "/execute in " + dimension.toString() + " run tp " + "@p" +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 

@@ -2,7 +2,6 @@ package com.robertx22.library_of_exile.registry;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.robertx22.library_of_exile.registry.serialization.IByteBuf;
 import com.robertx22.library_of_exile.utils.Watch;
 
 import java.util.ArrayList;
@@ -29,11 +28,11 @@ public class RegistryPackets {
         ExileRegistryType.getInRegisterOrder(sync)
                 .forEach(type -> {
 
-                    if (type.getLoader() != null && type.ser instanceof IByteBuf == false) {
+                    if (type.getLoader() != null) {
 
                         ExileRegistryContainer reg = Database.getRegistry(type);
 
-                  
+
                         List<JsonObject> list = map.get(type);
 
                         if (list == null || list.isEmpty()) {
