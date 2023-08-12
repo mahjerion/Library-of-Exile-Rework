@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -37,11 +38,14 @@ public class ApiForgeEvents {
 
     public static void register() {
 
-        registerForgeEvent(LivingDamageEvent.class, event -> {
+        registerForgeEvent(LivingAttackEvent.class, event -> {
             ExileEvents.OnDamageEntity after = ExileEvents.DAMAGE_BEFORE_CALC.callEvents(
                     new ExileEvents.OnDamageEntity(event.getSource(), event.getAmount(), event.getEntity())
             );
-            event.setAmount(after.damage);
+            if (after.canceled) {
+                event.setCanceled(true);
+            }
+            // todo is needed? event.setAmount(after.damage);
         }, EventPriority.HIGHEST);
 
         registerForgeEvent(LivingDamageEvent.class, event -> {
