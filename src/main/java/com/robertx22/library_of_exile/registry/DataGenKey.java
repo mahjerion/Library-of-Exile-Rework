@@ -13,7 +13,7 @@ public class DataGenKey<T> implements IGUID {
 
     private void errorIfNotDevMode() {
         if (!LibraryOfExile.runDevTools()) {
-            throw new RuntimeException("Do not use DataGenKeys outside of dev mode! These keys should only be used when generating data.");
+            // throw new RuntimeException("Do not use DataGenKeys outside of dev mode! These keys should only be used when generating data.");
         }
     }
 
