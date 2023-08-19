@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.utils;
 
+import com.robertx22.library_of_exile.vanilla_util.main.VanillaUTIL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -15,10 +16,9 @@ public class TeleportUtils {
     }
 
     public static void teleport(ServerPlayer player, BlockPos pos, DimensionType dimension) {
-        teleport(player, pos, dimension);
+        teleport(player, pos, VanillaUTIL.REGISTRY.dimensionTypes(player.level()).getKey(dimension));
     }
-
-
+    
     public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
         try {
 
