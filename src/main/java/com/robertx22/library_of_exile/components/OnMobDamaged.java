@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.components;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 public class OnMobDamaged extends EventConsumer<ExileEvents.OnDamageEntity> {
 
@@ -13,8 +14,9 @@ public class OnMobDamaged extends EventConsumer<ExileEvents.OnDamageEntity> {
 
         EntityInfoComponent.IEntityInfo comp = EntityInfoComponent.get(event.mob);
         if (comp != null) {
-            comp.getDamageStats()
-                    .onDamagedBy(attacker, event.damage);
+            if (event.mob instanceof Player == false) {
+                comp.getDamageStats().onDamagedBy(attacker, event.damage);
+            }
         }
     }
 

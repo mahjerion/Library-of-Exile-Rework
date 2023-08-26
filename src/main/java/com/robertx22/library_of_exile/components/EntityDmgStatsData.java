@@ -21,9 +21,14 @@ public class EntityDmgStatsData {
     }
 
     public void onDamagedBy(Entity entity, float dmg) {
+
+        if (map.size() > 300) {
+            map = new HashMap<>();
+            enviroOrMobDmg = 0;
+        }
+
         if (entity instanceof Player) {
-            String id = entity.getUUID()
-                    .toString();
+            String id = entity.getUUID().toString();
             map.put(id, dmg + map.getOrDefault(id, 0F));
         } else {
             enviroOrMobDmg += dmg;

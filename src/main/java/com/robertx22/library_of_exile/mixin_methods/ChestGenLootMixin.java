@@ -15,15 +15,13 @@ public class ChestGenLootMixin {
     public static void onLootGen(Container inventory, LootParams context) {
 
         try {
-            if (context.hasParam(LootContextParams.THIS_ENTITY) &&
-                    context.hasParam(LootContextParams.ORIGIN)
-                    && context.getParamOrNull(LootContextParams.THIS_ENTITY) instanceof Player) {
+            if (context.hasParam(LootContextParams.THIS_ENTITY)
+                    && context.hasParam(LootContextParams.ORIGIN) && context.getParamOrNull(LootContextParams.THIS_ENTITY) instanceof Player player) {
 
                 BlockEntity chest = null;
                 var p = context.getParamOrNull(LootContextParams.ORIGIN);
                 BlockPos pos = new BlockPos((int) p.x, (int) p.y, (int) p.z);
 
-                Player player = (Player) context.getParamOrNull(LootContextParams.THIS_ENTITY);
                 Level world = player.level();
 
                 if (inventory instanceof BlockEntity) {

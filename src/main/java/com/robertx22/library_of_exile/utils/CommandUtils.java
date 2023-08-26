@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.utils;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -13,24 +14,12 @@ public class CommandUtils {
     }
 
     public static CommandSourceStack getCommandSource(Entity entity) {
+        return createCommandSourceStack(entity);
+    }
 
-        return entity.createCommandSourceStack();
-        
-        /*
-
-        return new CommandSource(
-                // this doesnt send messages to spam server
-                CommandSource.NULL,
-                entity.position(),
-                entity.getRotationVector(),
-                entity.level() instanceof ServerLevel ? (ServerLevel) entity.level() : null,
-                4,
-                entity.getName()
-                        .getString(),
-                entity.getDisplayName(),
-                entity.level().getServer(),
-                entity);
-                
-         */
+    public static CommandSourceStack createCommandSourceStack(Entity en) {
+        return new CommandSourceStack(en, en.position(), en.getRotationVector(),
+                en.level() instanceof ServerLevel ? (ServerLevel) en.level() : null,
+                100, en.getName().getString(), en.getDisplayName(), en.level().getServer(), en);
     }
 }
