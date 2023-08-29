@@ -9,3 +9,7 @@ fixed stackoverflow bug
 1.3.2
 
 should fix requiring op for teleportation
+
+1.3.3
+
+should prevent conflicts with mods like apostesis that also use datapack folders like "affixes" by prefixing all my datapack jsons with modid in the folder path

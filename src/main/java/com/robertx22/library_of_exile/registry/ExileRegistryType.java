@@ -23,8 +23,8 @@ public class ExileRegistryType {
     public String modid;
 
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
-        this.id = id;
         this.modid = modid;
+        this.id = modid + "_" + id;
         this.order = order;
         this.ser = ser;
         this.syncTime = synctime;
@@ -85,7 +85,7 @@ public class ExileRegistryType {
         return new ExileDatapackGenerator<>(modid, getAllForSerialization(), this.id);
     }
 
-    
+
     public List getAllForSerialization() {
         return Database.getRegistry(this)
                 .getSerializable();
