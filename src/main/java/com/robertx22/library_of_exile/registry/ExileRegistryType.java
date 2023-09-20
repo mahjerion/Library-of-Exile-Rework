@@ -1,6 +1,5 @@
 package com.robertx22.library_of_exile.registry;
 
-import com.google.gson.JsonObject;
 import com.robertx22.library_of_exile.registry.loaders.BaseDataPackLoader;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -78,7 +77,10 @@ public class ExileRegistryType {
     }
 
     public BaseDataPackLoader getLoader() {
-        return new BaseDataPackLoader(this, this.id, x -> this.ser.fromJson((JsonObject) x));
+        if (this.ser == null) {
+            return null;
+        }
+        return new BaseDataPackLoader(this, this.id, this.ser);
     }
 
     public ExileDatapackGenerator getDatapackGenerator() {

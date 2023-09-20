@@ -23,6 +23,31 @@ public class RandomUtils {
         return RandomRange((int) min, (int) max, ran);
     }
 
+    public static int RandomRange(int min, int max, Random rand) {
+
+        try {
+            if (max < 1) {
+                return 0;
+            }
+            if (min > max) {
+                return min;
+            }
+            // prevents trying to nextin on 0
+            if (min == max) {
+                return min;
+            }
+
+            int result = rand.nextInt(max - min + 1);
+
+            return Math.clamp(result + min, min, max);
+        } catch (Exception e) {
+            System.out.println("min " + min + " " + "max " + max);
+            e.printStackTrace();
+        }
+        return 0;
+
+    }
+
     public static int RandomRange(int min, int max, RandomSource rand) {
 
         try {

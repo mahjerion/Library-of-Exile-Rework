@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.mixins;
 
 import com.robertx22.library_of_exile.mixin_methods.ChestGenLootMixin;
+import com.robertx22.library_of_exile.mixin_methods.OnBlockDropFarming;
 import com.robertx22.library_of_exile.mixin_methods.OnBlockDropMining;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +25,7 @@ public abstract class ChestLootGenMixin {
         try {
 
             ChestGenLootMixin.onLootGen(pContainer, pParams);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,6 +35,7 @@ public abstract class ChestLootGenMixin {
     public void onLootGen(LootContext context, CallbackInfoReturnable<List<ItemStack>> ci) {
         try {
             OnBlockDropMining.run(context, ci);
+            OnBlockDropFarming.run(context, ci);
         } catch (Exception e) {
             e.printStackTrace();
         }

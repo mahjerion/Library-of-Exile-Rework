@@ -22,6 +22,7 @@ public class ExileEvents {
     public static ExileEventCaller<OnMobKilledByPlayer> MOB_KILLED_BY_PLAYER = new ExileEventCaller<>();
     public static ExileEventCaller<OnSetupLootChance> SETUP_LOOT_CHANCE = new ExileEventCaller<>();
     public static ExileEventCaller<PlayerMineOreEvent> PLAYER_MINE_ORE = new ExileEventCaller<>();
+    public static ExileEventCaller<PlayerMineFarmableBlockEvent> PLAYER_MINE_FARMABLE = new ExileEventCaller<>();
 
     public static ExileEventCaller<OnDamageEntity> DAMAGE_BEFORE_CALC = new ExileEventCaller<>();
     public static ExileEventCaller<OnDamageEntity> DAMAGE_AFTER_CALC = new ExileEventCaller<>();
@@ -68,6 +69,15 @@ public class ExileEvents {
 
         public OnCheckIsDevToolsRunning() {
 
+        }
+    }
+
+    public static class PlayerMineFarmableBlockEvent extends PlayerMineOreEvent {
+        public List<ItemStack> droppedItems;
+
+        public PlayerMineFarmableBlockEvent(List<ItemStack> droppedItems, BlockState state, Player player, BlockPos pos) {
+            super(state, player, pos);
+            this.droppedItems = droppedItems;
         }
     }
 

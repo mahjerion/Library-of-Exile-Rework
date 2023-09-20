@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -15,15 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-public class OnBlockDropMining {
-
+public class OnBlockDropFarming {
     public static void run(LootContext ctx, CallbackInfoReturnable<List<ItemStack>> ci) {
 
         try {
             if (!ctx.hasParam(LootContextParams.BLOCK_STATE)) {
-                return;
-            }
-            if (!ctx.hasParam(LootContextParams.TOOL)) {
                 return;
             }
             if (!ctx.hasParam(LootContextParams.ORIGIN)) {
@@ -34,18 +29,13 @@ public class OnBlockDropMining {
             }
 
             ItemStack stack = ctx.getParamOrNull(LootContextParams.TOOL);
-            if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0) {
-                return;
+            if (stack != null) {
+                if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0) {
+                    return;
+                }
             }
 
             BlockState state = ctx.getParamOrNull(LootContextParams.BLOCK_STATE);
-            Block block = state.getBlock();
-
-            if (ci.getReturnValue()
-                    .stream()
-                    .anyMatch(x -> x.getItem() == block.asItem())) {
-                return; // if a diamond ore is broken and drops diamond ore, don't give exp and loot
-            }
 
             Entity en = ctx.getParamOrNull(LootContextParams.THIS_ENTITY);
 
@@ -62,9 +52,9 @@ public class OnBlockDropMining {
                 return;
             }
 
-            ExileEvents.PlayerMineOreEvent event = new ExileEvents.PlayerMineOreEvent(state, player, pos);
+            ExileEvents.PlayerMineFarmableBlockEvent event = new ExileEvents.PlayerMineFarmableBlockEvent(ci.getReturnValue(), state, player, pos);
 
-            ExileEvents.PLAYER_MINE_ORE.callEvents(event);
+            ExileEvents.PLAYER_MINE_FARMABLE.callEvents(event);
 
             if (!event.itemsToAddToDrop.isEmpty()) {
                 ci.getReturnValue().addAll(event.itemsToAddToDrop);

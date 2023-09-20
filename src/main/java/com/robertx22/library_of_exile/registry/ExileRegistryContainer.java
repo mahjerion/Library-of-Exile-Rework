@@ -95,10 +95,13 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     }
 
     private ExileRegistryType type;
-    private C emptyDefault;
+    private String emptyDefault;
 
     public C getDefault() {
-        return this.emptyDefault;
+        if (emptyDefault.isEmpty()) {
+            return null;
+        }
+        return this.map.get(emptyDefault);
     }
 
     private HashMap<String, C> map = new HashMap<>();
@@ -135,14 +138,11 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         return getSize() > 0;
     }
 
-    public ExileRegistryContainer(ExileRegistryType type, C emptyDefault) {
+    public ExileRegistryContainer(ExileRegistryType type, String emptyDefault) {
         this.type = type;
         this.emptyDefault = emptyDefault;
     }
 
-    public void setDefault(C c) {
-        this.emptyDefault = c;
-    }
 
     private void tryLogEmptyRegistry() {
         if (errorIfEmpty) {
@@ -200,7 +200,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
                 System.out.print("\n Accessed slash registry earlier than datapacks are loaded, returning empty: " + guid);
             }
             accessedEarly = true;
-            return this.emptyDefault;
+            return this.getDefault();
         }
 
         tryLogEmptyRegistry();

@@ -8,6 +8,7 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistry;
 import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
+import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.Watch;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -16,16 +17,15 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().create();
 
     public String id;
-    Function<JsonObject, T> serializer;
+    ISerializable<T> serializer;
     public ExileRegistryType registryType;
 
-    public BaseDataPackLoader(ExileRegistryType registryType, String id, Function<JsonObject, T> serializer) {
+    public BaseDataPackLoader(ExileRegistryType registryType, String id, ISerializable<T> serializer) {
         super(GSON, id);
         Objects.requireNonNull(registryType);
         this.id = id;
@@ -54,15 +54,26 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
 
             mapToLoad.forEach((key, value) -> {
                 try {
-                    JsonObject json = value
-                            .getAsJsonObject();
+                    JsonObject json = value.getAsJsonObject();
+                    T object = serializer.fromJson(json);
 
-                    if (!json.has(ENABLED) || json.get(ENABLED)
-                            .getAsBoolean()) {
-                        T object = serializer.apply(json);
+
+                    if (Database.getRegistry(registryType).isRegistered(object.GUID())) {
+                        T existing = (T) Database.getRegistry(registryType).get(object.GUID());
+                        ISerializable<T> exSer = (ISerializable<T>) existing;
+                        JsonObject existingJson = exSer.toJson();
+
+                        for (Map.Entry<String, JsonElement> en : json.entrySet()) {
+                            existingJson.add(en.getKey(), en.getValue());
+                        }
+                        object = this.serializer.fromJson(existingJson);
+                    }
+
+                    if (!json.has(ENABLED) || json.get(ENABLED).getAsBoolean()) {
                         object.unregisterFromExileRegistry();
                         object.registerToExileRegistry();
                     }
+
                 } catch (Exception exception) {
                     System.out.println(id + " is a broken datapack entry.");
                     exception.printStackTrace();
