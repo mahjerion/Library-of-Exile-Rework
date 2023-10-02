@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.registry;
 
 import com.google.common.base.Preconditions;
+import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.LibraryOfExile;
 import com.robertx22.library_of_exile.main.Packets;
 import com.robertx22.library_of_exile.packets.registry.EfficientRegistryPacket;
@@ -264,6 +265,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         } else {
             tryLogAddition(c);
             map.put(c.GUID(), c);
+            ExileEvents.ON_REGISTER_TO_DATABASE.callEvents(new ExileEvents.OnRegisterToDatabase(c, type));
         }
 
     }

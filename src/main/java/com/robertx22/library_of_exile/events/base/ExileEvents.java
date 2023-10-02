@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.events.base;
 
+import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -33,6 +34,7 @@ public class ExileEvents {
     public static ExileEventCaller<OnChestLooted> ON_CHEST_LOOTED = new ExileEventCaller<>();
     public static ExileEventCaller<IsEntityKilledValid> IS_KILLED_ENTITY_VALID = new ExileEventCaller<>();
     public static ExileEventCaller<RegisterRegistriesEvent> REGISTER_EXILE_REGISTRIES = new ExileEventCaller<>();
+    public static ExileEventCaller<OnRegisterToDatabase> ON_REGISTER_TO_DATABASE = new ExileEventCaller<>();
 
     public static class OnEntityTick extends ExileEvent {
         public LivingEntity entity;
@@ -102,6 +104,18 @@ public class ExileEvents {
 
         public OnPlayerLogin(ServerPlayer player) {
             this.player = player;
+        }
+    }
+
+    public static class OnRegisterToDatabase extends ExileEvent {
+
+        public Object item;
+        public ExileRegistryType type;
+
+
+        public OnRegisterToDatabase(Object item, ExileRegistryType type) {
+            this.item = item;
+            this.type = type;
         }
     }
 
