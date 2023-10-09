@@ -27,8 +27,7 @@ public class EntityInfoComponent {
     });
 
     public static IEntityInfo get(LivingEntity entity) {
-        return entity.getCapability(INSTANCE)
-                .orElse(null);
+        return entity.getCapability(INSTANCE).orElse(new EntityInfoComponent.DefaultImpl(entity));
     }
 
     @Mod.EventBusSubscriber
