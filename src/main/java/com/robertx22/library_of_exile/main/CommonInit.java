@@ -1,7 +1,6 @@
 package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.components.OnMobDamaged;
-import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
@@ -9,6 +8,7 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.SyncTime;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -34,16 +34,12 @@ public class CommonInit {
 
         ApiForgeEvents.register();
 
-        ExileEvents.ON_PLAYER_LOGIN.register(new EventConsumer<ExileEvents.OnPlayerLogin>() {
-            @Override
-            public void accept(ExileEvents.OnPlayerLogin event) {
-                ServerPlayer player = event.player;
 
-                Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
-                //Packets.sendToClient(player, new TellClientToRegisterFromPackets()); // todo do i need to delay this or what
-                // todo  Database.restoreFromBackupifEmpty();
-            }
+        ApiForgeEvents.registerForgeEvent(OnDatapackSyncEvent.class, x -> {
+            ServerPlayer player = x.getPlayer();
+            Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
         });
+
 
         C2SPacketRegister.register();
         S2CPacketRegister.register();

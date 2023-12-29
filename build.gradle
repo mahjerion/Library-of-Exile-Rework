@@ -113,7 +113,7 @@ publishMods {
 
     file = jar.archiveFile
     changelog = file("CHANGELOG.txt").text
-    type = BETA
+    type = STABLE
     modLoaders.add("forge")
 
     curseforge {
