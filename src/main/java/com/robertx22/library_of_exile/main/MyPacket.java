@@ -43,8 +43,8 @@ public abstract class MyPacket<T> {
                                 e.printStackTrace();
                             }
                         });
-        ctx.get()
-                .setPacketHandled(true);
+
+        ctx.get().setPacketHandled(true);
     }
 
 }

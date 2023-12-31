@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -55,22 +56,18 @@ public class ApiForgeEvents {
             event.setAmount(after.damage);
         }, EventPriority.LOWEST);
 
+
+        registerForgeEvent(EntityJoinLevelEvent.class, event -> {
+            if (event.getEntity() instanceof LivingEntity en) {
+                EntityInfoComponent.get(en).spawnInit(en);
+            }
+        });
+
         registerForgeEvent(LivingEvent.LivingTickEvent.class, event -> {
             LivingEntity entity = event.getEntity();
-
-            if (entity.tickCount == 0) {
-                EntityInfoComponent.get(entity).spawnInit(entity);// todo
-            }
-
             ExileEvents.LIVING_ENTITY_TICK.callEvents(new ExileEvents.OnEntityTick(entity));
         });
 
-        /*
-        registerForgeEvent(AddReloadListenerEvent.class, event -> {
-            ExileRegistryType.registerJsonListeners(event);
-        });
-
-         */
 
         registerForgeEvent(LivingDeathEvent.class, event -> {
             if (event.getEntity() instanceof Player == false && event.getSource()

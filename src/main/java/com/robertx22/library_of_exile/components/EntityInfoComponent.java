@@ -92,7 +92,7 @@ public class EntityInfoComponent {
 
         @Override
         public void spawnInit(Entity entity) {
-            if (spawnPos == null || (spawnPos.getX() == 0 && spawnPos.getY() == 0 && spawnPos.getZ() == 0)) {
+            if (this.spawnPos == null || this.spawnPos.equals(BlockPos.ZERO)) {
                 this.spawnPos = entity.blockPosition();
             }
         }

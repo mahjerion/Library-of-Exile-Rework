@@ -1,3 +1,6 @@
 v.1.4.0
 - stable release start
 - fixes profession recipes on servers
+
+v.1.4.1
+- fix spawninit never being called, this should fix balance of exile..
