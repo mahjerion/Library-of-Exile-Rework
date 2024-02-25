@@ -65,6 +65,7 @@ public class ApiForgeEvents {
 
         registerForgeEvent(LivingEvent.LivingTickEvent.class, event -> {
             LivingEntity entity = event.getEntity();
+
             ExileEvents.LIVING_ENTITY_TICK.callEvents(new ExileEvents.OnEntityTick(entity));
         });
 

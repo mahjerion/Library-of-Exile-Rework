@@ -22,16 +22,20 @@ public class EntityDmgStatsData {
 
     public void onDamagedBy(Entity entity, float dmg) {
 
-        if (map.size() > 300) {
-            map = new HashMap<>();
-            enviroOrMobDmg = 0;
-        }
+        if (dmg > 0 && Float.isFinite(dmg)) {
+            // for some reason there's errors about trying to save infinity..?
 
-        if (entity instanceof Player) {
-            String id = entity.getUUID().toString();
-            map.put(id, dmg + map.getOrDefault(id, 0F));
-        } else {
-            enviroOrMobDmg += dmg;
+            if (map.size() > 300) {
+                map = new HashMap<>();
+                enviroOrMobDmg = 0;
+            }
+
+            if (entity instanceof Player) {
+                String id = entity.getUUID().toString();
+                map.put(id, dmg + map.getOrDefault(id, 0F));
+            } else {
+                enviroOrMobDmg += dmg;
+            }
         }
     }
 

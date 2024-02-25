@@ -4,3 +4,6 @@ v.1.4.0
 
 v.1.4.1
 - fix spawninit never being called, this should fix balance of exile..
+
+v.1.4.2
+- add some new features to datapack loading

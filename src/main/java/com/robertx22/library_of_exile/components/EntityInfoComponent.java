@@ -84,15 +84,19 @@ public class EntityInfoComponent {
 
         @Override
         public BlockPos getSpawnPos() {
-            if (spawnPos != null) {
+            if (isSpawnInit()) {
                 return spawnPos;
             }
-            return BlockPos.ZERO;
+            return this.owner.blockPosition();
+        }
+
+        private boolean isSpawnInit() {
+            return spawnPos != null && !this.spawnPos.equals(BlockPos.ZERO);
         }
 
         @Override
         public void spawnInit(Entity entity) {
-            if (this.spawnPos == null || this.spawnPos.equals(BlockPos.ZERO)) {
+            if (isSpawnInit()) {
                 this.spawnPos = entity.blockPosition();
             }
         }
