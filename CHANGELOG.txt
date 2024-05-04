@@ -7,3 +7,7 @@ v.1.4.1
 
 v.1.4.2
 - add some new features to datapack loading
+
+
+v.1.4.3
+- hopefully fixes mobs having 0 hp and staying alive (somehow infinity was being sent as damage and gson didn't like serializing it)

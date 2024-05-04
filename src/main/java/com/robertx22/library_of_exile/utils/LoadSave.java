@@ -22,7 +22,7 @@ public class LoadSave {
         try {
             json = gson.toJson(obj);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         if (json != null) {
@@ -49,7 +49,7 @@ public class LoadSave {
         try {
             o = (OBJ) gson.fromJson(json, theclass);
         } catch (JsonSyntaxException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         return o;

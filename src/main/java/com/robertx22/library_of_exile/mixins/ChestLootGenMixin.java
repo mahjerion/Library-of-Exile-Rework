@@ -23,9 +23,7 @@ public abstract class ChestLootGenMixin {
     @Inject(method = "fill", at = @At(value = "TAIL"))
     public void onLootGen(Container pContainer, LootParams pParams, long pSeed, CallbackInfo ci) {
         try {
-
             ChestGenLootMixin.onLootGen(pContainer, pParams);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

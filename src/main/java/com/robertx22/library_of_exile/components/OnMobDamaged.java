@@ -15,7 +15,9 @@ public class OnMobDamaged extends EventConsumer<ExileEvents.OnDamageEntity> {
         EntityInfoComponent.IEntityInfo comp = EntityInfoComponent.get(event.mob);
         if (comp != null) {
             if (event.mob instanceof Player == false) {
-                comp.getDamageStats().onDamagedBy(attacker, event.damage);
+                if (event.damage > 0 && event.damage < Integer.MAX_VALUE) {
+                    comp.getDamageStats().onDamagedBy(attacker, event.damage);
+                }
             }
         }
     }
