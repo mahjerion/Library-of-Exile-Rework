@@ -84,10 +84,6 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                         continue;
                     }
 
-                    T existing = (T) Database.getRegistry(registryType).get(object.GUID());
-                    ISerializable<T> exSer = (ISerializable<T>) existing;
-                    JsonObject existingJson = exSer.toJson();
-
 
                     LoaderType type = LoaderType.REPLACE_FIELDS;
 
@@ -99,10 +95,14 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                         }
                     }
 
-                    if (!Database.getRegistry(registryType).isRegistered(object.GUID())) {
+                    if (!Database.getRegistry(registryType).isExistingSeriazable(object.GUID())) {
                         type = LoaderType.NEW;
                     } else {
-                        if (type == LoaderType.REPLACE_FIELDS && Database.getRegistry(registryType).isRegistered(object.GUID())) {
+                        if (type == LoaderType.REPLACE_FIELDS && Database.getRegistry(registryType).isExistingSeriazable(object.GUID())) {
+                            T existing = (T) Database.getRegistry(registryType).get(object.GUID());
+                            ISerializable<T> exSer = (ISerializable<T>) existing;
+                            JsonObject existingJson = exSer.toJson();
+
                             for (Map.Entry<String, JsonElement> en : json.entrySet()) {
                                 existingJson.add(en.getKey(), en.getValue());
                             }
@@ -119,7 +119,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                     }
 
                 } catch (Exception exception) {
-                    System.out.println(id + " is a broken datapack entry.");
+                    System.out.println(key.toString() + " is a broken datapack entry.");
                     exception.printStackTrace();
                 }
             }

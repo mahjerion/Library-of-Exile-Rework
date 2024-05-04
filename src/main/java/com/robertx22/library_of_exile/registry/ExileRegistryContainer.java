@@ -198,7 +198,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
         if (map.isEmpty() && serializables.isEmpty()) {
             if (!accessedEarly) {
-                System.out.print("\n Accessed slash registry earlier than datapacks are loaded, returning empty: " + guid);
+                throw new RuntimeException("\n Accessed slash registry earlier than datapacks are loaded, returning empty: " + guid + "\n");
             }
             accessedEarly = true;
             return this.getDefault();
@@ -250,6 +250,10 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     }
 
     public boolean isRegistered(String guid) {
+        return map.containsKey(guid);
+    }
+
+    public boolean isExistingSeriazable(String guid) {
         return map.containsKey(guid);
     }
 
