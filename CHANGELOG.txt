@@ -1,13 +1,9 @@
-v.1.4.0
-- stable release start
-- fixes profession recipes on servers
-
-v.1.4.1
-- fix spawninit never being called, this should fix balance of exile..
-
-v.1.4.2
-- add some new features to datapack loading
-
-
 v.1.4.3
 - hopefully fixes mobs having 0 hp and staying alive (somehow infinity was being sent as damage and gson didn't like serializing it)
+
+v.1.4.4
+- attempt to tp player to overworld if cant find the dimension id
+
+v.1.4.5
+- added some code mns uses
+- tweak teleportation a bit

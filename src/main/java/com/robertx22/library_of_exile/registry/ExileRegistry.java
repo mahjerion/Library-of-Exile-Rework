@@ -4,22 +4,37 @@ public interface ExileRegistry<C> extends IGUID, IWeighted {
 
     ExileRegistryType getExileRegistryType();
 
+
     default void registerToExileRegistry() {
         Database.getRegistry(getExileRegistryType())
-            .register(this);
+                .register(this);
     }
+
 
     default void unregisterFromExileRegistry() {
         Database.getRegistry(getExileRegistryType())
-            .unRegister(this);
+                .unRegister(this);
+    }
+
+
+    default boolean isEmpty() {
+        var db = Database.getRegistry(getExileRegistryType());
+        var em = db.getDefault();
+
+        if (em != null) {
+            if (em.GUID().equals(GUID())) {
+                return true;
+            }
+        }
+        return db.isRegistered(GUID());
     }
 
     default void unregisterDueToInvalidity() {
         Database.getRegistry(getExileRegistryType())
-            .unRegister(this);
+                .unRegister(this);
         try {
             throw new Exception("Registry Entry: " + GUID() + " of type: " + this.getExileRegistryType()
-                .id + " is invalid! Unregistering");
+                    .id + " is invalid! Unregistering");
         } catch (Exception e) {
             e.printStackTrace();
         }

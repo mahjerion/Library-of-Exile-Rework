@@ -43,6 +43,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     List<C> fromDatapacks = null;
     FriendlyByteBuf cachedBuf = null;
 
+
     public void sendUpdatePacket(ServerPlayer player) {
         if (type.ser == null) {
             return;

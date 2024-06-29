@@ -6,6 +6,7 @@
   "refmap": "library_of_exile-refmap.json",
   "mixins": [
     "ChestLootGenMixin",
+    "CommandsMixin",
     "LivingEntityMixin",
     "MobEntityMixin",
     "PlayerManagerMixin",
