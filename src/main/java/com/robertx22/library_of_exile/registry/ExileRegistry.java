@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.registry;
 
+import com.google.gson.JsonObject;
+
 public interface ExileRegistry<C> extends IGUID, IWeighted {
 
     ExileRegistryType getExileRegistryType();
@@ -10,10 +12,11 @@ public interface ExileRegistry<C> extends IGUID, IWeighted {
                 .register(this);
     }
 
+    default void compareLoadedJsonAndFinalClass(JsonObject json, Boolean editmode) {
+    }
 
     default void unregisterFromExileRegistry() {
-        Database.getRegistry(getExileRegistryType())
-                .unRegister(this);
+        Database.getRegistry(getExileRegistryType()).unRegister(this);
     }
 
 
@@ -50,7 +53,7 @@ public interface ExileRegistry<C> extends IGUID, IWeighted {
     }
 
     default String getInvalidGuidMessage() {
-        return "Non [a-z0-9_.-] character in Age of Exile GUID: " + GUID() + " of type " + getExileRegistryType().id;
+        return "Non [a-z0-9_.-] character in Mine and Slash GUID: " + GUID() + " of type " + getExileRegistryType().id;
     }
 
 }

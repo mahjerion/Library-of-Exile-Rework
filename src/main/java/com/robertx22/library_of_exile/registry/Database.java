@@ -72,7 +72,7 @@ public class Database {
 
     public static void unregisterInvalidEntries() {
 
-        System.out.println("Starting Age of Exile Registry auto validation.");
+        System.out.println("Starting Mine and Slash Registry auto validation.");
 
         List<ExileRegistry> invalid = new ArrayList<>();
 
@@ -88,9 +88,9 @@ public class Database {
         invalid.forEach(x -> x.unregisterDueToInvalidity());
 
         if (invalid.isEmpty()) {
-            System.out.println("All Age of Exile registries appear valid.");
+            System.out.println("All Mine and Slash registries appear valid.");
         } else {
-            System.out.println(invalid.size() + " Age of Exile entries are INVALID!");
+            System.out.println(invalid.size() + " Mine and Slash entries are INVALID!");
         }
 
     }

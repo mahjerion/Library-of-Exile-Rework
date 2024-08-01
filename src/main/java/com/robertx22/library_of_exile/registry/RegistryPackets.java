@@ -48,7 +48,7 @@ public class RegistryPackets {
                                 entry.registerToExileRegistry();
 
                             } catch (JsonSyntaxException e) {
-                                System.out.println("Failed to parse Age of Exile registry Json!!!");
+                                System.out.println("Failed to parse Mine and Slash registry Json!!!");
                                 e.printStackTrace();
                             }
 
@@ -56,7 +56,7 @@ public class RegistryPackets {
 
                         if (reg
                                 .isEmpty()) {
-                            throw new RuntimeException("Age of Exile Registry of type " + reg.getType() + " is EMPTY after datapack loading!");
+                            throw new RuntimeException("Mine and Slash Registry of type " + reg.getType() + " is EMPTY after datapack loading!");
                         } else {
                             // System.out.println(type.name() + " registry load on client succeeded with: " + reg.getSize() + " entries.");
 

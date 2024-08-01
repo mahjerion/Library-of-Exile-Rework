@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.events.base;
 
+import com.google.gson.GsonBuilder;
+import com.robertx22.library_of_exile.gson_wrappers.GsonAdapter;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +37,21 @@ public class ExileEvents {
     public static ExileEventCaller<IsEntityKilledValid> IS_KILLED_ENTITY_VALID = new ExileEventCaller<>();
     public static ExileEventCaller<RegisterRegistriesEvent> REGISTER_EXILE_REGISTRIES = new ExileEventCaller<>();
     public static ExileEventCaller<OnRegisterToDatabase> ON_REGISTER_TO_DATABASE = new ExileEventCaller<>();
+    public static ExileEventCaller<DatapackGsonAdapterEvent> DATAPACK_GSON_ADAPTER_REGISTRY = new ExileEventCaller<>();
+    // todo maybe i can add adapters to this and save stuff like registry strings into wrapper classes??
+
+    public static class DatapackGsonAdapterEvent extends ExileEvent {
+        public GsonBuilder b;
+
+        public DatapackGsonAdapterEvent(GsonBuilder b) {
+            this.b = b;
+        }
+
+        public void registerAdapter(GsonAdapter ada) {
+            b.registerTypeAdapter(ada.getClass(), ada);
+        }
+
+    }
 
     public static class OnEntityTick extends ExileEvent {
         public LivingEntity entity;

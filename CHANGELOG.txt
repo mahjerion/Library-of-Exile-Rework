@@ -1,9 +1,2 @@
-v.1.4.3
-- hopefully fixes mobs having 0 hp and staying alive (somehow infinity was being sent as damage and gson didn't like serializing it)
-
-v.1.4.4
-- attempt to tp player to overworld if cant find the dimension id
-
-v.1.4.5
-- added some code mns uses
-- tweak teleportation a bit
+v.1.4.6
+- added a check for datapacks

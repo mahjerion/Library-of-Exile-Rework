@@ -1,13 +1,9 @@
 package com.robertx22.library_of_exile.registry.loaders;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.robertx22.library_of_exile.registry.Database;
-import com.robertx22.library_of_exile.registry.ExileRegistry;
-import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
-import com.robertx22.library_of_exile.registry.ExileRegistryType;
+import com.robertx22.library_of_exile.registry.*;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.Watch;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +14,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import java.util.*;
 
 public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResourceReloadListener {
-    private static final Gson GSON = new GsonBuilder().create();
+    private static Gson GSON = IAutoGson.createGson();
+
 
     public String id;
     ISerializable<T> serializer;
@@ -47,8 +44,8 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
         return super.prepare(manager, profiler);
     }
 
-    static String ENABLED = "enabled";
-    static String LOADER = "loader";
+    public static String ENABLED = "enabled";
+    public static String LOADER = "loader";
 
     String getInfoString(ResourceLocation key, LoaderType type) {
         return key.getNamespace() + ":" + key.getPath() + ":" + type.name();
@@ -85,13 +82,13 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                     }
 
 
-                    LoaderType type = LoaderType.REPLACE_FIELDS;
+                    LoaderType type = LoaderType.REPLACE_FULLY;
 
                     if (json.has(LOADER)) {
                         try {
                             type = LoaderType.valueOf(json.get(LOADER).getAsString());
                         } catch (IllegalArgumentException e) {
-                            type = LoaderType.REPLACE_FIELDS;
+                            type = LoaderType.REPLACE_FULLY;
                         }
                     }
 
@@ -116,6 +113,18 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
 
                         String infostring = getInfoString(key, type);
                         INFO_MAP.get(registryType).add(infostring);
+                    }
+
+                    if (json.has(ENABLED)) {
+                        if (!json.get(ENABLED).getAsBoolean()) {
+                            object.unregisterFromExileRegistry();
+                        }
+                    }
+
+                    if (object != null) {
+                        JsonObject compare = json.deepCopy();
+                        compare.remove(ENABLED);
+                        object.compareLoadedJsonAndFinalClass(compare, type == LoaderType.REPLACE_FIELDS);
                     }
 
                 } catch (Exception exception) {

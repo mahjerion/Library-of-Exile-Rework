@@ -89,7 +89,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
     public static void logRegistryError(String text) {
         try {
-            throw new Exception("[Age of Exile Registry Error]: " + text);
+            throw new Exception("[Mine and Slash Registry Error]: " + text);
         } catch (Exception e) {
             e.printStackTrace();
         }
