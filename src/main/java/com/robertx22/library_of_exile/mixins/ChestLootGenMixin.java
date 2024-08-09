@@ -20,7 +20,7 @@ import java.util.List;
 public abstract class ChestLootGenMixin {
 
 
-    @Inject(method = "fill", at = @At(value = "TAIL"))
+    @Inject(method = "fill", at = @At(value = "HEAD"))
     public void onLootGen(Container pContainer, LootParams pParams, long pSeed, CallbackInfo ci) {
         try {
             ChestGenLootMixin.onLootGen(pContainer, pParams);

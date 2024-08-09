@@ -33,7 +33,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
     }
 
     public enum LoaderType {
-        REPLACE_FULLY, REPLACE_FIELDS, NEW, ERROR_LOADING
+        REPLACE_FULLY, REPLACE_FIELDS, ERROR_LOADING
     }
 
 
@@ -93,7 +93,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                     }
 
                     if (!Database.getRegistry(registryType).isExistingSeriazable(object.GUID())) {
-                        type = LoaderType.NEW;
+                        //type = LoaderType.NEW;
                     } else {
                         if (type == LoaderType.REPLACE_FIELDS && Database.getRegistry(registryType).isExistingSeriazable(object.GUID())) {
                             T existing = (T) Database.getRegistry(registryType).get(object.GUID());
@@ -129,6 +129,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
 
                 } catch (Exception exception) {
                     System.out.println(key.toString() + " is a broken datapack entry.");
+                    JsonExileRegistry.addToErroredJsons(registryType, key);
                     exception.printStackTrace();
                 }
             }

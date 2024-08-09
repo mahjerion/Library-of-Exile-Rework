@@ -2,16 +2,42 @@ package com.robertx22.library_of_exile.registry;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
+import net.minecraft.resources.ResourceLocation;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public interface JsonExileRegistry<T> extends ExileRegistry<T> {
 
     default void addToSerializables() {
         Database.getRegistry(getExileRegistryType())
                 .addSerializable(this);
+    }
+
+
+    public static HashMap<ExileRegistryType, Set<String>> INVALID_JSONS_MAP = new HashMap<ExileRegistryType, Set<String>>();
+
+    // this is never called because mc already errors for invalid json syntax
+    public static HashMap<ExileRegistryType, Set<ResourceLocation>> NOT_LOADED_JSONS_MAP = new HashMap<ExileRegistryType, Set<ResourceLocation>>();
+
+    public static void addToInvalidJsons(ExileRegistryType type, String id) {
+
+        if (!INVALID_JSONS_MAP.containsKey(type)) {
+            INVALID_JSONS_MAP.put(type, new HashSet<>());
+        }
+        INVALID_JSONS_MAP.get(type).add(id);
+    }
+
+    public static void addToErroredJsons(ExileRegistryType type, ResourceLocation id) {
+
+        if (!NOT_LOADED_JSONS_MAP.containsKey(type)) {
+            NOT_LOADED_JSONS_MAP.put(type, new HashSet<>());
+        }
+        NOT_LOADED_JSONS_MAP.get(type).add(id);
     }
 
     @Override
@@ -28,7 +54,10 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
                 }
                 return;
             }
-            if (!json.equals(after)) {
+            var v1 = JsonParser.parseString(json.toString());
+            var v2 = JsonParser.parseString(after.toString());
+
+            if (!v1.equals(v2)) {
                 System.out.println("[Mine and Slash Datapack Warning]: " + this.GUID() + " is different ");
                 System.out.println("Json from your datapack:\n");
                 System.out.println(json.toString());
@@ -36,6 +65,8 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
                 System.out.println(after.toString());
                 System.out.println("\nPlease check for things like wrong field names, missing fields, wrong types used etc.");
                 System.out.println("You can copy and paste these jsons into any online Json Comparison/Diff tools see what the difference is. Like: www.jsondiff.com");
+                
+                addToInvalidJsons(getExileRegistryType(), GUID());
             }
 
         }
