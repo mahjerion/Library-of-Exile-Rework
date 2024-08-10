@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.registry;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.robertx22.library_of_exile.main.CommonInit;
 import com.robertx22.library_of_exile.utils.Watch;
 
 import java.util.ArrayList;
@@ -48,14 +49,13 @@ public class RegistryPackets {
                                 entry.registerToExileRegistry();
 
                             } catch (JsonSyntaxException e) {
-                                System.out.println("Failed to parse Mine and Slash registry Json!!!");
+                                CommonInit.LOGGER.log("Failed to parse Mine and Slash registry Json!!!");
                                 e.printStackTrace();
                             }
 
                         });
 
-                        if (reg
-                                .isEmpty()) {
+                        if (reg.isEmpty()) {
                             throw new RuntimeException("Mine and Slash Registry of type " + reg.getType() + " is EMPTY after datapack loading!");
                         } else {
                             // System.out.println(type.name() + " registry load on client succeeded with: " + reg.getSize() + " entries.");

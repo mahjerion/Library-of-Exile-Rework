@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.registry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraft.resources.ResourceLocation;
 
@@ -40,6 +41,8 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
         NOT_LOADED_JSONS_MAP.get(type).add(id);
     }
 
+    ExileLog LOGGER = new ExileLog();
+
     @Override
     default void compareLoadedJsonAndFinalClass(JsonObject json, Boolean editmode) {
         if (this instanceof ISerializable ser) {
@@ -58,14 +61,14 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
             var v2 = JsonParser.parseString(after.toString());
 
             if (!v1.equals(v2)) {
-                System.out.println("[Mine and Slash Datapack Warning]: " + this.GUID() + " is different ");
-                System.out.println("Json from your datapack:\n");
-                System.out.println(json.toString());
-                System.out.println("Json after it was loaded and turned back into json:\n");
-                System.out.println(after.toString());
-                System.out.println("\nPlease check for things like wrong field names, missing fields, wrong types used etc.");
-                System.out.println("You can copy and paste these jsons into any online Json Comparison/Diff tools see what the difference is. Like: www.jsondiff.com");
-                
+                LOGGER.log("\n[Mine and Slash Datapack Warning]: " + this.GUID() + " is different ");
+                LOGGER.log("Json from your datapack:\n");
+                LOGGER.log(json.toString());
+                LOGGER.log("\nJson after it was loaded and turned back into json:\n");
+                LOGGER.log(after.toString());
+                LOGGER.log("\nPlease check for things like wrong field names, missing fields, wrong types used etc.");
+                LOGGER.log("You can copy and paste these jsons into any online Json Comparison/Diff tools see what the difference is. Like: www.jsondiff.com");
+
                 addToInvalidJsons(getExileRegistryType(), GUID());
             }
 

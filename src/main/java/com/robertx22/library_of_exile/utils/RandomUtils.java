@@ -41,7 +41,7 @@ public class RandomUtils {
 
             return Math.clamp(result + min, min, max);
         } catch (Exception e) {
-            System.out.println("min " + min + " " + "max " + max);
+            // System.out.println("min " + min + " " + "max " + max);
             e.printStackTrace();
         }
         return 0;
@@ -66,7 +66,7 @@ public class RandomUtils {
 
             return Math.clamp(result + min, min, max);
         } catch (Exception e) {
-            System.out.println("min " + min + " " + "max " + max);
+            // System.out.println("min " + min + " " + "max " + max);
             e.printStackTrace();
         }
         return 0;

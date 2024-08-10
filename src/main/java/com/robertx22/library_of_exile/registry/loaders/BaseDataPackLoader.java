@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.registry.loaders;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.robertx22.library_of_exile.main.CommonInit;
 import com.robertx22.library_of_exile.registry.*;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.Watch;
@@ -128,7 +129,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                     }
 
                 } catch (Exception exception) {
-                    System.out.println(key.toString() + " is a broken datapack entry.");
+                    CommonInit.LOGGER.log(key.toString() + " is a broken datapack entry.");
                     JsonExileRegistry.addToErroredJsons(registryType, key);
                     exception.printStackTrace();
                 }

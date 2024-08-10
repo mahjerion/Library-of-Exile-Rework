@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.registry;
 
+import com.robertx22.library_of_exile.main.CommonInit;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ public class FilterListWrap<C extends ExileRegistry> {
 
     public FilterListWrap<C> of(Predicate<C> pred) {
         this.list = list.stream()
-            .filter(pred)
-            .collect(Collectors.toList());
+                .filter(pred)
+                .collect(Collectors.toList());
         return this;
     }
 
@@ -38,7 +39,7 @@ public class FilterListWrap<C extends ExileRegistry> {
 
         if (this.list.isEmpty()) {
             if (errorIfNothingLeft) {
-                System.out.println("Items filtered too much, no possibility left, returning null!");
+                CommonInit.LOGGER.log("Items filtered too much, no possibility left, returning null!");
             }
             return null;
         }

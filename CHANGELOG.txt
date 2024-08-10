@@ -1,2 +1,2 @@
-v.1.4.9
-- changed chest fill mixin from TAIL to HEAD, might fix bugs, might cause bugs..
+v.1.5.0
+- added actual logging

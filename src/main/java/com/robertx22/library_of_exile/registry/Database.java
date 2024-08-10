@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.registry;
 
+import com.robertx22.library_of_exile.main.CommonInit;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
@@ -72,7 +73,7 @@ public class Database {
 
     public static void unregisterInvalidEntries() {
 
-        System.out.println("Starting Mine and Slash Registry auto validation.");
+        //System.out.println("Starting Mine and Slash Registry auto validation.");
 
         List<ExileRegistry> invalid = new ArrayList<>();
 
@@ -88,9 +89,9 @@ public class Database {
         invalid.forEach(x -> x.unregisterDueToInvalidity());
 
         if (invalid.isEmpty()) {
-            System.out.println("All Mine and Slash registries appear valid.");
+            CommonInit.LOGGER.log("All Mine and Slash registries appear valid.");
         } else {
-            System.out.println(invalid.size() + " Mine and Slash entries are INVALID!");
+            CommonInit.LOGGER.log(invalid.size() + " Mine and Slash entries are INVALID!");
         }
 
     }

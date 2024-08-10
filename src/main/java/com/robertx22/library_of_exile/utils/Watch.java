@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.utils;
 
+import com.robertx22.library_of_exile.main.CommonInit;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.Locale;
@@ -38,8 +39,7 @@ public class Watch {
         }
         Long time = stop.getTime(unit);
         if (time > min) {
-            return "Action took: " + time + " " + unit.name()
-                .toLowerCase(Locale.ROOT);
+            return "Action took: " + time + " " + unit.name().toLowerCase(Locale.ROOT);
 
         }
         return "";
@@ -51,8 +51,7 @@ public class Watch {
         stop.stop();
         time = stop.getTime(unit);
         if (time >= min) {
-            System.out.println(str + "Action took: " + time + " " + unit.name()
-                .toLowerCase(Locale.ROOT));
+            CommonInit.LOGGER.log(str + "Action took: " + time + " " + unit.name().toLowerCase(Locale.ROOT));
 
         }
     }
@@ -62,8 +61,7 @@ public class Watch {
         stop.stop();
         time = stop.getTime(unit);
         if (time >= min) {
-            System.out.println("Action took: " + time + " " + unit.name()
-                .toLowerCase(Locale.ROOT));
+            CommonInit.LOGGER.log("Action took: " + time + " " + unit.name().toLowerCase(Locale.ROOT));
 
         }
     }

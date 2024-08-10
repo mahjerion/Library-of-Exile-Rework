@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.registry;
 
+import com.robertx22.library_of_exile.main.CommonInit;
+
 import java.util.Locale;
 
 public interface IGUID {
@@ -12,14 +14,14 @@ public interface IGUID {
 
     public default String getFormatedForLangFile(String str) {
         return str.replaceAll(" ", "_")
-            .toLowerCase(Locale.ROOT)
-            .replaceAll("/", ".")
-            .replaceAll(":", ".");
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("/", ".")
+                .replaceAll(":", ".");
     }
 
     default boolean isGuidFormattedCorrectly() {
         if (GUID() == null) {
-            System.out.println("Null guid detected!!! " + getClass().toString());
+            CommonInit.LOGGER.log("Null guid detected!!! " + getClass().toString());
         }
 
         return isGUIDFormattedCorrectly(GUID());

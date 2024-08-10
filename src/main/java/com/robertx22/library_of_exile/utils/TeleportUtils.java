@@ -19,22 +19,6 @@ public class TeleportUtils {
     public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
         try {
 
-
-            /*
-            ServerLevel world = player.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
-
-            if (world == null) {
-                System.out.println("No world with id: " + dimension);
-                var old = dimension.toString();
-                dimension = Level.OVERWORLD.location();
-                world = player.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
-                if (world.getSharedSpawnPos() != null) {
-                    pos = world.getSharedSpawnPos();
-                }
-                player.sendSystemMessage(Component.literal("Dimension " + old + " not found, will try teleport to Overworld instead"));
-            }
-             */
-
             String command = "/execute in " + dimension.toString() + " run tp " + "@p" +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 

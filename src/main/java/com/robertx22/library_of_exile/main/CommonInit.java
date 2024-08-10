@@ -20,6 +20,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Ref.MODID)
 public class CommonInit {
 
+    public static ExileLog LOGGER = new ExileLog();
+
+
     public CommonInit() {
 
         final IEventBus bus = FMLJavaModLoadingContext.get()
@@ -47,7 +50,6 @@ public class CommonInit {
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
 
 
-        System.out.println("Library of Exile loaded.");
     }
 
     public void interMod(InterModProcessEvent event) {
