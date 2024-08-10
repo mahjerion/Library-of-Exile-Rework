@@ -1,6 +1,6 @@
 package com.robertx22.library_of_exile.registry;
 
-import com.robertx22.library_of_exile.main.CommonInit;
+import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
@@ -89,9 +89,9 @@ public class Database {
         invalid.forEach(x -> x.unregisterDueToInvalidity());
 
         if (invalid.isEmpty()) {
-            CommonInit.LOGGER.log("All Mine and Slash registries appear valid.");
+            ExileLog.get().debug("All Mine and Slash registries appear valid.");
         } else {
-            CommonInit.LOGGER.log(invalid.size() + " Mine and Slash entries are INVALID!");
+            ExileLog.get().warn(invalid.size() + " Mine and Slash entries are INVALID!");
         }
 
     }

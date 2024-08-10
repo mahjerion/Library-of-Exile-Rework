@@ -41,7 +41,7 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
         NOT_LOADED_JSONS_MAP.get(type).add(id);
     }
 
-    ExileLog LOGGER = new ExileLog();
+    ExileLog LOGGER = ExileLog.get();
 
     @Override
     default void compareLoadedJsonAndFinalClass(JsonObject json, Boolean editmode) {

@@ -7,11 +7,16 @@ import org.apache.logging.log4j.util.StackLocatorUtil;
 // always use this to log stuff
 public class ExileLog {
 
-    private final Logger LOGGER;
+    private Logger LOGGER;
 
-    public ExileLog() {
+    private ExileLog(Logger LOGGER) {
+        this.LOGGER = LOGGER;
+    }
+
+    public static ExileLog get() {
         var name = LogManager.getLogger(StackLocatorUtil.getCallerClass(2));
-        this.LOGGER = LogManager.getLogger("Exile Log: " + name.getName());
+        ExileLog b = new ExileLog(LogManager.getLogger("Exile Log: " + name.getName()));
+        return b;
     }
 
     public void warn(String str, Object... obj) {
@@ -20,6 +25,10 @@ public class ExileLog {
 
     public void log(String str, Object... obj) {
         LOGGER.info(str, obj);
+    }
+
+    public void debug(String str, Object... obj) {
+        LOGGER.debug(str, obj);
     }
 
     public void onlyInConsole(String str) {

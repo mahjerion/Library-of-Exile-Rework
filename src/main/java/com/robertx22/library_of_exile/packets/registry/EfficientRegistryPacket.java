@@ -3,7 +3,7 @@ package com.robertx22.library_of_exile.packets.registry;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.robertx22.library_of_exile.main.CommonInit;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.main.MyPacket;
 import com.robertx22.library_of_exile.main.Ref;
 import com.robertx22.library_of_exile.packets.ExilePacketContext;
@@ -79,7 +79,8 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
             x.registerToExileRegistry();
         });
 
-        CommonInit.LOGGER.onlyInConsole("Efficient " + type.id + " reg load on client success with: " + reg.getSize() + " entries.");
+        
+        ExileLog.get().onlyInConsole("Efficient " + type.id + " reg load on client success with: " + reg.getSize() + " entries.");
 
     }
 

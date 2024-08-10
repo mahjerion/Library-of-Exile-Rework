@@ -2,7 +2,7 @@ package com.robertx22.library_of_exile.registry;
 
 import com.google.common.base.Preconditions;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
-import com.robertx22.library_of_exile.main.CommonInit;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.main.LibraryOfExile;
 import com.robertx22.library_of_exile.main.Packets;
 import com.robertx22.library_of_exile.packets.registry.EfficientRegistryPacket;
@@ -289,7 +289,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
     public void addSerializable(C entry) {
         if (serializables.containsKey(entry.GUID())) {
-            CommonInit.LOGGER.log("Entry of type: " + entry.getExileRegistryType().id + " already exists as seriazable: " + entry.GUID());
+            ExileLog.get().warn("Entry of type: " + entry.getExileRegistryType().id + " already exists as seriazable: " + entry.GUID());
         }
         this.serializables.put(entry.GUID(), entry);
         this.unRegister(entry);

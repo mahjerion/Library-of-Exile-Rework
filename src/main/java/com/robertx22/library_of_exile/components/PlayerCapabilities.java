@@ -1,6 +1,6 @@
 package com.robertx22.library_of_exile.components;
 
-import com.robertx22.library_of_exile.main.CommonInit;
+import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -34,7 +34,7 @@ public class PlayerCapabilities {
                             data.deserializeNBT(origcap.serializeNBT());
                             data.syncToClient(current);
                         } else {
-                            CommonInit.LOGGER.log("couldn't get original player's " + x.getName() + " capability");
+                            ExileLog.get().log("couldn't get original player's " + x.getName() + " capability");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

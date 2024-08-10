@@ -1,6 +1,6 @@
 package com.robertx22.library_of_exile.registry;
 
-import com.robertx22.library_of_exile.main.CommonInit;
+import com.robertx22.library_of_exile.main.ExileLog;
 
 import java.util.Locale;
 
@@ -21,7 +21,7 @@ public interface IGUID {
 
     default boolean isGuidFormattedCorrectly() {
         if (GUID() == null) {
-            CommonInit.LOGGER.log("Null guid detected!!! " + getClass().toString());
+            ExileLog.get().warn("Null guid detected!!! " + getClass().toString());
         }
 
         return isGUIDFormattedCorrectly(GUID());

@@ -20,9 +20,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Ref.MODID)
 public class CommonInit {
 
-    public static ExileLog LOGGER = new ExileLog();
-
-
+  
     public CommonInit() {
 
         final IEventBus bus = FMLJavaModLoadingContext.get()

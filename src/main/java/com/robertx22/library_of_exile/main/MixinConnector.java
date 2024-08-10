@@ -7,7 +7,7 @@ public class MixinConnector implements IMixinConnector {
 
     @Override
     public void connect() {
-        CommonInit.LOGGER.log("Connecting " + Ref.MODID + " Mixins");
+        ExileLog.get().debug("Connecting " + Ref.MODID + " Mixins");
         Mixins.addConfiguration(
                 "library_of_exile-mixins.json"
         );
