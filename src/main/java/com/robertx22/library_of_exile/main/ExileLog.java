@@ -6,8 +6,23 @@ import org.apache.logging.log4j.Logger;
 // always use this to log stuff
 public class ExileLog {
 
-    private Logger LOGGER = LogManager.getLogger();
+    private final Logger LOGGER;
 
+    public ExileLog() {
+        this.LOGGER = LogManager.getLogger();
+    }
+
+    public ExileLog(String ref) {
+        this.LOGGER = LogManager.getLogger(ref);
+    }
+
+    public static ExileLog getWithRef(String ref){
+        return new ExileLog(ref);
+    }
+
+    public void warn(String str, Object... obj){
+        LOGGER.warn(str, obj);
+    }
     public void log(String str, Object... obj) {
         LOGGER.info(str, obj);
     }
