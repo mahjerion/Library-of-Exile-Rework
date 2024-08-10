@@ -41,7 +41,7 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
         NOT_LOADED_JSONS_MAP.get(type).add(id);
     }
 
-    ExileLog LOGGER = new ExileLog();
+    ExileLog LOGGER = ExileLog.getWithRef("Mine and Slash");
 
     @Override
     default void compareLoadedJsonAndFinalClass(JsonObject json, Boolean editmode) {
@@ -61,14 +61,15 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
             var v2 = JsonParser.parseString(after.toString());
 
             if (!v1.equals(v2)) {
-                LOGGER.log("\n[Mine and Slash Datapack Warning]: " + this.GUID() + " is different ");
-                LOGGER.log("Json from your datapack:\n");
-                LOGGER.log(json.toString());
-                LOGGER.log("\nJson after it was loaded and turned back into json:\n");
-                LOGGER.log(after.toString());
-                LOGGER.log("\nPlease check for things like wrong field names, missing fields, wrong types used etc.");
-                LOGGER.log("You can copy and paste these jsons into any online Json Comparison/Diff tools see what the difference is. Like: www.jsondiff.com");
-
+                LOGGER.warn("============[Mine and Slash Datapack Check Failed]=================");
+                LOGGER.warn("The file with id " + this.GUID() + " is different after loading");
+                LOGGER.warn("Json from your datapack:");
+                LOGGER.warn(json.toString());
+                LOGGER.warn("Json after it was loaded and turned back into json:");
+                LOGGER.warn(after.toString());
+                LOGGER.warn("Please check for things like wrong field names, missing fields, wrong types used etc.");
+                LOGGER.warn("You can copy and paste these jsons into any online Json Comparison/Diff tools see what the difference is. Like: www.jsondiff.com");
+                LOGGER.warn("===================================================================");
                 addToInvalidJsons(getExileRegistryType(), GUID());
             }
 
