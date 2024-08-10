@@ -1,2 +1,2 @@
-v.1.5.0
-- added actual logging
+v.1.5.1
+- log improvements
