@@ -26,6 +26,24 @@ public class FilterListWrap<C extends ExileRegistry> {
         return this;
     }
 
+    // in 0-100
+    public float getDropChance(C c) {
+        if (!list.contains(c)) {
+            // don't want to error here
+            // ExileLog.get().warn(c.GUID() + " has ZERO dropchance because it's not even inside the LIST");
+            return 0;
+        }
+
+        int weight = c.Weight();
+
+        int total = list.stream().mapToInt(x -> x.Weight()).sum();
+
+        float m = weight / (float) total;
+
+        return m * 100F;
+    }
+
+
     public List<C> list = new ArrayList<C>();
 
     public FilterListWrap<C> of(Predicate<C> pred) {
