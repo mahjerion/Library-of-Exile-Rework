@@ -1,2 +1,2 @@
-v.1.5.1
-- log improvements
+v.1.5.2
+- added some util code
