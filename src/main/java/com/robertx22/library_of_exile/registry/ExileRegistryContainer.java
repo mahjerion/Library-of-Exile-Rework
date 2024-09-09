@@ -101,10 +101,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     private String emptyDefault;
 
     public C getDefault() {
-        if (emptyDefault.isEmpty()) {
-            return null;
-        }
-        return this.map.get(emptyDefault);
+        return this.map.getOrDefault(emptyDefault, null);
     }
 
     private HashMap<String, C> map = new HashMap<>();
