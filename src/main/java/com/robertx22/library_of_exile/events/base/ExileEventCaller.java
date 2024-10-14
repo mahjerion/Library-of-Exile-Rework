@@ -12,6 +12,7 @@ public class ExileEventCaller<T extends ExileEvent> {
     }
 
     public T callEvents(T event) {
+        
         events.forEach(x -> {
             if (!event.canceled) {
                 try {

@@ -20,23 +20,6 @@ public class Database {
                         .isRegistrationDone());
     }
 
-    /*
-    public static void backup() {
-        BACKUP = new HashMap<>(SERVER);
-    }
-
-    public static void restoreBackup() {
-        System.out.print("Restoring registry backup, this should never happen!");
-        SERVER = new HashMap<>(BACKUP); // this doesnt appear to be EVER called.. But unsure if good idea to remove
-    }
-
-    public static void restoreFromBackupifEmpty() {
-        if (SERVER.isEmpty()) {
-            restoreBackup();
-        }
-    }
-
-     */
 
     public static List<ExileRegistryContainer> getAllRegistries() {
         return new ArrayList<>(SERVER.values());

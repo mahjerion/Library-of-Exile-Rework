@@ -1,2 +1,2 @@
 v.1.5.3
-- defaults work now
+- fixed incompat with lootr 

@@ -65,7 +65,9 @@ public class ApiForgeEvents {
 
         registerForgeEvent(LivingEvent.LivingTickEvent.class, event -> {
             LivingEntity entity = event.getEntity();
-
+            if (entity.tickCount == 20) {
+                EntityInfoComponent.get(entity).spawnInit(entity);
+            }
             ExileEvents.LIVING_ENTITY_TICK.callEvents(new ExileEvents.OnEntityTick(entity));
         });
 

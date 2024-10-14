@@ -42,7 +42,7 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
     @Override
     public void loadFromData(FriendlyByteBuf buf) {
 
-        this.type = ExileRegistryType.get(buf.readUtf(40));
+        this.type = ExileRegistryType.get(buf.readUtf());
 
         ISerializable<T> serializer = type.getSerializer();
 
@@ -59,7 +59,7 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
     @Override
     public void saveToData(FriendlyByteBuf buf) {
 
-        buf.writeUtf(type.id, 40);
+        buf.writeUtf(type.id);
         buf.writeVarInt(this.items.size());
         items.forEach(x -> {
             if (x.isFromDatapack()) {
@@ -73,13 +73,11 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
 
         ExileRegistryContainer reg = Database.getRegistry(type);
 
-
         items.forEach(x -> {
             x.unregisterFromExileRegistry();
             x.registerToExileRegistry();
         });
 
-        
         ExileLog.get().onlyInConsole("Efficient " + type.id + " reg load on client success with: " + reg.getSize() + " entries.");
 
     }
