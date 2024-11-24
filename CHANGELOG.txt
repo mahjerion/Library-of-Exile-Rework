@@ -1,2 +1,2 @@
-v.1.5.3
-- fixed incompat with lootr 
+v.1.5.4
+- changed ding sound
