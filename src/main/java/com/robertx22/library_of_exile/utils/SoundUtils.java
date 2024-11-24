@@ -47,7 +47,7 @@ public class SoundUtils {
     }
 
     public static void ding(Level world, BlockPos pos) {
-        SoundUtils.playSound(world, pos, SoundEvents.EXPERIENCE_ORB_PICKUP, 1, 1);
+        SoundUtils.playSound(world, pos, SoundEvents.PLAYER_LEVELUP, 1, 1);
     }
 
 }
