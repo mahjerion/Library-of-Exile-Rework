@@ -30,17 +30,10 @@ run/
 
 # other
 key.properties
+modrinth_key.properties
 cursetoken
 eclipse
 run
 ignore/
 src/generated/
-src/main/resources/assets/mmorpg/textures/items/paid_assets
-src/main/resources/assets/mmorpg/textures/items/PAID_ASSETS
-src/main/resources/assets/mmorpg/textures/items/paidassets
-src/main/resources/assets/mmorpg/textures/items/PAIDASSETS
-src/main/resources/assets/mmorpg/textures/items
-src/main/resources/assets/mmorpg/textures/
-src/main/resources/assets/mmorpg/textures
-src/main/resources/assets/mmorpg/lang/en_us.json
 src/generated
