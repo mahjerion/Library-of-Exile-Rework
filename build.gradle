@@ -1,8 +1,9 @@
+// --- COMMON BUILD SCRIPT START ---
 buildscript {
     repositories {
-        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https://maven.sinytra.org/' } // Wiki
+        maven { url = 'https://maven.parchmentmc.org' } // Mappings
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
@@ -13,120 +14,23 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'java'
     id 'idea'
     id 'maven-publish'
-    id "me.modmuss50.mod-publish-plugin" version "0.3.3"
+    id "me.modmuss50.mod-publish-plugin" version "${publish_plugin_version}"
+    id "org.moddedmc.wiki.toolkit" version "${wiki_toolkit_version}"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+apply from: 'https://raw.githubusercontent.com/RobertSkalko/ModResources/refs/heads/main/1.20.1/common.gradle'
+//apply from: 'https://raw.githubusercontent.com/RobertSkalko/ModResources/refs/heads/main/1.20.1/exile_lib_dep.gradle'
+apply from: 'https://raw.githubusercontent.com/RobertSkalko/ModResources/refs/heads/main/1.20.1/ide_runs.gradle'
+apply from: 'https://raw.githubusercontent.com/RobertSkalko/ModResources/refs/heads/main/1.20.1/meta.gradle'
+apply from: 'https://raw.githubusercontent.com/RobertSkalko/ModResources/refs/heads/main/1.20.1/publishing.gradle'
 
+// --- COMMON BUILD SCRIPT END ---
 
-archivesBaseName = "${mod_archive_name}-${minecraft_version}"
-version = project.mod_version
-group = project.maven_group
-
-repositories {
-    maven { url '"https://maven.theillusivec4.top/' }
-}
-
-
-minecraft {
-
-    mappings channel: "${mapping_channel}", version: "${mapping_version}-${minecraft_version}"
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            arg "-mixin.config=${mod_id}-mixins.json"
-            mods {
-                modid {
-                    source sourceSets.main
-                }
-            }
-        }
-        server {
-            workingDirectory project.file('run')
-            arg "-mixin.config=${mod_id}-mixins.json"
-            mods {
-                modid {
-                    source sourceSets.main
-                }
-            }
-        }
-        data {
-            workingDirectory project.file('run')
-            arg "-mixin.config=${mod_id}-mixins.json"
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', '${mod_id}', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                modid {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-
-dependencies {
-
-    minecraft([
-            group  : "net.minecraftforge",
-            name   : 'forge',
-            version: "$project.minecraft_version-${project.forgeversion}"
-    ])
-    annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
-}
-
-
-jar {
-    manifest {
-        attributes([
-                "MixinConnector": "com.robertx22.${mod_id}.main.MixinConnector",
-                "MixinConfigs"  : "${mod_id}-mixins.json"
-        ])
-    }
-    finalizedBy 'reobfJar'
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-apply plugin: 'org.spongepowered.mixin'
-mixin {
-    add sourceSets.main, "${mod_id}-refmap.json"
-}
-
-publishMods {
-
-    file = jar.archiveFile
-    changelog = file("CHANGELOG.txt").text
-    type = STABLE
-    modLoaders.add("forge")
-
-    curseforge {
-        accessToken = file("key.properties").text
-        projectId = "${curse_id}"
-        displayName = "${mod_archive_name}-${minecraft_version}-v${mod_version}"
-        minecraftVersions.add("${minecraft_version}")
-        minecraftVersions.add("1.20")
-    }
-    modrinth {
-        accessToken = file("modrinth_key.properties").text
-        projectId = "${modrinth_id}"
-        minecraftVersions.add("${minecraft_version}")
-        minecraftVersions.add("1.20")
-    }
-}

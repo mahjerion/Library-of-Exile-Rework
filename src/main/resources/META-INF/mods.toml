@@ -1,19 +1,18 @@
 modLoader = "javafml" #mandatory
 loaderVersion = "[36,)"
 license = "All rights reserved"
-issueTrackerURL = "https://github.com/RobertSkalko/Library-of-Exile-Rework"
+issueTrackerURL = "${mod_issues_link}"
 [[mods]]
-modId = "library_of_exile"
-version = "1.5.5"
-displayName = "Library Of Exile"
-# A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
-#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
-# A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="https://www.curseforge.com/minecraft/mc-mods/library-of-exile"
-logoFile = "icon.png" #
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_display_name}"
+displayURL="${mod_website_link}"
+logoFile = "icon.png"
 credits = ""
 authors = "mcrobertx22"
-description = 'Library mod for Mine and Slash and mine and slash accessories.'
+description = '''
+Library mod for Mine and Slash and mine and slash accessories.
+'''
 [[dependencies.library_of_exile]]
 modId = "forge"
 mandatory = true
