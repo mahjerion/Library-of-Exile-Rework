@@ -6,6 +6,8 @@ import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.main.LibraryOfExile;
 import com.robertx22.library_of_exile.main.Packets;
 import com.robertx22.library_of_exile.packets.registry.EfficientRegistryPacket;
+import com.robertx22.library_of_exile.registry.util.ExileExtraDatas;
+import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
@@ -291,6 +293,8 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         this.serializables.put(entry.GUID(), entry);
         this.unRegister(entry);
         this.register(entry);
+
+        ExileExtraDatas.MODID_OF_SERIAZABLE.get(entry).set(ExileRegistryUtil.CURRENT_MODID_BEING_REGISTERED);
     }
 
     public boolean isEmpty() {

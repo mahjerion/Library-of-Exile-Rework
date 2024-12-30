@@ -3,7 +3,7 @@
   "required": true,
   "package": "com.robertx22.library_of_exile.mixins",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "library_of_exile-refmap.json",
+  "refmap": "library_of_exile.refmap.json",
   "mixins": [
     "ChestLootGenMixin",
     "CommandsMixin",

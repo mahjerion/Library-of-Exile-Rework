@@ -1,2 +1,2 @@
-v.1.5.5
-- changed ding sound back
+v.1.5.7
+- adding new code
