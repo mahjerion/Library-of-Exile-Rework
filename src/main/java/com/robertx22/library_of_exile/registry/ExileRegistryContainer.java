@@ -6,8 +6,8 @@ import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.main.LibraryOfExile;
 import com.robertx22.library_of_exile.main.Packets;
 import com.robertx22.library_of_exile.packets.registry.EfficientRegistryPacket;
-import com.robertx22.library_of_exile.registry.util.ExileExtraDatas;
-import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
+import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
+import com.robertx22.library_of_exile.registry.register_info.RegistrationInfoData;
 import com.robertx22.library_of_exile.utils.RandomUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,6 +25,8 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     private List<String> registersErrorsAlertedFor = new ArrayList<>();
     private List<String> accessorErrosAletedFor = new ArrayList<>();
     private List<String> emptyRegistries = new ArrayList<>();
+
+    public HashMap<String, RegistrationInfoData> registrationInfo = new HashMap<>();
 
     private boolean dataPacksAreRegistered = true;
 
@@ -258,7 +260,10 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         return map.containsKey(guid);
     }
 
-    public void register(C c) {
+
+    public void register(C c, ExileRegistrationInfo info) {
+
+        Preconditions.checkNotNull(info);
 
         if (isRegistered(c)) {
             if (registersErrorsAlertedFor.contains(c.GUID()) == false) {
@@ -270,6 +275,11 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         } else {
             tryLogAddition(c);
             map.put(c.GUID(), c);
+            if (!registrationInfo.containsKey(c.GUID())) {
+                registrationInfo.put(c.GUID(), new RegistrationInfoData());
+            }
+            registrationInfo.get(c.GUID()).onRegister(info);
+
             ExileEvents.ON_REGISTER_TO_DATABASE.callEvents(new ExileEvents.OnRegisterToDatabase(c, type));
         }
 
@@ -286,15 +296,14 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
     }
 
-    public void addSerializable(C entry) {
+    public void addSerializable(C entry, ExileRegistrationInfo info) {
         if (serializables.containsKey(entry.GUID())) {
             ExileLog.get().warn("Entry of type: " + entry.getExileRegistryType().id + " already exists as seriazable: " + entry.GUID());
         }
         this.serializables.put(entry.GUID(), entry);
         this.unRegister(entry);
-        this.register(entry);
+        this.register(entry, info);
 
-        ExileExtraDatas.MODID_OF_SERIAZABLE.get(entry).set(ExileRegistryUtil.CURRENT_MODID_BEING_REGISTERED);
     }
 
     public boolean isEmpty() {

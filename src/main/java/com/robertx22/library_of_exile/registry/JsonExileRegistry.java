@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.robertx22.library_of_exile.main.ExileLog;
+import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,9 +15,8 @@ import java.util.Set;
 
 public interface JsonExileRegistry<T> extends ExileRegistry<T> {
 
-    default void addToSerializables() {
-        Database.getRegistry(getExileRegistryType())
-                .addSerializable(this);
+    default void addToSerializables(ExileRegistrationInfo info) {
+        Database.getRegistry(getExileRegistryType()).addSerializable(this, info);
     }
 
 

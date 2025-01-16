@@ -1,15 +1,20 @@
 package com.robertx22.library_of_exile.registry;
 
 import com.google.gson.JsonObject;
+import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
+import com.robertx22.library_of_exile.registry.register_info.RegistrationInfoData;
 
 public interface ExileRegistry<C> extends IGUID, IWeighted {
 
     ExileRegistryType getExileRegistryType();
 
 
-    default void registerToExileRegistry() {
-        Database.getRegistry(getExileRegistryType())
-                .register(this);
+    default void registerToExileRegistry(ExileRegistrationInfo info) {
+        Database.getRegistry(getExileRegistryType()).register(this, info);
+    }
+
+    default RegistrationInfoData getRegistrationInfo() {
+        return (RegistrationInfoData) Database.getRegistry(getExileRegistryType()).registrationInfo.get(this.GUID());
     }
 
     default void compareLoadedJsonAndFinalClass(JsonObject json, Boolean editmode) {

@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.registry;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.robertx22.library_of_exile.main.ExileLog;
+import com.robertx22.library_of_exile.registry.register_info.ClientSyncRegistration;
 import com.robertx22.library_of_exile.utils.Watch;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class RegistryPackets {
                                 JsonExileRegistry entry = (JsonExileRegistry) type.getSerializer()
                                         .fromJson(x);
                                 entry.unregisterFromExileRegistry();
-                                entry.registerToExileRegistry();
+                                entry.registerToExileRegistry(ClientSyncRegistration.INSTANCE);
 
                             } catch (JsonSyntaxException e) {
                                 ExileLog.get().log("Failed to parse Mine and Slash registry Json!!!");

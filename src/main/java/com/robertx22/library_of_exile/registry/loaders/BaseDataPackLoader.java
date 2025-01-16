@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.*;
+import com.robertx22.library_of_exile.registry.register_info.FromDatapackRegistration;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.Watch;
 import net.minecraft.resources.ResourceLocation;
@@ -110,7 +111,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
 
                     if (!json.has(ENABLED) || json.get(ENABLED).getAsBoolean()) {
                         object.unregisterFromExileRegistry();
-                        object.registerToExileRegistry();
+                        object.registerToExileRegistry(new FromDatapackRegistration(key));
 
                         String infostring = getInfoString(key, type);
                         INFO_MAP.get(registryType).add(infostring);

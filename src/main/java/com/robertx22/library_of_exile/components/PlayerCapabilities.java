@@ -14,6 +14,10 @@ public class PlayerCapabilities {
         caps.put(obj.getCapIdForSyncing(), cap);
     }
 
+    public static void register(Capability<? extends ICap> cap, String syncid) {
+        caps.put(syncid, cap);
+    }
+
     public static void saveAllOnDeath(PlayerEvent.Clone event) {
 
         Player original = event.getOriginal();

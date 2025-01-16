@@ -1,7 +1,6 @@
 package com.robertx22.library_of_exile.registry;
 
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
-import com.robertx22.library_of_exile.registry.util.ExileExtraDatas;
 import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -36,10 +35,9 @@ public class ExileDatapackGenerator<T extends IGUID & ISerializable<T>> extends 
             Path path = gameDirPath();
 
             for (T entry : list) {
-                
+
                 if (entry instanceof ExileRegistry er) {
-                    var data = ExileExtraDatas.MODID_OF_SERIAZABLE.get(er);
-                    if (!ExileRegistryUtil.MODID_TO_GENERATE_DATA.test(data.getModid())) {
+                    if (!ExileRegistryUtil.MODID_TO_GENERATE_DATA.test(er.getRegistrationInfo().modid)) {
                         continue;
                     }
                 }

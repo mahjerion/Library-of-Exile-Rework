@@ -13,13 +13,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Mod.EventBusSubscriber
 public class EntityInfoComponent {
 
     public static final ResourceLocation RESOURCE = new ResourceLocation(Ref.MODID, "entity_info");
@@ -30,15 +26,6 @@ public class EntityInfoComponent {
         return entity.getCapability(INSTANCE).orElse(new EntityInfoComponent.DefaultImpl(entity));
     }
 
-    @Mod.EventBusSubscriber
-    public static class EventHandler {
-        @SubscribeEvent
-        public static void onEntityConstruct(AttachCapabilitiesEvent<Entity> event) {
-            if (event.getObject() instanceof LivingEntity) {
-                event.addCapability(RESOURCE, new DefaultImpl((LivingEntity) event.getObject()));
-            }
-        }
-    }
 
     private static final String DMG_STATS = "dmg_stats";
     private static final String SPAWN_POS = "spawn_pos";

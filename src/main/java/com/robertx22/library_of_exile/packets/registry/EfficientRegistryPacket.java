@@ -11,6 +11,7 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
+import com.robertx22.library_of_exile.registry.register_info.ClientSyncRegistration;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -75,7 +76,7 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
 
         items.forEach(x -> {
             x.unregisterFromExileRegistry();
-            x.registerToExileRegistry();
+            x.registerToExileRegistry(ClientSyncRegistration.INSTANCE);
         });
 
         ExileLog.get().onlyInConsole("Efficient " + type.id + " reg load on client success with: " + reg.getSize() + " entries.");

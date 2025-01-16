@@ -20,9 +20,12 @@ public class ExileRegistryType {
     int order;
     public SyncTime syncTime;
     public String modid;
+    // used for lang file tc
+    public String idWithoutModid;
 
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
         this.modid = modid;
+        this.idWithoutModid = id;
         this.id = modid + "_" + id;
         this.order = order;
         this.ser = ser;
