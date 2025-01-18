@@ -23,6 +23,7 @@ public class ExileRegistryType {
     // used for lang file tc
     public String idWithoutModid;
 
+
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
         this.modid = modid;
         this.idWithoutModid = id;

@@ -5,6 +5,8 @@ import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
 import com.robertx22.library_of_exile.registry.Database;
+import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
+import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.SyncTime;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,8 +22,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Ref.MODID)
 public class CommonInit {
 
-  
+
     public CommonInit() {
+
 
         final IEventBus bus = FMLJavaModLoadingContext.get()
                 .getModEventBus();
@@ -55,6 +58,12 @@ public class CommonInit {
     }
 
     public void commonSetupEvent(FMLCommonSetupEvent event) {
+
+        for (ExileRegistryType type : ExileRegistryType.getAllInRegisterOrder()) {
+            var e = new ExileRegistryEvent(type);
+            ExileEvents.EXILE_REGISTRY_GATHER.callEvents(e);
+        }
+
         Capabilities.reg();
     }
 
