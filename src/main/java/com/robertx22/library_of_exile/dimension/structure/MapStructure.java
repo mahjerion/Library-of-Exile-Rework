@@ -1,9 +1,14 @@
 package com.robertx22.library_of_exile.dimension.structure;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class MapStructure<Map> {
 
@@ -40,6 +45,13 @@ public abstract class MapStructure<Map> {
     public ChunkPos getStartChunkPos(BlockPos pos) {
         var start = getStartChunkPos(new ChunkPos(pos));
         return start;
+    }
+
+    public List<Player> getAllPlayersInMap(Level world, BlockPos pos) {
+        var start = getStartChunkPos(pos);
+        return world.players().stream().filter(x -> {
+            return getStartChunkPos(x.blockPosition()).equals(start);
+        }).collect(Collectors.toList());
     }
 
     public abstract boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos);

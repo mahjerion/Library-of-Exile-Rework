@@ -18,6 +18,10 @@ public class SimplePrebuiltMapData {
     public ResourceLocation getRoomForChunk(ChunkPos pos, MapStructure struc) {
         try {
             ChunkPos relative = struc.getRelativeChunkPosFromStart(pos);
+            if (relative.x < 0 || relative.z < 0) {
+                return null;
+            }
+
             int x = relative.x;
             int z = relative.z;
 

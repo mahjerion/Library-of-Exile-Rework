@@ -8,9 +8,17 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.SyncTime;
+import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -19,19 +27,49 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Locale;
 
 @Mod(Ref.MODID)
 public class CommonInit {
 
+    public static boolean RUN_DEV_TOOLS = false;
+
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Ref.MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TAB = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Ref.MODID);
+
+
+    public static void initDeferred() {
+        final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        ITEMS.register(bus);
+        CREATIVE_TAB.register(bus);
+        BLOCKS.register(bus);
+    }
+
+    public static void registerEntries() {
+
+
+    }
+
 
     public CommonInit() {
 
+        if (RUN_DEV_TOOLS) {
+            ExileRegistryUtil.setCurrentRegistarMod(Ref.MODID);
+
+            ApiForgeEvents.registerForgeEvent(PlayerEvent.PlayerLoggedInEvent.class, event -> {
+                new LibDataGen().run(CachedOutput.NO_CACHE);
+                event.getEntity().sendSystemMessage(Component.literal("WARNING: Dev tools ON!"));
+            });
+        }
+
         // todo make this separate per each mod?   ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MapDimensionConfig.SPEC, defaultConfigName(ModConfig.Type.SERVER, "exile_map_dimensions"));
 
-        final IEventBus bus = FMLJavaModLoadingContext.get()
-                .getModEventBus();
+        final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
 
         bus.addListener(this::commonSetupEvent);
         bus.addListener(this::interMod);
@@ -48,11 +86,13 @@ public class CommonInit {
             Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
         });
 
-     
+
         C2SPacketRegister.register();
         S2CPacketRegister.register();
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
+
+        new LibModConstructor(Ref.MODID, bus);
 
 
     }

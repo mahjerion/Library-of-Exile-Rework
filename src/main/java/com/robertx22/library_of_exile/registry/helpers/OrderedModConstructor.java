@@ -32,7 +32,7 @@ public abstract class OrderedModConstructor {
                 }
             }
         });
-        
+
         for (ExileRegistryEventClass event : this.getRegisterEvents()) {
             event.register();
         }
@@ -42,7 +42,6 @@ public abstract class OrderedModConstructor {
         for (ExileKeyHolder holder : getAllKeyHolders()) {
             holder.init();
         }
-
 
         all.put(modid, this);
     }
