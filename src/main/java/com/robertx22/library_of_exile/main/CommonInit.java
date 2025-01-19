@@ -14,10 +14,13 @@ import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import java.util.Locale;
 
 @Mod(Ref.MODID)
 public class CommonInit {
@@ -25,6 +28,7 @@ public class CommonInit {
 
     public CommonInit() {
 
+        // todo make this separate per each mod?   ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MapDimensionConfig.SPEC, defaultConfigName(ModConfig.Type.SERVER, "exile_map_dimensions"));
 
         final IEventBus bus = FMLJavaModLoadingContext.get()
                 .getModEventBus();
@@ -44,13 +48,18 @@ public class CommonInit {
             Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
         });
 
-
+     
         C2SPacketRegister.register();
         S2CPacketRegister.register();
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
 
 
+    }
+
+    public static String defaultConfigName(ModConfig.Type type, String modId) {
+        // config file name would be "forge-client.toml" and "forge-server.toml"
+        return String.format(Locale.ROOT, "%s-%s.toml", modId, type.extension());
     }
 
     public void interMod(InterModProcessEvent event) {

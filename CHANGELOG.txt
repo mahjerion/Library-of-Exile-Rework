@@ -1,2 +1,2 @@
-v.1.5.8
-- adding code to prepare for new mod
+v.1.6.0
+- adding map dimension config
