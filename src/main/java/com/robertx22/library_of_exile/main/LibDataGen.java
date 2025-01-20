@@ -1,7 +1,7 @@
 package com.robertx22.library_of_exile.main;
 
-import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.localization.ITranslated;
+import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 
@@ -25,8 +25,10 @@ public class LibDataGen implements DataProvider {
         }
         // translations
 
-        LibDatabase.MAP_DATA_BLOCK.getDatapackGenerator().run(pOutput);
-
+        for (ExileRegistryType type : ExileRegistryType.getAllInRegisterOrder()) {
+            type.getDatapackGenerator().run(pOutput);
+        }
+        
         //  ExileLangFile.createFile(OrbsRef.MODID, "");
 
         return CompletableFuture.completedFuture(null); // todo this is bad, but would it work?

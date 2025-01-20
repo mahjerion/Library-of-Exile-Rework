@@ -1,2 +1,2 @@
 v.1.6.0
-- adding map dimension config
+- adding map dimension config and more

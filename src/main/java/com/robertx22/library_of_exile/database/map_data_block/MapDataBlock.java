@@ -6,8 +6,10 @@ import com.robertx22.library_of_exile.custom_ser.GsonCustomSer;
 import com.robertx22.library_of_exile.database.init.ExileCustomSers;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.all.EmptyMBlock;
+import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
+import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -47,6 +49,12 @@ public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, G
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void addToSerializables(ExileRegistrationInfo info) {
+        getSerMap().register(this);
+        Database.getRegistry(this.getExileRegistryType()).addSerializable(this, info);
     }
 
     public abstract void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt);

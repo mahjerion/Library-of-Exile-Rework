@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.custom_ser;
 
 import com.google.gson.JsonObject;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.IAutoGson;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 
@@ -10,7 +11,11 @@ public interface GsonCustomSer<T> extends ICustomSer<T>, ISerializable<T> {
 
     @Override
     default T fromJson(JsonObject json) {
-        GsonCustomSer<T> ser = (GsonCustomSer<T>) getSerMap().map.get(json.get("serializer").getAsString());
+        String serid = json.get("serializer").getAsString();
+        GsonCustomSer<T> ser = (GsonCustomSer<T>) getSerMap().map.get(serid);
+        if (ser == null) {
+            ExileLog.get().warn(serid + " is not an existing serializer");
+        }
         var t = ser.fromJsonNormal(json, ser.getClassForSerialization());
         return t;
     }

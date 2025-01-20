@@ -19,7 +19,7 @@ public interface PredeterminedResult<T> {
 
     public T getPredeterminedRandomINTERNAL(Random random, Level level, ChunkPos pos);
 
-    public default T getPredeterminedRandomINTERNAL(Level level, BlockPos pos) {
+    public default T getPredeterminedRandom(Level level, BlockPos pos) {
         var event = new PredeterminedRandomEvent(getRegistryType(), level, pos);
         ExileEvents.PREDETERMINED_RANDOM.callEvents(event);
 

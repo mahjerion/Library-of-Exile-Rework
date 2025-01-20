@@ -248,6 +248,10 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         return RandomUtils.weightedRandom(this.getList());
     }
 
+    public C random(Double randomDouble) {
+        return RandomUtils.weightedRandom(this.getList(), randomDouble);
+    }
+
     public boolean isRegistered(C c) {
         return isRegistered(c.GUID());
     }

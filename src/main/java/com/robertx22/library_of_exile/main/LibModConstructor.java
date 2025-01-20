@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.LibMapDataBlocks;
+import com.robertx22.library_of_exile.database.mob_list.MobLists;
 import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
 import com.robertx22.library_of_exile.registry.helpers.ExileKeyHolder;
 import com.robertx22.library_of_exile.registry.helpers.OrderedModConstructor;
@@ -23,7 +24,8 @@ public class LibModConstructor extends OrderedModConstructor {
     @Override
     public List<ExileKeyHolder> getAllKeyHolders() {
         return Arrays.asList(
-                LibMapDataBlocks.INSTANCE
+                LibMapDataBlocks.INSTANCE,
+                MobLists.INSTANCE
         );
     }
 
