@@ -16,7 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 public class TeleportBackBlock extends Block {
 
     public TeleportBackBlock() {
-        super(BlockBehaviour.Properties.copy(Blocks.OBSIDIAN));
+        super(BlockBehaviour.Properties.copy(Blocks.OBSIDIAN).noOcclusion());
     }
 
     @Override

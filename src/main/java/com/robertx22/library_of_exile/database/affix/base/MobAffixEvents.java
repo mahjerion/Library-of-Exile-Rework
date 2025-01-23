@@ -18,8 +18,6 @@ public class MobAffixEvents {
                 if (en.level().isClientSide) {
                     return;
                 }
-
-
                 if (en.tickCount == 3) {
                     var e = new GrabMobAffixesEvent(en);
                     ExileEvents.GRAB_MOB_AFFIXES.callEvents(e);

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "library_of_exile:block/teleport_back"
+    }
+  }
+}
