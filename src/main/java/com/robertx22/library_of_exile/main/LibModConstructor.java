@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.main;
 
+import com.robertx22.library_of_exile.database.affix.LibAffixesHolder;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.LibMapDataBlocks;
 import com.robertx22.library_of_exile.database.mob_list.MobLists;
@@ -25,7 +26,8 @@ public class LibModConstructor extends OrderedModConstructor {
     public List<ExileKeyHolder> getAllKeyHolders() {
         return Arrays.asList(
                 LibMapDataBlocks.INSTANCE,
-                MobLists.INSTANCE
+                MobLists.INSTANCE,
+                LibAffixesHolder.INSTANCE
         );
     }
 

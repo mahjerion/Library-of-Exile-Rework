@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.events.base;
 
 import com.google.gson.GsonBuilder;
+import com.robertx22.library_of_exile.database.affix.base.GrabMobAffixesEvent;
 import com.robertx22.library_of_exile.database.init.PredeterminedRandomEvent;
 import com.robertx22.library_of_exile.gson_wrappers.GsonAdapter;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ExileEvents {
 
     public static ExileEventCaller<OnEntityTick> LIVING_ENTITY_TICK = new ExileEventCaller<>();
+    public static ExileEventCaller<GrabMobAffixesEvent> GRAB_MOB_AFFIXES = new ExileEventCaller<>();
     public static ExileEventCaller<ExileRegistryEvent> EXILE_REGISTRY_GATHER = new ExileEventCaller<>();
     public static ExileEventCaller<PredeterminedRandomEvent> PREDETERMINED_RANDOM = new ExileEventCaller<>();
     public static ExileEventCaller<OnMobExpDrop> MOB_EXP_DROP = new ExileEventCaller<>();

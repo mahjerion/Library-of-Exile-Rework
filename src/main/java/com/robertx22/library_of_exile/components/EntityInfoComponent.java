@@ -30,6 +30,7 @@ public class EntityInfoComponent {
     private static final String DMG_STATS = "dmg_stats";
     private static final String SPAWN_POS = "spawn_pos";
     private static final String SPAWN_REASON = "spawn";
+    private static final String MOB_AFFIXES = "mob_affixes";
 
 
     public interface IEntityInfo {
@@ -41,6 +42,8 @@ public class EntityInfoComponent {
         void spawnInit(Entity en);
 
         MySpawnReason getSpawnReason();
+
+        // CurrentMobAffixesData getMobAffixes();
 
         void setSpawnReasonOnCreate(MobSpawnType reason);
     }
@@ -57,6 +60,8 @@ public class EntityInfoComponent {
             }
             return LazyOptional.empty();
         }
+
+        // public CurrentMobAffixesData mobAffixes = new CurrentMobAffixesData();
 
         EntityDmgStatsData dmgStats = new EntityDmgStatsData();
 
@@ -93,6 +98,14 @@ public class EntityInfoComponent {
             return spawnReason == null ? MySpawnReason.OTHER : spawnReason;
         }
 
+        /*
+        @Override
+        public CurrentMobAffixesData getMobAffixes() {
+            return mobAffixes;
+        }
+
+         */
+
         @Override
         public void setSpawnReasonOnCreate(MobSpawnType reason) {
             if (spawnReason == null) {
@@ -112,6 +125,12 @@ public class EntityInfoComponent {
                 if (dmgStats != null) {
                     LoadSave.Save(dmgStats, nbt, DMG_STATS);
                 }
+                /*
+                if (mobAffixes != null) {
+                    LoadSave.Save(mobAffixes, nbt, MOB_AFFIXES);
+                }
+
+                 */
                 if (spawnPos != null) {
                     nbt.putLong(SPAWN_POS, spawnPos.asLong());
                 }
@@ -128,6 +147,15 @@ public class EntityInfoComponent {
         public void deserializeNBT(CompoundTag nbt) {
 
             try {
+
+                /*
+                this.mobAffixes = LoadSave.Load(CurrentMobAffixesData.class, new CurrentMobAffixesData(), nbt, MOB_AFFIXES);
+                if (mobAffixes == null) {
+                    mobAffixes = new CurrentMobAffixesData();
+                }
+
+                 */
+
                 this.dmgStats = LoadSave.Load(EntityDmgStatsData.class, new EntityDmgStatsData(), nbt, DMG_STATS);
                 if (dmgStats == null) {
                     dmgStats = new EntityDmgStatsData();

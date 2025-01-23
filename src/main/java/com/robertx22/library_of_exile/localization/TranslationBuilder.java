@@ -33,7 +33,9 @@ public class TranslationBuilder {
         }
         for (Map.Entry<TranslationType, ExileTranslation> en : all.entrySet()) {
             var tra = en.getValue();
-            ExileLangFile.all.get(modid).put(tra.key, tra);
+            if (!tra.locname.isEmpty()) {
+                ExileLangFile.all.get(modid).put(tra.key, tra);
+            }
         }
     }
 }

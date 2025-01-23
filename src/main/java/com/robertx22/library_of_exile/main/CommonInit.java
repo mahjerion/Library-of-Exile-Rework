@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.components.OnMobDamaged;
+import com.robertx22.library_of_exile.database.affix.base.MobAffixEvents;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
@@ -85,7 +86,7 @@ public class CommonInit {
             ServerPlayer player = x.getPlayer();
             Database.sendPacketsToClient(player, SyncTime.ON_LOGIN);
         });
-
+        MobAffixEvents.init();
 
         C2SPacketRegister.register();
         S2CPacketRegister.register();
