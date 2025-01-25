@@ -21,11 +21,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -192,6 +194,29 @@ public class MapDimensionConfig {
             }
         });
 
+        ApiForgeEvents.registerForgeEvent(ExplosionEvent.Detonate.class, event -> {
+            try {
+                if (!isDimension(mapId, event.getLevel()) || !MapDimensions.isMap(event.getLevel())) {
+                    return;
+                }
+                // we don't want explosions in maps
+                event.getAffectedBlocks().clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        ApiForgeEvents.registerForgeEvent(EntityMobGriefingEvent.class, event -> {
+            try {
+                if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
+                    return;
+                }
+                // we don't want explosions in maps
+                event.setResult(Event.Result.DENY);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.RightClickBlock.class, event -> {
             try {
                 Player p = event.getEntity();

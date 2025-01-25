@@ -40,7 +40,7 @@ public class LibAffixesHolder extends ExileKeyHolder<ExileMobAffix> {
         return new PotionMobAffix(ExileMobAffix.Affects.MOB, x.GUID(), 1000, data, translation);
     });
     public ExileKey<ExileMobAffix, KeyInfo> PERIODIC_LEVITATION = ExileKey.ofId(this, "periodic_levitate", x -> {
-        var data = PotionMobAffix.Data.of5sEvery10s(MobEffects.LEVITATION, new AffixNumberRange(1, 1));
+        var data = PotionMobAffix.Data.of1sEvery10s(MobEffects.LEVITATION, new AffixNumberRange(1, 1));
         var translation = AffixTranslation.ofPotion(Ref.MODID);
         return new PotionMobAffix(ExileMobAffix.Affects.MOB, x.GUID(), 1000, data, translation);
     });

@@ -9,12 +9,14 @@ import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.localization.ExileTranslation;
 import com.robertx22.library_of_exile.localization.ITranslated;
 import com.robertx22.library_of_exile.localization.TranslationBuilder;
+import com.robertx22.library_of_exile.localization.TranslationType;
 import com.robertx22.library_of_exile.main.Ref;
 import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
 import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -92,6 +94,16 @@ public abstract class ExileMobAffix implements JsonExileRegistry<ExileMobAffix>,
     @Override
     public CustomSerializer getSerMap() {
         return ExileCustomSers.MOB_AFFIX;
+    }
+
+    public MutableComponent getPrefixedName(int perc) {
+        var prefix = Component.literal("[").append(
+                        affects.getTranslation(TranslationType.NAME).getTranslatedName())
+                .append("] - ");
+        prefix.withStyle(affects.color);
+
+        var text = prefix.append(getParamName(perc));
+        return text;
     }
 
     @Override

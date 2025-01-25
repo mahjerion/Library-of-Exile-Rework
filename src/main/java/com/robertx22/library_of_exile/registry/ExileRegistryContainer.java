@@ -13,10 +13,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -258,6 +255,15 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
     public boolean isRegistered(String guid) {
         return map.containsKey(guid);
+    }
+
+    public Optional<C> getOptional(String guid) {
+
+        if (isRegistered(guid)) {
+            return java.util.Optional.of(get(guid));
+        }
+
+        return java.util.Optional.empty();
     }
 
     public boolean isExistingSeriazable(String guid) {

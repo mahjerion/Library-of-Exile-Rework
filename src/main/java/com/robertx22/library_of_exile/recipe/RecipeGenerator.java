@@ -35,22 +35,22 @@ public class RecipeGenerator {
 
     }
 
-    protected Path getBasePath() {
+    protected static Path getBasePath() {
         return FMLPaths.GAMEDIR.get();
     }
 
-    protected Path movePath(Path target) {
+    protected static Path movePath(Path target) {
         String movedpath = target.toString();
         movedpath = movedpath.replace("run", "src/generated/resources");
         return Paths.get(movedpath);
     }
 
-    private Path resolve(Path path, String modid, String id) {
+    private static Path resolve(Path path, String modid, String id) {
         return path.resolve("data/" + modid + "/recipes/" + id + ".json");
     }
 
 
-    public void generateAll(CachedOutput cache, String modid) {
+    public static void generateAll(CachedOutput cache, String modid) {
 
         Path path = getBasePath();
 
@@ -66,7 +66,7 @@ public class RecipeGenerator {
     }
 
 
-    private void generate(String modid, Consumer<FinishedRecipe> consumer) {
+    private static void generate(String modid, Consumer<FinishedRecipe> consumer) {
         for (Supplier<RecipeBuilder> b : map.get(modid)) {
             if (b != null && b.get() != null) {
                 b.get().save(consumer);

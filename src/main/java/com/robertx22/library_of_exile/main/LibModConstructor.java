@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.database.affix.LibAffixesHolder;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
+import com.robertx22.library_of_exile.database.invis_block.InvisibleDataTest;
 import com.robertx22.library_of_exile.database.map_data_block.LibMapDataBlocks;
 import com.robertx22.library_of_exile.database.mob_list.MobLists;
 import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
@@ -48,6 +49,8 @@ public class LibModConstructor extends OrderedModConstructor {
 
     @Override
     public void registerDatabaseEntries() {
-        LibDatabase.INSTANCE.registerGatherEvents();
+
+        new InvisibleDataTest().registerToExileRegistry(Ref.REGISTER_INFO.hard);
+        
     }
 }

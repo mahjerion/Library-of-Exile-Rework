@@ -9,7 +9,6 @@ public abstract class ExileDatabaseInit {
     public ExileDatabaseInit(String modid) {
         this.modid = modid;
 
-        this.registerGatherEvents();
     }
 
     // just for adding database types
@@ -18,8 +17,7 @@ public abstract class ExileDatabaseInit {
 
     // it's fine as long as registers are called before mod is done constructing, but here for ease of use
     // should call at mod constructor,as early as possible, and all calls should be lazy
-    public abstract void registerGatherEvents();
-
+    
     public abstract void runDataGen(CachedOutput cache);
 
 

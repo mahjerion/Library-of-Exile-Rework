@@ -31,8 +31,16 @@ public class PotionMobAffix extends ExileMobAffix {
             return new Data(BuiltInRegistries.MOB_EFFECT.getKey(effect).toString(), amp, new AffixNumberRange(20 * 5, 20 * 5), 10);
         }
 
+        public static Data of3sEvery10s(MobEffect effect, AffixNumberRange amp) {
+            return new Data(BuiltInRegistries.MOB_EFFECT.getKey(effect).toString(), amp, new AffixNumberRange(20 * 3, 20 * 3), 10);
+        }
+
+        public static Data of1sEvery10s(MobEffect effect, AffixNumberRange amp) {
+            return new Data(BuiltInRegistries.MOB_EFFECT.getKey(effect).toString(), amp, new AffixNumberRange(20 * 1, 20 * 1), 10);
+        }
+
         public static Data ofPermanent(MobEffect effect, AffixNumberRange amp) {
-            return new Data(BuiltInRegistries.MOB_EFFECT.getKey(effect).toString(), amp, new AffixNumberRange(20 * 10, 20 * 10), 5);
+            return new Data(BuiltInRegistries.MOB_EFFECT.getKey(effect).toString(), amp, new AffixNumberRange(20 * 10, 20 * 10), 10);
         }
 
 

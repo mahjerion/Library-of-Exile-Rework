@@ -23,7 +23,6 @@ public class MobLists extends ExileKeyHolder<MobList> {
         all.add(new MobEntry(1000, EntityType.ZOMBIE));
         all.add(new MobEntry(300, EntityType.SKELETON));
         all.add(new MobEntry(500, EntityType.HUSK));
-        all.add(new MobEntry(10, EntityType.ZOGLIN));
         return new MobList(x.GUID(), 1000, all);
     });
     public ExileKey<MobList, KeyInfo> SPIDER_FOREST = ExileKey.ofId(this, "spider_forest", x -> {
@@ -36,10 +35,9 @@ public class MobLists extends ExileKeyHolder<MobList> {
     });
     public ExileKey<MobList, KeyInfo> NETHER = ExileKey.ofId(this, "nether", x -> {
         List<MobEntry> all = new ArrayList<>();
-        all.add(new MobEntry(700, EntityType.WITHER_SKELETON));
+        all.add(new MobEntry(1000, EntityType.WITHER_SKELETON));
         all.add(new MobEntry(300, EntityType.BLAZE));
-        all.add(new MobEntry(500, EntityType.PIGLIN_BRUTE));
-        all.add(new MobEntry(50, EntityType.ZOMBIFIED_PIGLIN));
+        all.add(new MobEntry(500, EntityType.ZOMBIFIED_PIGLIN));
         all.add(new MobEntry(50, EntityType.GHAST));
         return new MobList(x.GUID(), 1000, all, MobList.Tags.CONTAINS_FLYING_MOBS);
     });

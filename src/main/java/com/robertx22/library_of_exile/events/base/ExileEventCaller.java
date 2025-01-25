@@ -8,11 +8,18 @@ public class ExileEventCaller<T extends ExileEvent> {
 
     List<EventConsumer<T>> events = new ArrayList<>();
 
+    boolean ordered = false;
+
     public ExileEventCaller() {
     }
 
     public T callEvents(T event) {
-        
+
+        if (!ordered) {
+            ordered = true;
+            events.sort(Comparator.comparingInt(x -> x.callOrder()));
+        }
+
         events.forEach(x -> {
             if (!event.canceled) {
                 try {
@@ -27,7 +34,7 @@ public class ExileEventCaller<T extends ExileEvent> {
 
     public void register(EventConsumer<T> t) {
         this.events.add(t);
-        events.sort(Comparator.comparingInt(x -> x.callOrder()));
+        this.ordered = false;
     }
 
 }
