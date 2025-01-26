@@ -20,7 +20,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -98,7 +100,11 @@ public class CommonInit {
 
         new LibModConstructor(Ref.MODID, bus);
 
-
+        ApiForgeEvents.registerForgeEvent(LivingDeathEvent.class, x -> {
+            if (x.getEntity() instanceof ServerPlayer p) {
+                ExileEvents.PLAYER_DEATH.callEvents(new ExileEvents.OnPlayerDeath(p));
+            }
+        }, EventPriority.LOWEST);
     }
 
     public static String defaultConfigName(ModConfig.Type type, String modId) {
