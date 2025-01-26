@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.localization;
 
+import com.robertx22.library_of_exile.main.ExileLog;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,8 +35,10 @@ public class TranslationBuilder {
         }
         for (Map.Entry<TranslationType, ExileTranslation> en : all.entrySet()) {
             var tra = en.getValue();
-            if (!tra.locname.isEmpty()) {
+            if (tra.locname != null && !tra.locname.isEmpty()) {
                 ExileLangFile.all.get(modid).put(tra.key, tra);
+            } else {
+                ExileLog.get().warn(tra.key + " is empty or null!");
             }
         }
     }

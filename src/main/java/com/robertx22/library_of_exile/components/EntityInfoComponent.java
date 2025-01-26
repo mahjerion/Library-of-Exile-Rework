@@ -30,7 +30,7 @@ public class EntityInfoComponent {
     private static final String DMG_STATS = "dmg_stats";
     private static final String SPAWN_POS = "spawn_pos";
     private static final String SPAWN_REASON = "spawn";
-    private static final String MOB_AFFIXES = "mob_affixes";
+    private static final String CUSTOM_SAVE_DATA = "custom_data";
 
 
     public interface IEntityInfo {

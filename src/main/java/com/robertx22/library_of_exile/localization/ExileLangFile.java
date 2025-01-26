@@ -24,7 +24,7 @@ public class ExileLangFile {
 
     public static HashMap<String, HashMap<String, ExileTranslation>> all = new HashMap<>();
 
-    private static void gatherAll() {
+    private static void gatherAll(String modid) {
 
         List<ITranslated> gathered = new ArrayList<>();
 
@@ -51,14 +51,17 @@ public class ExileLangFile {
             }
         }
         for (ITranslated tra : gathered) {
-            tra.createTranslationBuilder().build();
+            var b = tra.createTranslationBuilder();
+            if (b.modid.equals(modid)) {
+                b.build();
+            }
         }
     }
 
 
     public static String createJsonForModid(String modid, String extraManual) {
 
-        gatherAll();
+        gatherAll(modid);
 
         String json = "{\n";
 
