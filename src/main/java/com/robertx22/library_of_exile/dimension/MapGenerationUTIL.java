@@ -10,13 +10,14 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Random;
 
 public class MapGenerationUTIL {
 
     public static Random createRandom(ChunkPos start) {
-        long worldSeed = 0l;
+        long worldSeed = ServerLifecycleHooks.getCurrentServer().getWorldData().worldGenOptions().seed();
         int chunkX = start.x;
         int chunkZ = start.z;
         long newSeed = (worldSeed + (long) (chunkX * chunkX * 4987142) + (long) (chunkX * 5947611) + (long) (chunkZ * chunkZ) * 4392871L + (long) (chunkZ * 389711) ^ worldSeed);

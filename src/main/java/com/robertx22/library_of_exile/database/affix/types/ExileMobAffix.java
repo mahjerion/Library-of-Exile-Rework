@@ -128,7 +128,7 @@ public abstract class ExileMobAffix implements JsonExileRegistry<ExileMobAffix>,
 
     @Override
     public TranslationBuilder createTranslationBuilder() {
-        return TranslationBuilder.of(modid).name(ExileTranslation.registry(modid, this, locName));
+        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, locName));
     }
 
 }

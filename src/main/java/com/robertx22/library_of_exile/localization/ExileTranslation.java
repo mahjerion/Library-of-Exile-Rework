@@ -23,8 +23,9 @@ public class ExileTranslation {
         this.locname = locname;
     }
 
-    public static ExileTranslation registry(String modid, ExileRegistry<?> reg, String locname) {
-        return new ExileTranslation(modid + "." + reg.getExileRegistryType().idWithoutModid + "." + reg.GUID(), locname);
+    // modid here should be from which mod created the registry
+    public static ExileTranslation registry(ExileRegistry<?> reg, String locname) {
+        return new ExileTranslation(reg.getExileRegistryType().modid + "." + reg.getExileRegistryType().idWithoutModid + "." + reg.GUID(), locname);
     }
 
 

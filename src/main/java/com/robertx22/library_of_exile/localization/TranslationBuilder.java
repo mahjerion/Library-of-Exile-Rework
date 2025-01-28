@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class TranslationBuilder {
 
+    // modid is for which mod's lang file this translation goes to
     public String modid;
     public HashMap<TranslationType, ExileTranslation> all = new HashMap<>();
 

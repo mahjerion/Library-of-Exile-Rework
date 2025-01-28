@@ -1,2 +1,2 @@
-v.1.6.2
-- fix crash
+v.1.6.4
+- change translation code so the original datapack type's modid is always used for the lang file
