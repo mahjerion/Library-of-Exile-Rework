@@ -16,7 +16,7 @@ public class MapGameRules extends GameRules {
         if (key == GameRules.RULE_RANDOMTICKING) {
             return 0;
         }
-        return this.getRule(key).get();
+        return rules.getRule(key).get();
     }
 
     @Override
@@ -24,14 +24,18 @@ public class MapGameRules extends GameRules {
         if (key == GameRules.RULE_DOFIRETICK) {
             return false;
         }
+        // todo i wanted to put this too BUT it's buggy! Doesn't work return true;
+/*
+        if (key == GameRules.RULE_KEEPINVENTORY) {
+        }
+ */
         if (key == GameRules.RULE_DO_VINES_SPREAD) {
             return false;
         }
         if (key == GameRules.RULE_MOBGRIEFING) {
             return false;
         }
-
-        return this.getRule(key).get();
+        return rules.getRule(key).get();
     }
 
 }

@@ -52,6 +52,8 @@ public class MapDimensionConfig {
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS; // todo
+    public ForgeConfigSpec.BooleanValue DISABLE_GAMERULE_OVERRIDE; // todo
+    public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE; // todo
 
 
     MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt) {
@@ -80,6 +82,17 @@ public class MapDimensionConfig {
         DESPAWN_INCORRECT_MOBS = b
                 .comment("Despawns or tries to stop spawning of mobs that shouldn't spawn in the dimension")
                 .define("DESPAWN_INCORRECT_MOBS", true);
+
+        DISABLE_GAMERULE_OVERRIDE = b
+                .comment("By default this dimension has its gamerules overrided: firetick: false, random ticks: off, mobgrief: false\n" +
+                        "This config is only here in case this feature causes more urgent bugs.")
+                .define("DISABLE_GAMERULE_OVERRIDE", false);
+
+        DISABLE_WORLDBORDER_OVERRIDE = b
+                .comment("By default this dimension has its worldborder overrided because these dimensions are meant to be infinite.\n" +
+                        "It's recommended to just wipe the dimension's save folder when needed instead as they're not meant to be built in anyway, so wiping them is no problem.\n" +
+                        "This config is only here in case this feature causes more urgent bugs.")
+                .define("DISABLE_WORLDBORDER_OVERRIDE", false);
 
         b.pop();
     }

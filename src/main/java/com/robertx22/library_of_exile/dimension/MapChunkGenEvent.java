@@ -14,6 +14,7 @@ public class MapChunkGenEvent extends ExileEvent {
     public WorldGenRegion world;
 
     public MapChunkGenEvent(RandomState ran, StructureTemplateManager manager, ChunkAccess chunk, WorldGenRegion world, String mapId) {
+
         this.ran = ran;
         this.manager = manager;
         this.chunk = chunk;

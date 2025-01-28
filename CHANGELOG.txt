@@ -1,2 +1,4 @@
-v.1.6.4
-- change translation code so the original datapack type's modid is always used for the lang file
+v.1.6.5
+- fix custom dimension gamerules so it respects original gamerules if its not overriding them
+- overrides worldborder so it makes it do nothing
+- added configs to disable worldborder and gamerule overrides if they're ever buggy in the future
