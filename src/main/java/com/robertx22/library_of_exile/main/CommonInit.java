@@ -39,7 +39,7 @@ import java.util.Locale;
 @Mod(Ref.MODID)
 public class CommonInit {
 
-    public static boolean RUN_DEV_TOOLS = false;
+    public static boolean RUN_DEV_TOOLS = true;
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Ref.MODID);

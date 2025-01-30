@@ -7,6 +7,7 @@ import net.minecraft.network.chat.MutableComponent;
 public class ExileText {
 
     public interface ITranslatable {
+       
         public String getKey();
     }
 

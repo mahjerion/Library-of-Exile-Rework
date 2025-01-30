@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.localization;
 import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistry;
 import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
+import com.robertx22.library_of_exile.tags.ExileTag;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -14,10 +15,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExileLangFile {
@@ -50,12 +48,18 @@ public class ExileLangFile {
                 }
             }
         }
+        for (Map.Entry<String, List<ExileTag>> en : ExileTag.MAP.entrySet()) {
+            for (ExileTag tag : en.getValue()) {
+                gathered.add(tag);
+            }
+        }
         for (ITranslated tra : gathered) {
             var b = tra.createTranslationBuilder();
             if (b.modid.equals(modid)) {
                 b.build();
             }
         }
+
     }
 
 

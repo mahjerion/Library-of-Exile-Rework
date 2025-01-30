@@ -5,15 +5,17 @@ import com.robertx22.library_of_exile.database.init.PredeterminedResult;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.IAutoGson;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
+import com.robertx22.library_of_exile.tags.ExileTagList;
+import com.robertx22.library_of_exile.tags.ITaggable;
+import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList> {
+public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, ITaggable<MobList> {
 
     public static MobList SERIALIZER = new MobList();
 
@@ -29,18 +31,29 @@ public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList> {
         }
     };
 
-    public static class Tags {
-        public static String CONTAINS_FLYING_MOBS = "has_flying_mobs";
-    }
 
-
-    public List<String> tags = new ArrayList<>();
     public String id = "";
     public int weight = 1000;
     public List<MobEntry> mobs = new ArrayList<>();
 
-    public MobList(String id, int weight, List<MobEntry> mobs, String... tags) {
-        this.tags.addAll(Arrays.asList(tags));
+    // tags
+    @Override
+    public ExileTagList<RegistryTag<MobList>> getTags() {
+        return tags;
+    }
+
+    public ExileTagList<RegistryTag<MobList>> tags = new ExileTagList<>() {
+        @Override
+        public RegistryTag<MobList> getInstance() {
+            return (RegistryTag<MobList>) getExileRegistryType().tagType;
+        }
+    };
+    // tags
+
+    public MobList(String id, int weight, List<MobEntry> mobs, RegistryTag<MobList>... tags) {
+        for (RegistryTag<MobList> tag : tags) {
+            this.tags.tags.add(tag.GUID());
+        }
         this.id = id;
         this.weight = weight;
         this.mobs = mobs;

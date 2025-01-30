@@ -14,6 +14,7 @@ public class MobLists extends ExileKeyHolder<MobList> {
 
     public static MobLists INSTANCE = new MobLists(Ref.REGISTER_INFO);
 
+
     public MobLists(ModRequiredRegisterInfo modRegisterInfo) {
         super(modRegisterInfo);
     }
@@ -39,7 +40,7 @@ public class MobLists extends ExileKeyHolder<MobList> {
         all.add(new MobEntry(300, EntityType.BLAZE));
         all.add(new MobEntry(500, EntityType.ZOMBIFIED_PIGLIN));
         all.add(new MobEntry(50, EntityType.GHAST));
-        return new MobList(x.GUID(), 1000, all, MobList.Tags.CONTAINS_FLYING_MOBS);
+        return new MobList(x.GUID(), 1000, all, MobListTags.HAS_FLYING_MOBS);
     });
     public ExileKey<MobList, KeyInfo> EVIL_VILLAGER = ExileKey.ofId(this, "evil_villager", x -> {
         List<MobEntry> all = new ArrayList<>();
@@ -55,7 +56,7 @@ public class MobLists extends ExileKeyHolder<MobList> {
         all.add(new MobEntry(300, EntityType.CREEPER));
         all.add(new MobEntry(50, EntityType.PHANTOM));
         all.add(new MobEntry(500, EntityType.ZOMBIE));
-        return new MobList(x.GUID(), 1000, all, MobList.Tags.CONTAINS_FLYING_MOBS);
+        return new MobList(x.GUID(), 1000, all, MobListTags.HAS_FLYING_MOBS);
     });
 
     @Override

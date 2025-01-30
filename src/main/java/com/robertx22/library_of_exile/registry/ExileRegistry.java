@@ -24,6 +24,9 @@ public interface ExileRegistry<C> extends IGUID, IWeighted {
         Database.getRegistry(getExileRegistryType()).unRegister(this);
     }
 
+    default String getRegistryIdPlusGuid() {
+        return getExileRegistryType().id + ":" + GUID();
+    }
 
     default boolean isEmpty() {
         var db = Database.getRegistry(getExileRegistryType());
