@@ -16,7 +16,7 @@ public class MapWorldBorder extends WorldBorder {
 
     @Override
     public double getDistanceToBorder(Entity pEntity) {
-        return 0; // todo or infinite?
+        return 1000000; // todo or infinite?
     }
 
     @Override

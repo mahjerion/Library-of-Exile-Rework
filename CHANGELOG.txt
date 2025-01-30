@@ -1,2 +1,2 @@
-v.1.6.6
-- fix crash on affix tooltips
+v.1.6.7
+- fix world border on redness on ancient obelisk mod
