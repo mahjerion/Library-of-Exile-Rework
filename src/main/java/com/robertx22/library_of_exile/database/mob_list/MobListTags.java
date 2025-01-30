@@ -10,6 +10,6 @@ public class MobListTags {
 
     // this is boilerplate every mod needs for the tags they use, hm
     private static RegistryTag<MobList> of(String id) {
-        return new RegistryTag<>(Ref.MODID, id, () -> LibDatabase.MOB_LIST);
+        return new RegistryTag<>(Ref.MODID, id, LibDatabase.MOB_LIST.idWithoutModid);
     }
 }

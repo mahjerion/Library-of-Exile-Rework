@@ -9,37 +9,34 @@ import com.robertx22.library_of_exile.registry.IGUID;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class ExileTag implements ITranslated, IGUID {
 
     public static HashMap<String, List<ExileTag>> MAP = new HashMap<>();
-    public static HashMap<String, Function<String, ExileTag>> BUILDER = new HashMap<>();
 
     public String modid;
     public String id;
+    public String type;
 
-    public ExileTag(String modid, String id) {
+    public ExileTag(String modid, String id, String type) {
         this.modid = modid;
         this.id = id;
 
         if (!modid.isEmpty()) {
-            if (!MAP.containsKey(this.getTagType())) {
-                MAP.put(getTagType(), new ArrayList<>());
+            if (!MAP.containsKey(type)) {
+                MAP.put(type, new ArrayList<>());
             }
-            MAP.get(getTagType()).add(this);
-            BUILDER.put(getTagType(), x -> fromTagString(x));
+            MAP.get(type).add(this);
         }
     }
 
-    public abstract String getTagType();
 
     public abstract ExileTag fromTagString(String tag);
 
     @Override
     public TranslationBuilder createTranslationBuilder() {
         String name = capitalise(GUID().replaceAll("_", " "));
-        return TranslationBuilder.of(modid).name(ExileTranslation.of(Ref.MODID + ".tag." + getTagType() + "." + GUID(), name));
+        return TranslationBuilder.of(modid).name(ExileTranslation.of(Ref.MODID + ".tag." + type + "." + GUID(), name));
     }
 
     @Override

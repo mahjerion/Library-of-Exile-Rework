@@ -23,7 +23,8 @@ public class ExileRegistryType {
     public String modid;
     // used for lang file tc
     public String idWithoutModid;
-    public RegistryTag<? extends ExileRegistry<?>> tagType = new RegistryTag<>("", "empty", () -> this);
+
+    public RegistryTag<? extends ExileRegistry<?>> tagType;
 
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
         this.modid = modid;
@@ -32,6 +33,8 @@ public class ExileRegistryType {
         this.order = order;
         this.ser = ser;
         this.syncTime = synctime;
+
+        this.tagType = new RegistryTag<>("", "empty", idWithoutModid);
     }
 
     public static ExileRegistryType get(String id) {

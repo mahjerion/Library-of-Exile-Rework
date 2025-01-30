@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.database.affix.apply_strat.ApplyStrategy;
 import com.robertx22.library_of_exile.database.affix.apply_strat.AttributeApplyStrategy;
 import com.robertx22.library_of_exile.database.affix.base.AffixTranslation;
 import com.robertx22.library_of_exile.util.LazyClass;
+import com.robertx22.library_of_exile.util.LazyStaticContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
@@ -37,21 +38,22 @@ public class AttributeMobAffix extends ExileMobAffix {
 
     public Data data;
 
-    public class Lazy {
-        public transient LazyClass<UUID> lazyUUID = new LazyClass<>(() -> UUID.fromString(data.uuid));
-        public transient LazyClass<Attribute> lazyAttribute = new LazyClass<>(() -> BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation(data.attribute_id)));
-    }
+    public static class Lazy {
+        public transient LazyClass<UUID> lazyUUID;
+        public transient LazyClass<Attribute> lazyAttribute;
 
-    private Lazy lazyNOCALL = null;
-
-    // there must be a better way.. ?
-    public Lazy getLazy() {
-        if (lazyNOCALL == null) {
-            lazyNOCALL = new Lazy();
+        public Lazy(AttributeMobAffix affix) {
+            lazyUUID = new LazyClass<>(() -> UUID.fromString(affix.data.uuid));
+            lazyAttribute = new LazyClass<>(() -> BuiltInRegistries.ATTRIBUTE.get(new ResourceLocation(affix.data.attribute_id)));
         }
-        return lazyNOCALL;
     }
 
+    static LazyStaticContainer<Lazy, AttributeMobAffix> LAZY = new LazyStaticContainer<>(true) {
+        @Override
+        public Lazy createData(AttributeMobAffix obj) {
+            return new Lazy(obj);
+        }
+    };
 
     public AttributeMobAffix(Affects affects, String id, int weight, Data data, AffixTranslation t) {
         super("attribute_mob_affix", affects, id, weight, t);
@@ -62,7 +64,7 @@ public class AttributeMobAffix extends ExileMobAffix {
     public AttributeModifier getModifier(int perc) {
         var num = data.number_range.getNumber(perc);
         AttributeModifier mod = new AttributeModifier(
-                getLazy().lazyUUID.get(),
+                LAZY.get(this).lazyUUID.get(),
                 data.attribute_id,
                 num,
                 data.operation
@@ -73,7 +75,7 @@ public class AttributeMobAffix extends ExileMobAffix {
     public void apply(int perc, LivingEntity en) {
         var mod = getModifier(perc);
 
-        AttributeInstance atri = en.getAttribute(getLazy().lazyAttribute.get());
+        AttributeInstance atri = en.getAttribute(LAZY.get(this).lazyAttribute.get());
         if (atri != null) {
             if (atri.hasModifier(mod)) {
                 atri.removeModifier(mod);
@@ -84,7 +86,7 @@ public class AttributeMobAffix extends ExileMobAffix {
 
     public void remove(LivingEntity en) {
         var mod = getModifier(0);
-        AttributeInstance atri = en.getAttribute(getLazy().lazyAttribute.get());
+        AttributeInstance atri = en.getAttribute(LAZY.get(this).lazyAttribute.get());
         if (atri != null) {
             if (atri.hasModifier(mod)) {
                 atri.removeModifier(mod);
@@ -106,7 +108,7 @@ public class AttributeMobAffix extends ExileMobAffix {
 
     @Override
     public MutableComponent getParamName(int perc) {
-        return getTooltip(getLazy().lazyAttribute.get(), getModifier(perc));
+        return getTooltip(LAZY.get(this).lazyAttribute.get(), getModifier(perc));
 
     }
 
