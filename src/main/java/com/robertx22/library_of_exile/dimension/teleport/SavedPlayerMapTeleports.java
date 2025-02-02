@@ -3,6 +3,8 @@ package com.robertx22.library_of_exile.dimension.teleport;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.utils.TeleportUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +51,11 @@ public class SavedPlayerMapTeleports {
 
 
     public void teleportHome(Player p) {
-        teleport(p, home.getDimensionId(), home.getPos());
+        var dim = home.getDimensionId();
+        if (p.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dim)) == null) {
+            dim = p.getServer().overworld().dimension().location();
+        }
+        teleport(p, dim, home.getPos());
     }
 
     public void teleportToLast(Player p) {

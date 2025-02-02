@@ -24,6 +24,11 @@ public class AffixTranslation {
         return new AffixTranslation(modid, "Gain %1$s %2$s for %3$ss every %4$ss");
     }
 
+    public static AffixTranslation ofPermanentPotion(String modid) {
+        // Gain [Speed]1 [II]2 for [3s] every [10s]
+        return new AffixTranslation(modid, "Permanent %1$s %2$s");
+    }
+
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     public static String formatNumber(float num) {

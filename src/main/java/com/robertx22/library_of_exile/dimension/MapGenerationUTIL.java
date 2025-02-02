@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -15,13 +16,16 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import java.util.Random;
 
 public class MapGenerationUTIL {
-
-    public static Random createRandom(ChunkPos start) {
-        long worldSeed = ServerLifecycleHooks.getCurrentServer().getWorldData().worldGenOptions().seed();
+    public static Random createRandom(Level level, ChunkPos start) {
+        long worldSeed = level.getServer().getWorldData().worldGenOptions().seed();
         int chunkX = start.x;
         int chunkZ = start.z;
         long newSeed = (worldSeed + (long) (chunkX * chunkX * 4987142) + (long) (chunkX * 5947611) + (long) (chunkZ * chunkZ) * 4392871L + (long) (chunkZ * 389711) ^ worldSeed);
         return new Random(newSeed);
+    }
+
+    public static Random createRandom(ChunkPos start) {
+        return createRandom(ServerLifecycleHooks.getCurrentServer().overworld(), start);
     }
 
     public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room) {

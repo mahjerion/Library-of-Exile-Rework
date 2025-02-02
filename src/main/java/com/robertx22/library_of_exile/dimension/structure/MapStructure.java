@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.dimension.structure;
 
+import com.robertx22.library_of_exile.dimension.MapGenerationUTIL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public abstract class MapStructure<Map> {
@@ -25,6 +27,10 @@ public abstract class MapStructure<Map> {
     }
 
     protected abstract ChunkPos INTERNALgetStartChunkPos(ChunkPos cp);
+
+    public Random createRandom(Level level, ChunkPos cp) {
+        return MapGenerationUTIL.createRandom(level, getStartChunkPos(cp));
+    }
 
     public ChunkPos getStartChunkPos(ChunkPos cp) {
         var start = INTERNALgetStartChunkPos(cp);

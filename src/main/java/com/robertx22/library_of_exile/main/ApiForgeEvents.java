@@ -49,6 +49,7 @@ public class ApiForgeEvents {
             // todo is needed? event.setAmount(after.damage);
         }, EventPriority.HIGHEST);
 
+        
         registerForgeEvent(LivingDamageEvent.class, event -> {
             ExileEvents.OnDamageEntity after = ExileEvents.DAMAGE_AFTER_CALC.callEvents(
                     new ExileEvents.OnDamageEntity(event.getSource(), event.getAmount(), event.getEntity())

@@ -18,11 +18,12 @@ public class TeleportUtils {
 
     public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
         try {
-
-            String command = "/execute in " + dimension.toString() + " run tp " + "@p" +
+            // todo is the gameprofile/uuid name correct?
+            String command = "/execute in " + dimension.toString() + " run tp " + player.getStringUUID() +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 
             CommandUtils.execute(player, command);
+
 
         } catch (Exception e) {
             e.printStackTrace();
