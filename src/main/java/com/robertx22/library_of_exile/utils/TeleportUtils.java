@@ -22,6 +22,7 @@ public class TeleportUtils {
             String command = "/execute in " + dimension.toString() + " run tp " + player.getStringUUID() +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 
+            
             CommandUtils.execute(player, command);
 
 

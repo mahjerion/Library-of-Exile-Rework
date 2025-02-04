@@ -42,12 +42,7 @@ public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, 
         return tags;
     }
 
-    public ExileTagList<RegistryTag<MobList>> tags = new ExileTagList<>() {
-        @Override
-        public RegistryTag<MobList> getInstance() {
-            return (RegistryTag<MobList>) getExileRegistryType().tagType;
-        }
-    };
+    public MobListTagsHolder tags = new MobListTagsHolder();
     // tags
 
     public MobList(String id, int weight, List<MobEntry> mobs, RegistryTag<MobList>... tags) {
