@@ -51,6 +51,7 @@ public interface ExileRegistry<C> extends IGUID, IWeighted {
         }
     }
 
+
     default boolean isFromDatapack() {
         return false;
     }

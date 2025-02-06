@@ -1,2 +1,3 @@
-v.1.6.7
-- fix world border on redness on ancient obelisk mod
+v.1.6.10
+- trying to add map connection backend
+- try to fix teleport lag by delaying it by a tick or two

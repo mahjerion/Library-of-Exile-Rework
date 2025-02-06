@@ -26,6 +26,12 @@ public class SavedPlayerMapTeleports {
         return last.get(last.size() - 1);
     }
 
+    void deleteLast() {
+        if (!last.isEmpty()) {
+            last.remove(last.size() - 1);
+        }
+    }
+
     // teleports to maps
     public void entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos) {
         ResourceLocation from = p.level().dimensionTypeId().location();
@@ -60,7 +66,7 @@ public class SavedPlayerMapTeleports {
 
     public void teleportToLast(Player p) {
         teleport(p, getLast().getDimensionId(), getLast().getPos());
-
+        deleteLast();
     }
 
     public void teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos) {

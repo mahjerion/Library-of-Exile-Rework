@@ -48,6 +48,8 @@ public class PlayerDataCapability implements ICap {
     }
 
 
+    public DelayedTeleportData delayedTeleportData = null;
+
     @Override
     public CompoundTag serializeNBT() {
 

@@ -7,6 +7,7 @@ public class MapDimensionInfo {
 
     public ResourceLocation dimensionId;
     public MapStructure structure;
+    public MapContentType contentType = MapContentType.SIDE_CONTENT;
 
     public MapDimensionInfo(ResourceLocation dimensionId, MapStructure structure) {
         this.dimensionId = dimensionId;

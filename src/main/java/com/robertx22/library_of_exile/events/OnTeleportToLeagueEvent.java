@@ -11,6 +11,8 @@ import net.minecraft.server.level.ServerPlayer;
 // if i'm teleporting from a map, add the pos of this tp to the list
 // get map method would check if map has a [world, startpos]
 
+// todo maybe not needed..
+
 public class OnTeleportToLeagueEvent extends ExileEvent {
 
     public ServerPlayer player;

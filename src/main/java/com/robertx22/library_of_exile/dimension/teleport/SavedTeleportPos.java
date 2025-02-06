@@ -18,6 +18,13 @@ public class SavedTeleportPos {
 
     }
 
+    public static SavedTeleportPos from(ResourceLocation dim, BlockPos pos) {
+        SavedTeleportPos d = new SavedTeleportPos();
+        d.pos = pos.asLong();
+        d.dim = dim.toString();
+        return d;
+    }
+
     public void setFrom(Player p) {
         this.pos = p.blockPosition().asLong();
         this.dim = p.level().dimensionTypeId().location().toString();

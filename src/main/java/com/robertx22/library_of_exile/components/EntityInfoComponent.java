@@ -46,6 +46,8 @@ public class EntityInfoComponent {
         // CurrentMobAffixesData getMobAffixes();
 
         void setSpawnReasonOnCreate(MobSpawnType reason);
+
+
     }
 
 
@@ -113,6 +115,7 @@ public class EntityInfoComponent {
             }
         }
 
+    
         @Override
         public EntityDmgStatsData getDamageStats() {
             return dmgStats;

@@ -1,5 +1,8 @@
 package com.robertx22.library_of_exile.dimension.worlddata;
 
+import com.robertx22.library_of_exile.components.AllMapConnectionData;
+import com.robertx22.library_of_exile.components.MapConnectionsCap;
+import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -35,6 +38,7 @@ public class MapPlayerDataSaver<T> {
         return map.containsKey(key);
     }
 
+    //can connect 2 maps with this here?
     public void setData(Player p, T data, MapStructure structure, BlockPos pos) {
 
         // remove the old player map data
@@ -46,6 +50,14 @@ public class MapPlayerDataSaver<T> {
         String key = getKey(start);
         map.put(key, data);
         playerMapIdMap.put(p.getStringUUID(), key);
+
+        // map connections
+        AllMapConnectionData cons = MapConnectionsCap.get(p.level()).data;
+        var origin = MapDimensions.getInfo(p.level());
+        if (origin != null) {
+            var side = MapDimensions.getInfo(structure);
+            cons.tryCreateConnection(origin, p.blockPosition(), side, pos);
+        }
     }
 
     public String getKey(ChunkPos cp) {

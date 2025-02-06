@@ -7,11 +7,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePrebuiltMapData> {
 
-    @Override
-    public String guid() {
-        return "simple_prebuilt_map";
-    }
-
   
     @Override
     public boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos) {

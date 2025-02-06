@@ -16,6 +16,7 @@ public abstract class MapStructure<Map> {
 
     public abstract String guid();
 
+
     public abstract Map getMap(ChunkPos start);
 
     public abstract int getHeight();

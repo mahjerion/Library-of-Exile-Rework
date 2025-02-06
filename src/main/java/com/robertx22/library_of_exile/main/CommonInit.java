@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.components.OnMobDamaged;
 import com.robertx22.library_of_exile.database.affix.base.MobAffixEvents;
+import com.robertx22.library_of_exile.events.ExileLibEvents;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
@@ -95,6 +96,8 @@ public class CommonInit {
 
         C2SPacketRegister.register();
         S2CPacketRegister.register();
+        
+        ExileLibEvents.init();
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
 

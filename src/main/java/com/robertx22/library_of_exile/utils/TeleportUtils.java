@@ -1,5 +1,8 @@
 package com.robertx22.library_of_exile.utils;
 
+import com.robertx22.library_of_exile.components.DelayedTeleportData;
+import com.robertx22.library_of_exile.components.PlayerDataCapability;
+import com.robertx22.library_of_exile.dimension.teleport.SavedTeleportPos;
 import com.robertx22.library_of_exile.vanilla_util.main.VanillaUTIL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -22,9 +25,9 @@ public class TeleportUtils {
             String command = "/execute in " + dimension.toString() + " run tp " + player.getStringUUID() +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 
+            PlayerDataCapability.get(player).delayedTeleportData = new DelayedTeleportData(command, 3, SavedTeleportPos.from(dimension, pos));
             
-            CommandUtils.execute(player, command);
-
+            //CommandUtils.execute(player, command);
 
         } catch (Exception e) {
             e.printStackTrace();
