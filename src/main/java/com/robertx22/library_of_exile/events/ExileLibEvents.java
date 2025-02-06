@@ -16,13 +16,24 @@ public class ExileLibEvents {
             if (p.level().isClientSide || event.phase != TickEvent.Phase.END) {
                 return;
             }
-            var delayed = PlayerDataCapability.get(p).delayedTeleportData;
-            if (delayed != null) {
-                if (!delayed.command.isEmpty()) {
-                    if (delayed.ticks-- < 1) {
-                        delayed.teleport(p);
+            if (!p.isAlive() || p.tickCount < 10) {
+                return;
+            }
+            try {
+                var cap = PlayerDataCapability.get(p);
+                if (cap != null) {
+                    var delayed = PlayerDataCapability.get(p).delayedTeleportData;
+                    if (delayed != null) {
+                        if (!delayed.command.isEmpty()) {
+                            if (delayed.ticks-- < 1) {
+                                delayed.teleport(p);
+                            }
+                        }
                     }
                 }
+            } catch (Exception e) {
+                PlayerDataCapability.get(p).delayedTeleportData = null;
+                e.printStackTrace();
             }
         });
     }
