@@ -67,17 +67,21 @@ public class ExileRegistryType {
         return list;
     }
 
-    public static void registerJsonListeners(AddReloadListenerEvent manager) {
+    // todo remove this after a while,
+    private boolean registeredListener = false;
 
+    public static void registerJsonListeners(AddReloadListenerEvent manager) {
         List<ExileRegistryType> list = new ArrayList<>(all);
         list.sort(Comparator.comparingInt(x -> x.order));
-        list
-                .forEach(x -> {
-                    if (x.getLoader() != null) {
-                        manager.addListener(x.getLoader());
-                        //manager.getListeners().add(x.getLoader()); // todo ??
-                    }
-                });
+        list.forEach(x -> {
+            if (!x.registeredListener) {
+                x.registeredListener = true;
+                if (x.getLoader() != null) {
+                    manager.addListener(x.getLoader());
+                    //manager.getListeners().add(x.getLoader()); // todo ??
+                }
+            }
+        });
     }
 
     public static void init() {

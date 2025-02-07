@@ -20,6 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -96,7 +97,7 @@ public class CommonInit {
 
         C2SPacketRegister.register();
         S2CPacketRegister.register();
-        
+
         ExileLibEvents.init();
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
@@ -108,6 +109,11 @@ public class CommonInit {
                 ExileEvents.PLAYER_DEATH.callEvents(new ExileEvents.OnPlayerDeath(p));
             }
         }, EventPriority.LOWEST);
+
+        // todo this should be here..
+        ApiForgeEvents.registerForgeEvent(AddReloadListenerEvent.class, event -> {
+            ExileRegistryType.registerJsonListeners(event);
+        });
     }
 
     public static String defaultConfigName(ModConfig.Type type, String modId) {

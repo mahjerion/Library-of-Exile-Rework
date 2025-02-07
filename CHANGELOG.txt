@@ -1,2 +1,2 @@
-v.1.6.11
-- fix crash
+v.1.6.12
+- transfered json listeners

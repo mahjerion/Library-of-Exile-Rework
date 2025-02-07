@@ -56,4 +56,18 @@ public class LoadSave {
 
     }
 
+    public static <OBJ> OBJ loadOrBlank(Class theclass, OBJ newobj, CompoundTag nbt, String loc, OBJ blank) {
+        try {
+            OBJ data = Load(theclass, newobj, nbt, loc);
+            if (data == null) {
+                return blank;
+            } else {
+                return data;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return blank;
+    }
+
 }
