@@ -3,6 +3,7 @@ package com.robertx22.library_of_exile.registry;
 import com.robertx22.library_of_exile.registry.loaders.BaseDataPackLoader;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +32,11 @@ public class ExileRegistryType {
         this.ser = ser;
         this.syncTime = synctime;
     }
-    
+
+    public String getModName() {
+        return ModList.get().getModContainerById(modid).get().getModInfo().getDisplayName();
+    }
+
     public static ExileRegistryType get(String id) {
         return map.get(id);
     }

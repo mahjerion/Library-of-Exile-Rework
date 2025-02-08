@@ -61,8 +61,8 @@ public interface JsonExileRegistry<T> extends ExileRegistry<T> {
             var v2 = JsonParser.parseString(after.toString());
 
             if (!v1.equals(v2)) {
-                LOGGER.warn("============[Mine and Slash Datapack Check Failed]=================");
-                LOGGER.warn("The file with id " + this.GUID() + " is different after loading");
+                LOGGER.warn("============[" + getExileRegistryType().getModName() + " Datapack Check Failed]=================");
+                LOGGER.warn("The file with id " + this.getRegistryIdPlusGuid() + " is different after loading");
                 LOGGER.warn("Json from your datapack:");
                 LOGGER.warn(json.toString());
                 LOGGER.warn("Json after it was loaded and turned back into json:");
