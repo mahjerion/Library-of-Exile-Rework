@@ -1,5 +1,12 @@
 {
+	"library_of_exile.map_finish_rar.common": "Common",
+	"library_of_exile.map_finish_rar.epic": "Epic",
+	"library_of_exile.map_finish_rar.legendary": "Legendary",
+	"library_of_exile.map_finish_rar.mythic": "Mythic",
+	"library_of_exile.map_finish_rar.rare": "Rare",
+	"library_of_exile.map_finish_rar.uncommon": "Uncommon",
 	"library_of_exile.potion_mob_affix": "Gain %1$s %2$s for %3$ss every %4$ss",
+	"library_of_exile.tag.null.has_flying_mobs": "Has flying mobs",
 	"library_of_exile.word.mob": "Mob",
 	"library_of_exile.word.player": "Player"
 

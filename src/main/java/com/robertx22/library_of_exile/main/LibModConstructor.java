@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.database.affix.LibAffixesHolder;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.invis_block.InvisibleDataTest;
 import com.robertx22.library_of_exile.database.map_data_block.LibMapDataBlocks;
+import com.robertx22.library_of_exile.database.map_finish_rarity.LibMapFinishRarities;
 import com.robertx22.library_of_exile.database.mob_list.MobLists;
 import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
 import com.robertx22.library_of_exile.registry.helpers.ExileKeyHolder;
@@ -28,7 +29,8 @@ public class LibModConstructor extends OrderedModConstructor {
         return Arrays.asList(
                 LibMapDataBlocks.INSTANCE,
                 MobLists.INSTANCE,
-                LibAffixesHolder.INSTANCE
+                LibAffixesHolder.INSTANCE,
+                LibMapFinishRarities.INSTANCE
         );
     }
 
@@ -51,6 +53,6 @@ public class LibModConstructor extends OrderedModConstructor {
     public void registerDatabaseEntries() {
 
         new InvisibleDataTest().registerToExileRegistry(Ref.REGISTER_INFO.hard);
-        
+
     }
 }
