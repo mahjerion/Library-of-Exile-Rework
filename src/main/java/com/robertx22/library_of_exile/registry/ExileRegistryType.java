@@ -2,7 +2,6 @@ package com.robertx22.library_of_exile.registry;
 
 import com.robertx22.library_of_exile.registry.loaders.BaseDataPackLoader;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
-import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ public class ExileRegistryType {
     // used for lang file tc
     public String idWithoutModid;
 
-    public RegistryTag<? extends ExileRegistry<?>> tagType;
-
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
         this.modid = modid;
         this.idWithoutModid = id;
@@ -33,10 +30,8 @@ public class ExileRegistryType {
         this.order = order;
         this.ser = ser;
         this.syncTime = synctime;
-
-        this.tagType = new RegistryTag<>("", "empty", idWithoutModid);
     }
-
+    
     public static ExileRegistryType get(String id) {
         return map.get(id);
     }

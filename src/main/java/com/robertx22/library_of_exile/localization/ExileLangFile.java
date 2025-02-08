@@ -3,7 +3,7 @@ package com.robertx22.library_of_exile.localization;
 import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistry;
 import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
-import com.robertx22.library_of_exile.tags.ExileTag;
+import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -48,8 +48,8 @@ public class ExileLangFile {
                 }
             }
         }
-        for (Map.Entry<String, List<ExileTag>> en : ExileTag.MAP.entrySet()) {
-            for (ExileTag tag : en.getValue()) {
+        for (Map.Entry<String, List<RegistryTag>> en : RegistryTag.MAP.entrySet()) {
+            for (RegistryTag tag : en.getValue()) {
                 gathered.add(tag);
             }
         }

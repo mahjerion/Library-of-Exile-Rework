@@ -59,6 +59,26 @@ public class MobLists extends ExileKeyHolder<MobList> {
         return new MobList(x.GUID(), 1000, all, MobListTags.HAS_FLYING_MOBS);
     });
 
+    public ExileKey<MobList, KeyInfo> FOREST = ExileKey.ofId(this, "forest", x -> {
+        List<MobEntry> all = new ArrayList<>();
+        all.add(new MobEntry(700, EntityType.CAVE_SPIDER));
+        all.add(new MobEntry(300, EntityType.SPIDER));
+        all.add(new MobEntry(100, EntityType.WITCH));
+        all.add(new MobEntry(150, EntityType.SLIME));
+        return new MobList(x.GUID(), 1000, all, MobListTags.FOREST);
+    });
+
+    public ExileKey<MobList, KeyInfo> MAP_DEFAULT = ExileKey.ofId(this, "map_default", x -> {
+        List<MobEntry> all = new ArrayList<>();
+        all.add(new MobEntry(1000, EntityType.ZOMBIE));
+        all.add(new MobEntry(250, EntityType.SKELETON));
+        all.add(new MobEntry(25, EntityType.WITCH));
+        all.add(new MobEntry(100, EntityType.SLIME));
+        all.add(new MobEntry(100, EntityType.SPIDER));
+        all.add(new MobEntry(100, EntityType.PILLAGER));
+        return new MobList(x.GUID(), 1000, all, MobListTags.MAP);
+    });
+
     @Override
     public void loadClass() {
 

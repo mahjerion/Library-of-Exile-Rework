@@ -1,9 +1,8 @@
 package com.robertx22.library_of_exile.tags;
 
-import com.robertx22.library_of_exile.registry.ExileRegistry;
 import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
 
-public interface ITaggable<T extends ExileRegistry<?>> {
+public interface ITaggable<T extends RegistryTag<?>> {
 
-    public ExileTagList<RegistryTag<T>> getTags();
+    public ExileTagList<T> getTags();
 }

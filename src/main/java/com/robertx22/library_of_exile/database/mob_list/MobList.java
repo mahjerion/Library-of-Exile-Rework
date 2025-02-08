@@ -8,6 +8,7 @@ import com.robertx22.library_of_exile.registry.JsonExileRegistry;
 import com.robertx22.library_of_exile.tags.ExileTagList;
 import com.robertx22.library_of_exile.tags.ITaggable;
 import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
+import com.robertx22.library_of_exile.utils.RandomUtils;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, ITaggable<MobList> {
+public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, ITaggable<MobListTag> {
 
     public static MobList SERIALIZER = new MobList();
 
@@ -36,9 +37,13 @@ public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, 
     public int weight = 1000;
     public List<MobEntry> mobs = new ArrayList<>();
 
+    public MobEntry getRandomMob() {
+        return RandomUtils.weightedRandom(mobs);
+    }
+
     // tags
     @Override
-    public ExileTagList<RegistryTag<MobList>> getTags() {
+    public ExileTagList<MobListTag> getTags() {
         return tags;
     }
 

@@ -6,7 +6,9 @@
 	"library_of_exile.map_finish_rar.rare": "Rare",
 	"library_of_exile.map_finish_rar.uncommon": "Uncommon",
 	"library_of_exile.potion_mob_affix": "Gain %1$s %2$s for %3$ss every %4$ss",
-	"library_of_exile.tag.null.has_flying_mobs": "Has flying mobs",
+	"library_of_exile.tag.mob_list.forest": "Forest",
+	"library_of_exile.tag.mob_list.has_flying_mobs": "Has flying mobs",
+	"library_of_exile.tag.mob_list.map": "Map",
 	"library_of_exile.word.mob": "Mob",
 	"library_of_exile.word.player": "Player"
 
