@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.config.map_dimension;
 
+import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
 import com.robertx22.library_of_exile.main.CommonInit;
@@ -117,7 +118,8 @@ public class MapDimensionConfig {
 
     // registers the config and all map related events, but events only once
     // this way the events wont run if library mod is installed without any mods that use the events
-    public static void register(ResourceLocation mapId, MapDimensionConfigDefaults opt) {
+    public static void register(MapDimensionInfo info, MapDimensionConfigDefaults opt) {
+        ResourceLocation mapId = info.dimensionId;
 
         final Pair<MapDimensionConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(b -> new MapDimensionConfig(b, opt));
         var SPEC = specPair.getRight();
@@ -263,7 +265,7 @@ public class MapDimensionConfig {
             if (!isDimension(mapId, p.level()) || !MapDimensions.isMap(p.level())) {
                 return;
             }
-            ProcessMapChunks.process(p, MapDimensionConfig.get(mapId));
+            ProcessMapChunks.process(p, info, MapDimensionConfig.get(mapId));
         });
 
         List<MobSpawnType> blockedSpawnTypes = Arrays.asList(

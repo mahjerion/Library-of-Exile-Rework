@@ -6,16 +6,17 @@ import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 
-// todo this breaks if there's multiple structures in 1 dimension, but might not be needed
 public class MapDimensions {
 
     // this way I can keep track of what dimensions are maps
     private static HashMap<String, MapDimensionInfo> map = new HashMap<>();
 
+  
     public static boolean isMap(ResourceLocation id) {
         return map.getOrDefault(id.toString(), null) != null;
     }
 
+    /*
     public static MapContentType getContentType(Level world) {
         return getContentType(world.dimensionTypeId().location());
     }
@@ -28,6 +29,7 @@ public class MapDimensions {
         }
         return info.contentType;
     }
+     */
 
     public static boolean isMap(Level world) {
         return isMap(world.dimensionTypeId().location());

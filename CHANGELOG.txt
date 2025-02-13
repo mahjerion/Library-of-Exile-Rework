@@ -1,2 +1,2 @@
-v.1.6.12
-- transfered json listeners
+v.2.0.0
+- starting refactor

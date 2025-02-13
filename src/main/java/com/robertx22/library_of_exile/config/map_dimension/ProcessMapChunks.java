@@ -1,7 +1,9 @@
 package com.robertx22.library_of_exile.config.map_dimension;
 
+import com.robertx22.library_of_exile.components.LibChunkCap;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
+import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +38,7 @@ public class ProcessMapChunks {
         return all;
     }
 
-    public static void process(Player p, MapDimensionConfig config) {
+    public static void process(Player p, MapDimensionInfo info, MapDimensionConfig config) {
 
         var chunks = getChunksInRadius(p, config);
         var level = p.level();
@@ -49,16 +51,15 @@ public class ProcessMapChunks {
 
             // todo do i even need this? Is grabbing tile entities once a second laggy enough to warrant making sure its only done once per chunk?
             if (c instanceof LevelChunk chunk) {
-
                 //var chunkdata = Load.chunkData(chunk);
+                var cap = chunk.getCapability(LibChunkCap.INSTANCE).orElse(new LibChunkCap(chunk));
 
-                if (true) {
+                if (!cap.mapGenData.generatedData(info.structure)) {
+                    cap.mapGenData.setGeneratedData(info.structure);
                     generateData(level, chunk);
                     //chunkdata.generatedMobs = true;
                 }
             }
-
-
         }
 
     }

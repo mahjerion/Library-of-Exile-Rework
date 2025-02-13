@@ -7,7 +7,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePrebuiltMapData> {
 
-  
+
     @Override
     public boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos) {
 
@@ -16,7 +16,7 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
 
         var room = pieces.getRoomForChunk(cpos, this);
         if (room != null) {
-            return MapGenerationUTIL.spawnStructure(level, cpos, man, getHeight(), room);
+            return MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room);
         }
         return true;
     }

@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.dimension.structure;
 
 import com.robertx22.library_of_exile.dimension.MapGenerationUTIL;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -16,14 +17,21 @@ public abstract class MapStructure<Map> {
 
     public abstract String guid();
 
-
     public abstract Map getMap(ChunkPos start);
 
-    public abstract int getHeight();
+    public abstract int getSpawnHeight();
+
+    public final int getStructureHeight() {
+        return 48;
+    }
+
+    public boolean isInside(ServerLevel level, BlockPos pos) {
+        return pos.getY() >= getSpawnHeight() && pos.getY() <= (getSpawnHeight() + getStructureHeight());
+    }
 
     public BlockPos getSpawnTeleportPos(BlockPos pos) {
-        BlockPos p = getStartChunkPos(pos).getMiddleBlockPosition(getHeight() + 5);
-        p = new BlockPos(p.getX(), getHeight() + 5, p.getZ());
+        BlockPos p = getStartChunkPos(pos).getMiddleBlockPosition(getSpawnHeight() + 5);
+        p = new BlockPos(p.getX(), getSpawnHeight() + 5, p.getZ());
         return p;
     }
 

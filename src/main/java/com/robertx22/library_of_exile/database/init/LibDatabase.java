@@ -1,7 +1,9 @@
 package com.robertx22.library_of_exile.database.init;
 
 import com.robertx22.library_of_exile.database.affix.types.ExileMobAffix;
+import com.robertx22.library_of_exile.database.extra_map_content.MapContent;
 import com.robertx22.library_of_exile.database.invis_block.InvisibleData;
+import com.robertx22.library_of_exile.database.league.League;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.database.map_finish_rarity.MapFinishRarity;
 import com.robertx22.library_of_exile.database.mob_list.MobList;
@@ -21,6 +23,8 @@ public class LibDatabase extends ExileDatabaseInit {
     public static ExileRegistryType MOB_AFFIX = ExileRegistryType.register(Ref.MODID, "mob_affix", 0, ExileMobAffix.SERIALIZER, SyncTime.ON_LOGIN);
     public static ExileRegistryType INVISIBLE_DATA = ExileRegistryType.register(Ref.MODID, "invisible_data", 0, null, SyncTime.NEVER);
     public static ExileRegistryType MAP_FINISH_RARITY = ExileRegistryType.register(Ref.MODID, "map_finish_rar", 0, MapFinishRarity.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType MAP_CONTENT = ExileRegistryType.register(Ref.MODID, "map_content", 0, MapContent.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType LEAGUE = ExileRegistryType.register(Ref.MODID, "league", 0, null, SyncTime.NEVER);
 
     public LibDatabase(String modid) {
         super(modid);
@@ -34,7 +38,17 @@ public class LibDatabase extends ExileDatabaseInit {
         Database.addRegistry(new ExileRegistryContainer<>(MOB_AFFIX, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(INVISIBLE_DATA, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(MAP_FINISH_RARITY, "common"));
+        Database.addRegistry(new ExileRegistryContainer<>(MAP_CONTENT, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(LEAGUE, "empty"));
 
+    }
+
+    public static ExileRegistryContainer<League> Leagues() {
+        return Database.getRegistry(LEAGUE);
+    }
+
+    public static ExileRegistryContainer<MapContent> MapContent() {
+        return Database.getRegistry(MAP_CONTENT);
     }
 
     public static ExileRegistryContainer<MapFinishRarity> MapFinishRarity() {

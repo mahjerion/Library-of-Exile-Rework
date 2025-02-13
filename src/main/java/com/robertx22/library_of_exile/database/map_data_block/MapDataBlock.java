@@ -6,6 +6,7 @@ import com.robertx22.library_of_exile.custom_ser.GsonCustomSer;
 import com.robertx22.library_of_exile.database.init.ExileCustomSers;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.all.EmptyMBlock;
+import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
@@ -41,10 +42,12 @@ public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, G
 
         if (id_match_type == IdMatchType.EQUALS && (this.id.equals(key) || aliases.contains(key))) {
             processImplementationINTERNAL(key, pos, world, nbt);
+            ExileEvents.PROCESS_DATA_BLOCK.callEvents(new ExileEvents.OnProcessMapDataBlock(this, key, pos, world, nbt));
             // trySpawnLeagueMechanicIfCan(map, world, pos);
             return true;
         } else if (id_match_type == IdMatchType.CONTAINS && (this.id.contains(key) || aliases.stream().anyMatch(key::contains))) {
             processImplementationINTERNAL(key, pos, world, nbt);
+            ExileEvents.PROCESS_DATA_BLOCK.callEvents(new ExileEvents.OnProcessMapDataBlock(this, key, pos, world, nbt));
             // trySpawnLeagueMechanicIfCan(map, world, pos);
             return true;
         }

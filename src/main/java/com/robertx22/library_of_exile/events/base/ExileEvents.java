@@ -3,16 +3,19 @@ package com.robertx22.library_of_exile.events.base;
 import com.google.gson.GsonBuilder;
 import com.robertx22.library_of_exile.database.affix.base.GrabMobAffixesEvent;
 import com.robertx22.library_of_exile.database.init.PredeterminedRandomEvent;
+import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.gson_wrappers.GsonAdapter;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 
@@ -43,6 +46,8 @@ public class ExileEvents {
     public static ExileEventCaller<IsEntityKilledValid> IS_KILLED_ENTITY_VALID = new ExileEventCaller<>();
     public static ExileEventCaller<OnRegisterToDatabase> ON_REGISTER_TO_DATABASE = new ExileEventCaller<>();
     public static ExileEventCaller<DatapackGsonAdapterEvent> DATAPACK_GSON_ADAPTER_REGISTRY = new ExileEventCaller<>();
+    public static ExileEventCaller<OnProcessMapDataBlock> PROCESS_DATA_BLOCK = new ExileEventCaller<>();
+
     // todo maybe i can add adapters to this and save stuff like registry strings into wrapper classes??
 
     public static class DatapackGsonAdapterEvent extends ExileEvent {
@@ -93,6 +98,23 @@ public class ExileEvents {
 
         public OnCheckIsDevToolsRunning() {
 
+        }
+    }
+
+    public static class OnProcessMapDataBlock extends ExileEvent {
+        public MapDataBlock dataBlock;
+        public String key;
+        public BlockPos pos;
+        public Level world;
+        public CompoundTag nbt;
+
+
+        public OnProcessMapDataBlock(MapDataBlock dataBlock, String key, BlockPos pos, Level world, CompoundTag nbt) {
+            this.dataBlock = dataBlock;
+            this.key = key;
+            this.pos = pos;
+            this.world = world;
+            this.nbt = nbt;
         }
     }
 
