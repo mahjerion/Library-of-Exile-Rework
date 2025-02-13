@@ -16,7 +16,7 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
 
         var room = pieces.getRoomForChunk(cpos, this);
         if (room != null) {
-            return MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room);
+            return MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room, false);
         }
         return true;
     }

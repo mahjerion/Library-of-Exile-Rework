@@ -50,6 +50,7 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.ConfigValue<String> ALLOWED_BLOCK_BREAK_TAG;
     public ForgeConfigSpec.ConfigValue<String> DISABLED_BLOCK_INTERACT_TAG;
     public ForgeConfigSpec.ConfigValue<String> BANNED_ITEMS_TAG;
+    public ForgeConfigSpec.ConfigValue<String> DEFAULT_DATA_BLOCK;
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS; // todo
@@ -60,6 +61,10 @@ public class MapDimensionConfig {
     MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt) {
         b.comment("Map Dimension Config")
                 .push("general");
+
+        DEFAULT_DATA_BLOCK = b
+                .comment("Sometimes structures have old/wrong data blocks, instead of skipping them, we can instead use them to spawn a replacement.\nBy default, a small mob pack will spawn instead.\nAdvised to leave this as is")
+                .define("DEFAULT_DATA_BLOCK", "mob");
 
         ALLOWED_BLOCK_BREAK_TAG = b
                 .comment("Blocks in this tag will be breakable. This config isn't meant to be edited! Edit the tag datapack instead!\nUse this for stuff like Grave mod blocks")
@@ -259,13 +264,16 @@ public class MapDimensionConfig {
             if (p.tickCount % 20 != 0) {
                 return;
             }
+            if (p.tickCount < 20) {
+                return;
+            }
             if (p.level().isClientSide || event.phase != TickEvent.Phase.END) {
                 return;
             }
             if (!isDimension(mapId, p.level()) || !MapDimensions.isMap(p.level())) {
                 return;
             }
-            ProcessMapChunks.process(p, info, MapDimensionConfig.get(mapId));
+            ProcessMapChunks.process(p, info, MapDimensionConfig.get(mapId), ChunkProcessType.NORMAL);
         });
 
         List<MobSpawnType> blockedSpawnTypes = Arrays.asList(

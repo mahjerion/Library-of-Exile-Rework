@@ -10,40 +10,53 @@ import java.util.Optional;
 
 public class CurrentLeague {
 
-    public MapDimensionInfo map;
+    // your map dimension
+    public MapDimensionInfo dimension;
     // if youre in a boss room for example
-    public MapStructure structureCurrentlyIn;
-    // if youre in secondary content inside a dim, you will be affected by the primary content, if in a boss room, youre affected by the adventure map
-    public MapStructure structureAffectedBy;
+    public Optional<MapStructure> structure;
+    // in case you are in side content and connected to primary content
+    public Optional<AllMapConnectionData.Data> connectedFrom = Optional.empty();
 
+
+    public CurrentLeague(MapDimensionInfo dimension, Optional<MapStructure> structure, Optional<AllMapConnectionData.Data> connectedFrom) {
+        this.dimension = dimension;
+        this.structure = structure;
+        this.connectedFrom = connectedFrom;
+    }
+    
+    // 5 options:
+    // 1) you are in a map dimension, inside a structure and connected to another map
+    // 2) you are in a map dimension, inside a structure, but not connected to anything
+    // 3) you are in a map dimension, but not inside a structure, meaning you're probably bugged out
+    // 5) you are in a map dimension, but not inside a structure, meaning you're probably bugged out but your map is connected
+    // 6) you are not in a map dimension
     public static Optional<CurrentLeague> get(ServerLevel level, BlockPos pos) {
         var info = MapDimensions.getInfo(level);
 
         if (info != null) {
             if (info.isInside(info.structure, level, pos)) {
-                return Optional.of(new CurrentLeague(info, info.structure, info.structure));
+                return Optional.of(new CurrentLeague(info, Optional.of(info.structure), getConnectedMap(level, pos)));
             }
             var opt = info.secondaryStructures.stream().filter(x -> info.isInside(x, level, pos)).findAny();
 
             if (opt.isPresent()) {
-                return Optional.of(new CurrentLeague(info, opt.get(), info.structure));
+                return Optional.of(new CurrentLeague(info, Optional.of(opt.get()), getConnectedMap(level, pos)));
+            } else {
+                return Optional.of(new CurrentLeague(info, Optional.empty(), getConnectedMap(level, pos)));
             }
         }
         return Optional.empty();
     }
 
 
-    private CurrentLeague(MapDimensionInfo map, MapStructure structureCurrentlyIn, MapStructure structureAffectedBy) {
-        this.map = map;
-        this.structureCurrentlyIn = structureCurrentlyIn;
-        this.structureAffectedBy = structureAffectedBy;
-    }
-
     public boolean isAffectedBy(MapDimensionInfo info) {
-        return info.hasStructure(structureAffectedBy) || info.hasStructure(structureAffectedBy);
+        if (structure.isPresent() && info.hasStructure(structure.get())) {
+            return true;
+        }
+        return info.hasStructure(dimension.structure);
     }
 
-    public Optional<AllMapConnectionData.Data> getConnectedMap(ServerLevel level, BlockPos pos) {
+    public static Optional<AllMapConnectionData.Data> getConnectedMap(ServerLevel level, BlockPos pos) {
         AllMapConnectionData cons = MapConnectionsCap.get(level).data;
         var data = cons.getOriginalMap(level, pos);
         return Optional.ofNullable(data);

@@ -28,7 +28,7 @@ public class MapGenerationUTIL {
         return createRandom(ServerLifecycleHooks.getCurrentServer().overworld(), start);
     }
 
-    public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room) {
+    public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room, boolean errorIfMissing) {
 
         try {
 
@@ -40,14 +40,19 @@ public class MapGenerationUTIL {
                 BlockPos position = cpos.getBlockAt(0, y, 0);
 
                 if (template == null) {
-                    ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
+                    if (errorIfMissing) {
+                        ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
+                    }
                     return false;
                 }
                 settings.setRotation(Rotation.NONE);
 
                 template.placeInWorld(level, position, position, settings, level.getRandom(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             } else {
-                ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
+                if (errorIfMissing) {
+
+                    ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
+                }
                 return false;
             }
 

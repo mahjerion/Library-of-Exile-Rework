@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.robertx22.library_of_exile.database.affix.base.GrabMobAffixesEvent;
 import com.robertx22.library_of_exile.database.init.PredeterminedRandomEvent;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
+import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.gson_wrappers.GsonAdapter;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
@@ -15,6 +16,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -47,8 +49,21 @@ public class ExileEvents {
     public static ExileEventCaller<OnRegisterToDatabase> ON_REGISTER_TO_DATABASE = new ExileEventCaller<>();
     public static ExileEventCaller<DatapackGsonAdapterEvent> DATAPACK_GSON_ADAPTER_REGISTRY = new ExileEventCaller<>();
     public static ExileEventCaller<OnProcessMapDataBlock> PROCESS_DATA_BLOCK = new ExileEventCaller<>();
+    public static ExileEventCaller<OnProcessChunkData> PROCESS_CHUNK_DATA = new ExileEventCaller<>();
 
     // todo maybe i can add adapters to this and save stuff like registry strings into wrapper classes??
+
+    public static class OnProcessChunkData extends ExileEvent {
+        public Player p;
+        public MapStructure struc;
+        public ChunkPos cp;
+
+        public OnProcessChunkData(Player p, MapStructure struc, ChunkPos cp) {
+            this.p = p;
+            this.struc = struc;
+            this.cp = cp;
+        }
+    }
 
     public static class DatapackGsonAdapterEvent extends ExileEvent {
         public GsonBuilder b;
@@ -62,6 +77,7 @@ public class ExileEvents {
         }
 
     }
+
 
     public static class OnEntityTick extends ExileEvent {
         public LivingEntity entity;

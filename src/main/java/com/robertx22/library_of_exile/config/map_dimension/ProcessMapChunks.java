@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.components.LibChunkCap;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
+import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +39,7 @@ public class ProcessMapChunks {
         return all;
     }
 
-    public static void process(Player p, MapDimensionInfo info, MapDimensionConfig config) {
+    public static void process(Player p, MapDimensionInfo info, MapDimensionConfig config, ChunkProcessType type) {
 
         var chunks = getChunksInRadius(p, config);
         var level = p.level();
@@ -49,22 +50,21 @@ public class ProcessMapChunks {
             }
             ChunkAccess c = level.getChunk(cpos.x, cpos.z);
 
-            // todo do i even need this? Is grabbing tile entities once a second laggy enough to warrant making sure its only done once per chunk?
             if (c instanceof LevelChunk chunk) {
                 //var chunkdata = Load.chunkData(chunk);
                 var cap = chunk.getCapability(LibChunkCap.INSTANCE).orElse(new LibChunkCap(chunk));
 
                 if (!cap.mapGenData.generatedData(info.structure)) {
                     cap.mapGenData.setGeneratedData(info.structure);
-                    generateData(level, chunk);
-                    //chunkdata.generatedMobs = true;
+                    generateData(level, chunk, type);
+                    ExileEvents.PROCESS_CHUNK_DATA.callEvents(new ExileEvents.OnProcessChunkData(p, info.structure, cpos));
                 }
             }
         }
 
     }
 
-    public static void generateData(Level level, LevelChunk chunk) {
+    public static void generateData(Level level, LevelChunk chunk, ChunkProcessType type) {
 
         CompoundTag data = new CompoundTag();
 
@@ -76,27 +76,43 @@ public class ProcessMapChunks {
 
                 boolean any = false;
 
+                boolean skip = false;
+
                 for (MapDataBlock processor : LibDatabase.MapDataBlocks().getList()) {
+                    if (processor.matches(text, tilePos, level, data)) {
+                        if (processor.process_on != type) {
+                            skip = true;
+                            break;
+                        }
+                    }
                     boolean did = processor.process(text, tilePos, level, data);
                     if (did) {
                         any = true;
                     }
                 }
+                if (!skip) {
+                    if (any) {
+                        // only set to air if the processor didnt turn it into another block
+                        if (level.getBlockState(tilePos).getBlock() == Blocks.STRUCTURE_BLOCK || level.getBlockState(tilePos).getBlock() == Blocks.COMMAND_BLOCK) {
+                            level.removeBlockEntity(tilePos);
+                            level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL); // delete data block
+                        }
+                    } else {
+                        level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                        boolean oldComplex = text.contains("spawn") && text.contains(";");
 
-                if (any) {
-                    // only set to air if the processor didnt turn it into another block
-                    if (level.getBlockState(tilePos).getBlock() == Blocks.STRUCTURE_BLOCK || level.getBlockState(tilePos).getBlock() == Blocks.COMMAND_BLOCK) {
-                        level.removeBlockEntity(tilePos);
-                        level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL); // delete data block
+                        if (!oldComplex) {
+                            // let's not error on these..
+                            ExileLog.get().warn("Data block with id: " + text + " matched no processors! " + tilePos.toString());
+                        }
+                        var config = MapDimensionConfig.get(level.dimensionTypeId().location());
+                        if (config != null) {
+                            LibDatabase.MapDataBlocks().get(config.DEFAULT_DATA_BLOCK.get()).process(text, tilePos, level, data);
+                        }
                     }
 
-                } else {
-                    level.setBlock(tilePos, Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
-                    ExileLog.get().warn("Data block with tag: " + text + " matched no processors! " + tilePos.toString());
-                    //logRoomForPos(level, tilePos);
                 }
             }
-
 
         }
     }

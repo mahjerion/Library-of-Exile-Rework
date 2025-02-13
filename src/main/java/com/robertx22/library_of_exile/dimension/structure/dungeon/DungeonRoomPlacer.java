@@ -67,14 +67,6 @@ public class DungeonRoomPlacer {
             return false;
         }
 
-        // todo make an event for thsi
-        /*
-        if (!room.room.isBarrier) {
-            // we make sure only valid rooms are added to the total
-            mapData.leagues.totalGenDungeonChunks++;
-        }
-         */
-
         BlockPos position = cpos.getBlockAt(0, 50, 0);
         generatePiece(world, position, world.getRandom(), room.data.rotation, room.getStructure());
         return true;

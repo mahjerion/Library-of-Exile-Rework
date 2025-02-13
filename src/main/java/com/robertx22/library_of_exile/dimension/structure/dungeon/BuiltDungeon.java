@@ -111,7 +111,6 @@ public class BuiltDungeon {
 
     public void setupBarriers() {
 
-
         BuiltRoom built = BuiltRoom.getBarrier();
 
         // add barriers to edges
@@ -127,6 +126,7 @@ public class BuiltDungeon {
 
     public void fillWithBarriers() {
 
+        /*
         BuiltRoom built = BuiltRoom.getBarrier();
 
         for (int i = 0; i < rooms.length; i++) {
@@ -136,6 +136,7 @@ public class BuiltDungeon {
                 }
             }
         }
+         */
 
     }
 
