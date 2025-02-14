@@ -14,6 +14,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityMobGriefingEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
@@ -53,13 +55,14 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.ConfigValue<String> DEFAULT_DATA_BLOCK;
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
-    public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS; // todo
-    public ForgeConfigSpec.BooleanValue DISABLE_GAMERULE_OVERRIDE; // todo
-    public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE; // todo
+    public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
+    public ForgeConfigSpec.BooleanValue DISABLE_GAMERULE_OVERRIDE;
+    public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
+    public ForgeConfigSpec.BooleanValue DIMENSION_MOBS_ENVIRO_IMMUNITY;
 
 
     MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt) {
-        b.comment("Map Dimension Config")
+        b.comment("Map Dimension Config, Note: These configs are ONLY for this dimension!")
                 .push("general");
 
         DEFAULT_DATA_BLOCK = b
@@ -99,6 +102,11 @@ public class MapDimensionConfig {
                         "It's recommended to just wipe the dimension's save folder when needed instead as they're not meant to be built in anyway, so wiping them is no problem.\n" +
                         "This config is only here in case this feature causes more urgent bugs.")
                 .define("DISABLE_WORLDBORDER_OVERRIDE", false);
+
+        DIMENSION_MOBS_ENVIRO_IMMUNITY = b
+                .comment("Makes mobs inside this dimension immune to enviromental damage.\n" +
+                        "Recommended ON because otherwise a lot of dimension mobs will die to: wither roses, lava, water, wall damage etc.")
+                .define("DIMENSION_MOBS_ENVIRO_IMMUNITY", true);
 
         b.pop();
     }
@@ -306,6 +314,27 @@ public class MapDimensionConfig {
 
                 if (blockedSpawnTypes.contains(type)) {
                     event.setResult(Event.Result.DENY);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+
+        ApiForgeEvents.registerForgeEvent(LivingAttackEvent.class, event -> {
+            try {
+                var en = event.getEntity();
+
+                if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
+                    return;
+                }
+                if (en instanceof Player) {
+                    return;
+                }
+                if (CONFIG.DIMENSION_MOBS_ENVIRO_IMMUNITY.get()) {
+                    if (event.getSource().getEntity() instanceof LivingEntity == false) {
+                        event.setCanceled(true);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

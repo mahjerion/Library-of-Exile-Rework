@@ -22,14 +22,13 @@ import net.minecraft.server.level.ServerLevel;
 // so prophecy league can have exclusive uniques for example
 public abstract class League implements ExileRegistry<League>, ITranslated {
 
-
     public String id;
 
     public League(String id) {
         this.id = id;
     }
 
-    public League getFromPosition(ServerLevel level, BlockPos pos) {
+    public static League getFromPosition(ServerLevel level, BlockPos pos) {
         return LibDatabase.Leagues().getList().stream().filter(x -> x.isInSide(level, pos)).findAny().orElse(LibLeagues.INSTANCE.EMPTY.get());
     }
 
@@ -44,7 +43,7 @@ public abstract class League implements ExileRegistry<League>, ITranslated {
 
     @Override
     public ExileRegistryType getExileRegistryType() {
-        return LibDatabase.MAP_CONTENT;
+        return LibDatabase.LEAGUE;
     }
 
     @Override

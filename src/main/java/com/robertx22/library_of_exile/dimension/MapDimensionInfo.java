@@ -11,12 +11,12 @@ import java.util.List;
 public class MapDimensionInfo {
 
     public ResourceLocation dimensionId;
-    public MapStructure structure;
+    public MapStructure<?> structure;
     public MapContentType contentType = MapContentType.SIDE_CONTENT;
-    public List<MapStructure> secondaryStructures = new ArrayList<>();
+    public List<MapStructure<?>> secondaryStructures = new ArrayList<>();
 
 
-    public MapDimensionInfo(ResourceLocation dimensionId, MapStructure structure, MapContentType contentType, List<MapStructure> secondaryStructures) {
+    public MapDimensionInfo(ResourceLocation dimensionId, MapStructure<?> structure, MapContentType contentType, List<MapStructure<?>> secondaryStructures) {
         this.dimensionId = dimensionId;
         this.structure = structure;
         this.contentType = contentType;

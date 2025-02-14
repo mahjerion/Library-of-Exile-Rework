@@ -107,7 +107,8 @@ public class ProcessMapChunks {
                         }
                         var config = MapDimensionConfig.get(level.dimensionTypeId().location());
                         if (config != null) {
-                            LibDatabase.MapDataBlocks().get(config.DEFAULT_DATA_BLOCK.get()).process(text, tilePos, level, data);
+                            String id = config.DEFAULT_DATA_BLOCK.get();
+                            LibDatabase.MapDataBlocks().get(id).process(id, tilePos, level, data);
                         }
                     }
 
