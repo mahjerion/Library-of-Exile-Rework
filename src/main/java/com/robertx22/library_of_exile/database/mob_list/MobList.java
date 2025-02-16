@@ -1,7 +1,6 @@
 package com.robertx22.library_of_exile.database.mob_list;
 
 import com.robertx22.library_of_exile.database.init.LibDatabase;
-import com.robertx22.library_of_exile.database.init.PredeterminedResult;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.IAutoGson;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
@@ -9,28 +8,13 @@ import com.robertx22.library_of_exile.tags.ExileTagList;
 import com.robertx22.library_of_exile.tags.ITaggable;
 import com.robertx22.library_of_exile.tags.tag_types.RegistryTag;
 import com.robertx22.library_of_exile.utils.RandomUtils;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, ITaggable<MobListTag> {
 
     public static MobList SERIALIZER = new MobList();
-
-    public static PredeterminedResult<MobList> PREDETERMINED = new PredeterminedResult<MobList>() {
-        @Override
-        public ExileRegistryType getRegistryType() {
-            return LibDatabase.MOB_LIST;
-        }
-
-        @Override
-        public MobList getPredeterminedRandomINTERNAL(Random random, Level level, ChunkPos pos) {
-            return LibDatabase.MobLists().random(random.nextDouble());
-        }
-    };
 
 
     public String id = "";

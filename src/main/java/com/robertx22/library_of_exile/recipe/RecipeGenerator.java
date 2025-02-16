@@ -21,6 +21,17 @@ public class RecipeGenerator {
     // the id is really just used to make sure this list isnt infinitely added upon with game reloads or something
     static HashMap<String, List<Supplier<RecipeBuilder>>> map = new HashMap<>();
 
+    static HashMap<String, List<Supplier<ConditionalRecipeData>>> forgeConditional = new HashMap<>();
+
+
+    public static void addConditional(String modid, Supplier<ConditionalRecipeData> sup) {
+        if (!forgeConditional.containsKey(modid)) {
+            forgeConditional.put(modid, new ArrayList<>());
+        }
+        forgeConditional.get(modid).add(sup);
+    }
+
+
     public static void addRecipe(String modid, Supplier<RecipeBuilder> sup) {
         if (!map.containsKey(modid)) {
             map.put(modid, new ArrayList<>());
@@ -55,16 +66,23 @@ public class RecipeGenerator {
         Path path = getBasePath();
 
         generate(modid, x -> {
-
             Path target = movePath(resolve(path, modid, x.getId().getPath()));
-
             DataProvider.saveStable(cache, x.serializeRecipe(), target);
-
         });
 
-
+        generateC(modid, x -> {
+            Path target = movePath(resolve(path, modid, x.getId().getPath()));
+            DataProvider.saveStable(cache, x.serializeRecipe(), target);
+        });
     }
 
+    private static void generateC(String modid, Consumer<FinishedRecipe> consumer) {
+        for (Supplier<ConditionalRecipeData> b : forgeConditional.get(modid)) {
+            if (b != null && b.get() != null) {
+                b.get().builder.build(consumer, b.get().id);
+            }
+        }
+    }
 
     private static void generate(String modid, Consumer<FinishedRecipe> consumer) {
         for (Supplier<RecipeBuilder> b : map.get(modid)) {

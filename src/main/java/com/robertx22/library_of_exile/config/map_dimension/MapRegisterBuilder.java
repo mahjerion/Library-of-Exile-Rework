@@ -15,11 +15,6 @@ public class MapRegisterBuilder {
         this.info = info;
     }
 
-    public MapRegisterBuilder config(MapDimensionConfigDefaults defaults) {
-        MapDimensionConfig.register(info, defaults);
-        return this;
-    }
-
     public MapRegisterBuilder chunkGenerator(EventConsumer<MapChunkGenEvent> event, ResourceLocation chunkGenId) {
         MapChunkGens.registerMapChunkGenerator(chunkGenId, event);
         return this;
@@ -28,5 +23,4 @@ public class MapRegisterBuilder {
     public void build() {
         MapDimensions.register(info);
     }
-
 }

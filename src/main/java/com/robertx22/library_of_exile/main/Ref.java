@@ -7,6 +7,7 @@ public class Ref {
     public static ModRequiredRegisterInfo REGISTER_INFO = new ModRequiredRegisterInfo(MODID);
 
     public static class Harvest {
+        public final static String MODID = "the_harvest";
         public final static String LEAGUE_ID = "harvest";
     }
 }

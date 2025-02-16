@@ -24,7 +24,7 @@ public class LibDataGen implements DataProvider {
         // translations
         List<ITranslated> tra = new ArrayList<>();
         tra.addAll(Arrays.stream(ExileMobAffix.Affects.values()).toList());
-
+        tra.addAll(Arrays.stream(LibWords.values()).toList());
 
         for (ITranslated t : tra) {
             t.createTranslationBuilder().build();
@@ -35,8 +35,6 @@ public class LibDataGen implements DataProvider {
             type.getDatapackGenerator().run(pOutput);
         }
 
-
-        //  ExileLangFile.createFile(OrbsRef.MODID, "");
 
         return CompletableFuture.completedFuture(null); // todo this is bad, but would it work?
     }

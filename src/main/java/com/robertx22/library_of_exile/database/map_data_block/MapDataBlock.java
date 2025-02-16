@@ -12,6 +12,7 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
 import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
+import com.robertx22.library_of_exile.util.wiki.iWikiEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, GsonCustomSer<MapDataBlock> {
+public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, GsonCustomSer<MapDataBlock>, iWikiEntry {
 
     public static MapDataBlock SERIALIZER = new EmptyMBlock("empty");
 

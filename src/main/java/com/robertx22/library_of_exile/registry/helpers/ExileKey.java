@@ -4,10 +4,12 @@ import com.google.common.base.Preconditions;
 import com.robertx22.library_of_exile.deferred.RegObj;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
+import com.robertx22.library_of_exile.recipe.ConditionalRecipeData;
 import com.robertx22.library_of_exile.recipe.RecipeGenerator;
 import com.robertx22.library_of_exile.registry.*;
 import com.robertx22.library_of_exile.registry.register_info.ModRequiredRegisterInfo;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import java.util.function.BiFunction;
@@ -58,6 +60,13 @@ public class ExileKey<T extends ExileRegistry<T>, Info extends KeyInfo> implemen
         RecipeGenerator.addRecipe(modRegisterInfo.modid, () -> {
             return b.apply(this);
         });
+        return this;
+    }
+
+    public ExileKey<T, Info> addConditional(String requiredModid, Function<ExileKey<T, Info>, ShapedRecipeBuilder> b) {
+        RecipeGenerator.addConditional(this.modRegisterInfo.modid, () -> ConditionalRecipeData.ofModLoaded(requiredModid, new ResourceLocation(this.modRegisterInfo.modid, GUID()), c -> {
+            b.apply(this).save(c);
+        }));
         return this;
     }
 

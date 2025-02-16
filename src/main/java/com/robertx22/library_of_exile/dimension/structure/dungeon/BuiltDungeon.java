@@ -126,18 +126,28 @@ public class BuiltDungeon {
 
     public void fillWithBarriers() {
 
-        /*
         BuiltRoom built = BuiltRoom.getBarrier();
 
         for (int i = 0; i < rooms.length; i++) {
             for (int j = 0; j < rooms[i].length; j++) {
-                if (getRoom(i, j) == null) {
+                if (getRoom(i, j) == null && hasRoomNearby(i, j)) {
                     addBarrier(i, j, built);
                 }
             }
         }
-         */
 
+    }
+
+    public boolean hasRoomNearby(int x, int z) {
+        List<Direction> dirs = Arrays.asList(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
+
+        for (Direction dir : dirs) {
+            var room = getRoomFacing(dir, x, z);
+            if (room != null && !room.room.isBarrier) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

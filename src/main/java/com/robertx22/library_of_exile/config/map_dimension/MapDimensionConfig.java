@@ -37,17 +37,10 @@ import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class MapDimensionConfig {
 
-    public static HashMap<String, MapDimensionConfig> map = new HashMap<>();
-
-
-    public static MapDimensionConfig get(ResourceLocation mapId) {
-        return map.get(mapId.toString());
-    }
 
     public ForgeConfigSpec.ConfigValue<String> ALLOWED_BLOCK_BREAK_TAG;
     public ForgeConfigSpec.ConfigValue<String> DISABLED_BLOCK_INTERACT_TAG;
@@ -55,15 +48,15 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.ConfigValue<String> DEFAULT_DATA_BLOCK;
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
+    public ForgeConfigSpec.IntValue CHUNK_SPAWN_RADIUS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
-    public ForgeConfigSpec.BooleanValue DISABLE_GAMERULE_OVERRIDE;
     public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
     public ForgeConfigSpec.BooleanValue DIMENSION_MOBS_ENVIRO_IMMUNITY;
 
 
-    MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt) {
+    MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt, String id) {
         b.comment("Map Dimension Config, Note: These configs are ONLY for this dimension!")
-                .push("general");
+                .push(id);
 
         DEFAULT_DATA_BLOCK = b
                 .comment("Sometimes structures have old/wrong data blocks, instead of skipping them, we can instead use them to spawn a replacement.\nBy default, a small mob pack will spawn instead.\nAdvised to leave this as is")
@@ -88,14 +81,14 @@ public class MapDimensionConfig {
                         "0 Radius means only the chunk the player is currently in will be processed")
                 .defineInRange("CHUNK_PROCESS_RADIUS", opt.chunkProcessRadius, 0, 8);
 
+        CHUNK_SPAWN_RADIUS = b
+                .comment("Radius in which the data blocks will turn to actual content in map.")
+                .defineInRange("CHUNK_SPAWN_RADIUS", opt.chunkSpawnRadius, 0, 8);
+
         DESPAWN_INCORRECT_MOBS = b
                 .comment("Despawns or tries to stop spawning of mobs that shouldn't spawn in the dimension")
                 .define("DESPAWN_INCORRECT_MOBS", true);
 
-        DISABLE_GAMERULE_OVERRIDE = b
-                .comment("By default this dimension has its gamerules overrided: firetick: false, random ticks: off, mobgrief: false\n" +
-                        "This config is only here in case this feature causes more urgent bugs.")
-                .define("DISABLE_GAMERULE_OVERRIDE", false);
 
         DISABLE_WORLDBORDER_OVERRIDE = b
                 .comment("By default this dimension has its worldborder overrided because these dimensions are meant to be infinite.\n" +
@@ -129,17 +122,15 @@ public class MapDimensionConfig {
         return true;
     }
 
-    // registers the config and all map related events, but events only once
-    // this way the events wont run if library mod is installed without any mods that use the events
-    public static void register(MapDimensionInfo info, MapDimensionConfigDefaults opt) {
+
+    public static MapDimensionConfig register(MapDimensionInfo info, MapDimensionConfigDefaults opt) {
         ResourceLocation mapId = info.dimensionId;
 
-        final Pair<MapDimensionConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(b -> new MapDimensionConfig(b, opt));
+        final Pair<MapDimensionConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(b -> new MapDimensionConfig(b, opt, mapId.toString()));
         var SPEC = specPair.getRight();
         var CONFIG = specPair.getLeft();
-        map.put(mapId.toString(), CONFIG);
-
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SPEC, CommonInit.defaultConfigName(ModConfig.Type.SERVER, mapId.getNamespace() + "_" + mapId.getPath() + "_map"));
+   
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SPEC, CommonInit.defaultConfigName(ModConfig.Type.SERVER, mapId.getNamespace() + "_dimension"));
 
 
         ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.RightClickItem.class, event -> {
@@ -148,7 +139,7 @@ public class MapDimensionConfig {
                 return;
             }
 
-            if (event.getItemStack().is(MapDimensionConfig.get(mapId).LAZY_BANNED_ITEMS.get())) {
+            if (event.getItemStack().is(CONFIG.LAZY_BANNED_ITEMS.get())) {
                 if (tryGiveLeeWay(event.getEntity())) {
                     if (!event.getLevel().isClientSide) {
                         event.getEntity().sendSystemMessage(Component.literal("Item is banned in This Dimension: ")
@@ -164,7 +155,7 @@ public class MapDimensionConfig {
                 if (!isDimension(mapId, event.getPlayer().level()) || !MapDimensions.isMap(event.getPlayer().level())) {
                     return;
                 }
-                if (!event.getState().is(MapDimensionConfig.get(mapId).LAZY_ALLOWED_BLOCKS.get())) {
+                if (!event.getState().is(CONFIG.LAZY_ALLOWED_BLOCKS.get())) {
                     if (tryGiveLeeWay(event.getPlayer())) {
                         event.setCanceled(true);
                     }
@@ -180,7 +171,7 @@ public class MapDimensionConfig {
                 if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
                     return;
                 }
-                if (!event.getState().is(MapDimensionConfig.get(mapId).LAZY_ALLOWED_BLOCKS.get())) {
+                if (!event.getState().is(CONFIG.LAZY_ALLOWED_BLOCKS.get())) {
                     if (tryGiveLeeWay(event.getEntity())) {
                         event.setCanceled(true);
                     }
@@ -255,7 +246,7 @@ public class MapDimensionConfig {
 
                 BlockState block = p.level().getBlockState(event.getPos());
 
-                if (block.is(MapDimensionConfig.get(mapId).LAZY_BLOCKED_INTERACT_BLOCKS.get())) {
+                if (block.is(CONFIG.LAZY_BLOCKED_INTERACT_BLOCKS.get())) {
                     if (tryGiveLeeWay(p)) {
                         event.setCanceled(true);
                     }
@@ -281,7 +272,7 @@ public class MapDimensionConfig {
             if (!isDimension(mapId, p.level()) || !MapDimensions.isMap(p.level())) {
                 return;
             }
-            ProcessMapChunks.process(p, info, MapDimensionConfig.get(mapId), ChunkProcessType.NORMAL);
+            ProcessMapChunks.process(p, info, CONFIG, ChunkProcessType.NORMAL);
         });
 
         List<MobSpawnType> blockedSpawnTypes = Arrays.asList(
@@ -303,7 +294,7 @@ public class MapDimensionConfig {
                 if (!isDimension(mapId, world) || !MapDimensions.isMap(world)) {
                     return;
                 }
-                if (MapDimensionConfig.get(mapId).DESPAWN_INCORRECT_MOBS.get()) {
+                if (CONFIG.DESPAWN_INCORRECT_MOBS.get()) {
                     return;
                 }
                 // let's not accidentally stop players from spawning just in case
@@ -341,7 +332,7 @@ public class MapDimensionConfig {
             }
         });
 
-
+        return CONFIG;
     }
 
 

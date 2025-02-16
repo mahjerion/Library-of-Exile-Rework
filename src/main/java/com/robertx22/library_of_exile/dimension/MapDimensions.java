@@ -11,28 +11,16 @@ public class MapDimensions {
     // this way I can keep track of what dimensions are maps
     private static HashMap<String, MapDimensionInfo> map = new HashMap<>();
 
-  
+
     public static boolean isMap(ResourceLocation id) {
-        return map.getOrDefault(id.toString(), null) != null;
+        boolean is = map.getOrDefault(id.toString(), null) != null;
+        return is;
     }
-
-    /*
-    public static MapContentType getContentType(Level world) {
-        return getContentType(world.dimensionTypeId().location());
-    }
-
-
-    public static MapContentType getContentType(ResourceLocation id) {
-        var info = getInfo(id);
-        if (info == null) {
-            return MapContentType.EMPTY;
-        }
-        return info.contentType;
-    }
-     */
 
     public static boolean isMap(Level world) {
-        return isMap(world.dimensionTypeId().location());
+        var dim = world.dimensionTypeId().location();
+        boolean is = isMap(dim);
+        return is;
     }
 
     public static MapDimensionInfo getInfo(ResourceLocation id) {

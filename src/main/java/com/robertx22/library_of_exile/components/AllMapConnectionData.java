@@ -3,7 +3,6 @@ package com.robertx22.library_of_exile.components;
 import com.robertx22.library_of_exile.dimension.MapContentType;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
-import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
@@ -18,19 +17,23 @@ public class AllMapConnectionData {
     private HashMap<String, String> map = new HashMap<>();
 
 
-    public String createKey(MapStructure struc, BlockPos pos) {
-        var c = struc.getStartChunkPos(pos);
-        return struc.guid() + ":" + c.x + "_" + c.z;
+    public String createKey(MapDimensionInfo struc, BlockPos pos) {
+        var c = struc.structure.getStartChunkPos(pos);
+        return struc.dimensionId.toString() + "-" + c.x + "_" + c.z;
     }
 
     public Data getDataFromKey(String key) {
         try {
-            var struc = MapDimensions.getInfo(new ResourceLocation(key.split(":")[0]));
+            var struc = MapDimensions.getInfo(new ResourceLocation(key.split("-")[0]));
 
-            String cps = key.split(":")[1];
+            String cps = key.split("-")[1];
 
             int x = Integer.parseInt(cps.split("_")[0]);
             int z = Integer.parseInt(cps.split("_")[1]);
+
+            if (struc == null || cps == null) {
+                return null;
+            }
 
             return new Data(struc, new ChunkPos(x, z));
         } catch (Exception e) {
@@ -61,8 +64,8 @@ public class AllMapConnectionData {
             //ExileLog.get().warn(side.dimensionId.toString() + " is not valid side content!");
             return;
         }
-        var key = createKey(origin.structure, oPos);
-        var key2 = createKey(side.structure, sPos);
+        var key = createKey(origin, oPos);
+        var key2 = createKey(side, sPos);
         map.put(key2, key);
 
     }
@@ -72,7 +75,7 @@ public class AllMapConnectionData {
         var struc = MapDimensions.getInfo(world);
 
         if (struc != null && struc.contentType == MapContentType.SIDE_CONTENT) {
-            var key = createKey(struc.structure, pos);
+            var key = createKey(struc, pos);
             if (map.containsKey(key)) {
                 var data = getDataFromKey(map.get(key));
                 if (data != null) {

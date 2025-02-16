@@ -1,9 +1,12 @@
 package com.robertx22.library_of_exile.dimension;
 
+import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfig;
+import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfigDefaults;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +17,23 @@ public class MapDimensionInfo {
     public MapStructure<?> structure;
     public MapContentType contentType = MapContentType.SIDE_CONTENT;
     public List<MapStructure<?>> secondaryStructures = new ArrayList<>();
+    public MapDimensionConfig config;
+
+    public MobValidator mobValidator = new MobValidator() {
+        @Override
+        public boolean isValidMob(LivingEntity en) {
+            return true;
+        }
+    };
 
 
-    public MapDimensionInfo(ResourceLocation dimensionId, MapStructure<?> structure, MapContentType contentType, List<MapStructure<?>> secondaryStructures) {
+    public MapDimensionInfo(ResourceLocation dimensionId, MapStructure<?> structure, MapContentType contentType, List<MapStructure<?>> secondaryStructures, MobValidator mobValidator, MapDimensionConfigDefaults def) {
         this.dimensionId = dimensionId;
         this.structure = structure;
         this.contentType = contentType;
         this.secondaryStructures = secondaryStructures;
+        this.mobValidator = mobValidator;
+        this.config = MapDimensionConfig.register(this, def);
     }
 
     public boolean isInside(MapStructure struc, ServerLevel level, BlockPos pos) {

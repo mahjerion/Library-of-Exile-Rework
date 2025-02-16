@@ -23,7 +23,7 @@ public class CurrentLeague {
         this.structure = structure;
         this.connectedFrom = connectedFrom;
     }
-    
+
     // 5 options:
     // 1) you are in a map dimension, inside a structure and connected to another map
     // 2) you are in a map dimension, inside a structure, but not connected to anything
@@ -59,7 +59,7 @@ public class CurrentLeague {
     public static Optional<AllMapConnectionData.Data> getConnectedMap(ServerLevel level, BlockPos pos) {
         AllMapConnectionData cons = MapConnectionsCap.get(level).data;
         var data = cons.getOriginalMap(level, pos);
-        return Optional.ofNullable(data);
+        return data == null ? Optional.empty() : Optional.of(data);
     }
 
 }

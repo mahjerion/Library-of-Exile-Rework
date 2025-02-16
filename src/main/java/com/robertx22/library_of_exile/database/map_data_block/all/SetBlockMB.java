@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.database.map_data_block.all;
 
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
+import com.robertx22.library_of_exile.util.wiki.WikiEntry;
 import com.robertx22.library_of_exile.vanilla_util.main.VanillaUTIL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,5 +27,10 @@ public class SetBlockMB extends MapDataBlock {
     public void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt) {
         var block = VanillaUTIL.REGISTRY.blocks().get(new ResourceLocation(block_id));
         world.setBlock(pos, block.defaultBlockState(), 2);
+    }
+
+    @Override
+    public WikiEntry getWikiEntry() {
+        return WikiEntry.of("Sets block at location: " + block_id);
     }
 }

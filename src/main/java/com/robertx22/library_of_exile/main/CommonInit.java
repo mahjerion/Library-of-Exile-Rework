@@ -11,6 +11,8 @@ import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.SyncTime;
 import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
+import com.robertx22.library_of_exile.unidentified.IdentifiableItems;
+import com.robertx22.library_of_exile.util.wiki.WikiEntryCommands;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.network.chat.Component;
@@ -22,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -99,6 +102,7 @@ public class CommonInit {
         S2CPacketRegister.register();
 
         ExileLibEvents.init();
+        IdentifiableItems.init();
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
 
@@ -114,6 +118,11 @@ public class CommonInit {
         ApiForgeEvents.registerForgeEvent(AddReloadListenerEvent.class, event -> {
             ExileRegistryType.registerJsonListeners(event);
         });
+
+        ApiForgeEvents.registerForgeEvent(RegisterCommandsEvent.class, event -> {
+            WikiEntryCommands.init(event.getDispatcher());
+        });
+
     }
 
     public static String defaultConfigName(ModConfig.Type type, String modId) {

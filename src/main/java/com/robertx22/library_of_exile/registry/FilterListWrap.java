@@ -52,8 +52,22 @@ public class FilterListWrap<C extends ExileRegistry> {
         return this;
     }
 
-    public C random() {
+    public C random(double random) {
+        if (this.list.isEmpty()) {
+            if (errorIfNothingLeft) {
+                try {
+                    throw new RuntimeException("Items filtered too much, no possibility left, returning null!");
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
+                // ExileLog.get().warn("Items filtered too much, no possibility left, returning null!");
+            }
+            return null;
+        }
+        return RandomUtils.weightedRandom(list, random);
+    }
 
+    public C random() {
         if (this.list.isEmpty()) {
             if (errorIfNothingLeft) {
                 try {

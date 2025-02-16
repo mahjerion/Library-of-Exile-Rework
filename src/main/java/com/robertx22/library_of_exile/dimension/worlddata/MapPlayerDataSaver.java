@@ -10,6 +10,7 @@ import net.minecraft.world.level.ChunkPos;
 
 import java.util.HashMap;
 
+// todo bug test this, it's a bit confusing code-wise
 public class MapPlayerDataSaver<T> {
 
     // x_z pos - map data map
