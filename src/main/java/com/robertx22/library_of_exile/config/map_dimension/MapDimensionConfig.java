@@ -129,7 +129,7 @@ public class MapDimensionConfig {
         final Pair<MapDimensionConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(b -> new MapDimensionConfig(b, opt, mapId.toString()));
         var SPEC = specPair.getRight();
         var CONFIG = specPair.getLeft();
-   
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SPEC, CommonInit.defaultConfigName(ModConfig.Type.SERVER, mapId.getNamespace() + "_dimension"));
 
 
@@ -180,6 +180,7 @@ public class MapDimensionConfig {
                 e.printStackTrace();
             }
         });
+
 
         ApiForgeEvents.registerForgeEvent(BlockEvent.EntityPlaceEvent.class, event -> {
             try {

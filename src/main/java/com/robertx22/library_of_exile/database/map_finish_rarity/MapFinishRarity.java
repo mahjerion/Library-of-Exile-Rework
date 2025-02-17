@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.database.init.LibDatabase;
 import com.robertx22.library_of_exile.localization.ExileTranslation;
 import com.robertx22.library_of_exile.localization.ITranslated;
 import com.robertx22.library_of_exile.localization.TranslationBuilder;
+import com.robertx22.library_of_exile.main.Ref;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.IAutoGson;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
@@ -78,6 +79,6 @@ public class MapFinishRarity implements JsonExileRegistry<MapFinishRarity>, IAut
 
     @Override
     public TranslationBuilder createTranslationBuilder() {
-        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, locname));
+        return TranslationBuilder.of(Ref.MODID).name(ExileTranslation.registry(this, locname));
     }
 }

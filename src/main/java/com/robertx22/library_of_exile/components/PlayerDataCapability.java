@@ -33,7 +33,6 @@ public class PlayerDataCapability implements ICap {
             return supp.cast();
         }
         return LazyOptional.empty();
-
     }
 
     private static final String MAP_TPS = "map_tps";

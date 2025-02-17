@@ -1,6 +1,8 @@
 package com.robertx22.library_of_exile.localization;
 
-public interface ITranslated {
+import com.robertx22.library_of_exile.registry.IGUID;
+
+public interface ITranslated extends IGUID {
 
     public TranslationBuilder createTranslationBuilder();
 

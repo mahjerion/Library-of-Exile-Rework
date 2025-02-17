@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.events.base;
 
 import com.google.gson.GsonBuilder;
+import com.robertx22.library_of_exile.components.LibMapData;
 import com.robertx22.library_of_exile.database.affix.base.GrabMobAffixesEvent;
 import com.robertx22.library_of_exile.database.init.PredeterminedRandomEvent;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
@@ -50,6 +51,7 @@ public class ExileEvents {
     public static ExileEventCaller<DatapackGsonAdapterEvent> DATAPACK_GSON_ADAPTER_REGISTRY = new ExileEventCaller<>();
     public static ExileEventCaller<OnProcessMapDataBlock> PROCESS_DATA_BLOCK = new ExileEventCaller<>();
     public static ExileEventCaller<OnProcessChunkData> PROCESS_CHUNK_DATA = new ExileEventCaller<>();
+    public static ExileEventCaller<GrabLibMapData> GRAB_LIB_MAP_DATA = new ExileEventCaller<>();
 
     // todo maybe i can add adapters to this and save stuff like registry strings into wrapper classes??
 
@@ -78,6 +80,18 @@ public class ExileEvents {
 
     }
 
+
+    public static class GrabLibMapData extends ExileEvent {
+        public Level level;
+        public BlockPos pos;
+
+        public LibMapData data;
+
+        public GrabLibMapData(Level level, BlockPos pos) {
+            this.level = level;
+            this.pos = pos;
+        }
+    }
 
     public static class OnEntityTick extends ExileEvent {
         public LivingEntity entity;

@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.database.map_data_block.all;
 
+import com.robertx22.library_of_exile.database.map_data_block.MapBlockCtx;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.util.wiki.WikiEntry;
 import com.robertx22.library_of_exile.vanilla_util.main.VanillaUTIL;
@@ -24,7 +25,7 @@ public class SetBlockMB extends MapDataBlock {
     }
 
     @Override
-    public void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt) {
+    public void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt, MapBlockCtx ctx) {
         var block = VanillaUTIL.REGISTRY.blocks().get(new ResourceLocation(block_id));
         world.setBlock(pos, block.defaultBlockState(), 2);
     }

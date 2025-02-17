@@ -25,4 +25,9 @@ public enum LibWords implements ITranslated {
     public MutableComponent get(Object... obj) {
         return getTranslation(TranslationType.NAME).getTranslatedName(obj);
     }
+
+    @Override
+    public String GUID() {
+        return name();
+    }
 }

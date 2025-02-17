@@ -7,7 +7,11 @@ import com.robertx22.library_of_exile.database.invis_block.InvisibleDataTest;
 import com.robertx22.library_of_exile.database.league.LibLeagues;
 import com.robertx22.library_of_exile.database.map_data_block.LibMapDataBlocks;
 import com.robertx22.library_of_exile.database.map_finish_rarity.LibMapFinishRarities;
-import com.robertx22.library_of_exile.database.mob_list.MobLists;
+import com.robertx22.library_of_exile.database.mob_list.LibMobLists;
+import com.robertx22.library_of_exile.database.relic.affix.LibRelicAffixes;
+import com.robertx22.library_of_exile.database.relic.relic_rarity.LibRelicRarities;
+import com.robertx22.library_of_exile.database.relic.relic_type.LibRelicTypes;
+import com.robertx22.library_of_exile.database.relic.stat.LibRelicStats;
 import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
 import com.robertx22.library_of_exile.registry.helpers.ExileKeyHolder;
 import com.robertx22.library_of_exile.registry.helpers.OrderedModConstructor;
@@ -31,10 +35,14 @@ public class LibModConstructor extends OrderedModConstructor {
         return Arrays.asList(
                 LibLeagues.INSTANCE,
                 LibMapDataBlocks.INSTANCE,
-                MobLists.INSTANCE,
+                LibMobLists.INSTANCE,
                 LibAffixesHolder.INSTANCE,
                 LibMapFinishRarities.INSTANCE,
-                LibMapContents.INSTANCE
+                LibMapContents.INSTANCE,
+                LibRelicStats.INSTANCE,
+                LibRelicTypes.INSTANCE,
+                LibRelicAffixes.INSTANCE,
+                LibRelicRarities.INSTANCE
         );
     }
 

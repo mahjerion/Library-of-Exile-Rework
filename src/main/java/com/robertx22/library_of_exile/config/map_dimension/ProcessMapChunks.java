@@ -2,7 +2,9 @@ package com.robertx22.library_of_exile.config.map_dimension;
 
 import com.robertx22.library_of_exile.components.BlockData;
 import com.robertx22.library_of_exile.components.LibChunkCap;
+import com.robertx22.library_of_exile.components.LibMapCap;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
+import com.robertx22.library_of_exile.database.map_data_block.MapBlockCtx;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
@@ -117,6 +119,12 @@ public class ProcessMapChunks {
 
             boolean skip = false;
 
+            var libdata = LibMapCap.getData(level, tilePos);
+
+            var ctx = new MapBlockCtx();
+
+            ctx.libMapData = libdata;
+
             for (MapDataBlock processor : LibDatabase.MapDataBlocks().getList()) {
                 if (processor.matches(text, tilePos, level, data)) {
                     if (processor.process_on != type) {
@@ -124,7 +132,7 @@ public class ProcessMapChunks {
                         break;
                     }
                 }
-                boolean did = processor.process(text, tilePos, level, data);
+                boolean did = processor.process(text, tilePos, level, data, ctx);
                 if (did) {
                     any = true;
                 }
@@ -149,7 +157,7 @@ public class ProcessMapChunks {
                     var info = MapDimensions.getInfo(level);
                     if (info != null) {
                         String id = info.config.DEFAULT_DATA_BLOCK.get();
-                        LibDatabase.MapDataBlocks().get(id).process(id, tilePos, level, data);
+                        LibDatabase.MapDataBlocks().get(id).process(id, tilePos, level, data, ctx);
                     }
                 }
 

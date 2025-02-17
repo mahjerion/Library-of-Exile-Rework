@@ -55,6 +55,12 @@ public class ExileLangFile {
         }
         for (ITranslated tra : gathered) {
             var b = tra.createTranslationBuilder();
+
+            if (b.modid == null) {
+                System.out.println(tra.GUID() + " has null modid");
+                continue;
+            }
+
             if (b.modid.equals(modid)) {
                 b.build();
             }

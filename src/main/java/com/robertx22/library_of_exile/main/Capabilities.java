@@ -15,6 +15,12 @@ import java.util.function.Consumer;
 public class Capabilities {
 
     public static void reg() {
+
+        // todo maybe merge these level caps
+        MinecraftForge.EVENT_BUS.addGenericListener(Level.class, (Consumer<AttachCapabilitiesEvent<Level>>) x -> {
+            x.addCapability(LibMapCap.RESOURCE, new LibMapCap(x.getObject()));
+        });
+
         MinecraftForge.EVENT_BUS.addGenericListener(LevelChunk.class, (Consumer<AttachCapabilitiesEvent<LevelChunk>>) x -> {
             x.addCapability(LibChunkCap.RESOURCE, new LibChunkCap(x.getObject()));
         });

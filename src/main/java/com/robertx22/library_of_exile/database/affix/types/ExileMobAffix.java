@@ -73,6 +73,11 @@ public abstract class ExileMobAffix implements JsonExileRegistry<ExileMobAffix>,
         }
 
         @Override
+        public String GUID() {
+            return name();
+        }
+
+        @Override
         public TranslationBuilder createTranslationBuilder() {
             return TranslationBuilder.of(Ref.MODID).name(ExileTranslation.of(Ref.MODID + ".word." + name().toLowerCase(Locale.ROOT), name));
         }

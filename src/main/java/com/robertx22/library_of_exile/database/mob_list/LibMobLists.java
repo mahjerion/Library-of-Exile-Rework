@@ -10,12 +10,12 @@ import net.minecraft.world.entity.EntityType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MobLists extends ExileKeyHolder<MobList> {
+public class LibMobLists extends ExileKeyHolder<MobList> {
 
-    public static MobLists INSTANCE = new MobLists(Ref.REGISTER_INFO);
+    public static LibMobLists INSTANCE = new LibMobLists(Ref.REGISTER_INFO);
 
 
-    public MobLists(ModRequiredRegisterInfo modRegisterInfo) {
+    public LibMobLists(ModRequiredRegisterInfo modRegisterInfo) {
         super(modRegisterInfo);
     }
 

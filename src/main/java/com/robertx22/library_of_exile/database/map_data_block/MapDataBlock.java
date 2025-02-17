@@ -45,11 +45,11 @@ public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, G
     }
 
 
-    public final boolean process(String key, BlockPos pos, Level world, CompoundTag nbt) {
+    public final boolean process(String key, BlockPos pos, Level world, CompoundTag nbt, MapBlockCtx ctx) {
 
         try {
             if (matches(key, pos, world, nbt)) {
-                processImplementationINTERNAL(key, pos, world, nbt);
+                processImplementationINTERNAL(key, pos, world, nbt, ctx);
                 ExileEvents.PROCESS_DATA_BLOCK.callEvents(new ExileEvents.OnProcessMapDataBlock(this, key, pos, world, nbt));
                 return true;
             }
@@ -65,7 +65,7 @@ public abstract class MapDataBlock implements JsonExileRegistry<MapDataBlock>, G
         Database.getRegistry(this.getExileRegistryType()).addSerializable(this, info);
     }
 
-    public abstract void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt);
+    public abstract void processImplementationINTERNAL(String key, BlockPos pos, Level world, CompoundTag nbt, MapBlockCtx ctx);
 
     @Override
     public CustomSerializer getSerMap() {

@@ -7,6 +7,10 @@ import com.robertx22.library_of_exile.database.league.League;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.database.map_finish_rarity.MapFinishRarity;
 import com.robertx22.library_of_exile.database.mob_list.MobList;
+import com.robertx22.library_of_exile.database.relic.affix.RelicAffix;
+import com.robertx22.library_of_exile.database.relic.relic_rarity.RelicRarity;
+import com.robertx22.library_of_exile.database.relic.relic_type.RelicType;
+import com.robertx22.library_of_exile.database.relic.stat.RelicStat;
 import com.robertx22.library_of_exile.main.Ref;
 import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
@@ -26,6 +30,12 @@ public class LibDatabase extends ExileDatabaseInit {
     public static ExileRegistryType MAP_CONTENT = ExileRegistryType.register(Ref.MODID, "map_content", 0, MapContent.SERIALIZER, SyncTime.ON_LOGIN);
     public static ExileRegistryType LEAGUE = ExileRegistryType.register(Ref.MODID, "league", 0, null, SyncTime.NEVER);
 
+    // Atlas
+    public static ExileRegistryType RELIC_STAT = ExileRegistryType.register(Ref.MODID, "relic_stat", 0, RelicStat.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType RELIC_TYPE = ExileRegistryType.register(Ref.MODID, "relic_type", 1, RelicType.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType RELIC_AFFIX = ExileRegistryType.register(Ref.MODID, "relic_affix", 2, RelicAffix.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType RELIC_RARITY = ExileRegistryType.register(Ref.MODID, "relic_rarity", 3, RelicRarity.SERIALIZER, SyncTime.ON_LOGIN);
+
     public LibDatabase(String modid) {
         super(modid);
     }
@@ -40,7 +50,28 @@ public class LibDatabase extends ExileDatabaseInit {
         Database.addRegistry(new ExileRegistryContainer<>(MAP_FINISH_RARITY, "common"));
         Database.addRegistry(new ExileRegistryContainer<>(MAP_CONTENT, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(LEAGUE, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(RELIC_STAT, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(RELIC_TYPE, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(RELIC_AFFIX, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(RELIC_RARITY, "common"));
 
+    }
+
+    public static ExileRegistryContainer<RelicRarity> RelicRarities() {
+        return Database.getRegistry(RELIC_RARITY);
+    }
+
+    public static ExileRegistryContainer<RelicAffix> RelicAffixes() {
+        return Database.getRegistry(RELIC_AFFIX);
+    }
+
+
+    public static ExileRegistryContainer<RelicType> RelicTypes() {
+        return Database.getRegistry(RELIC_TYPE);
+    }
+
+    public static ExileRegistryContainer<RelicStat> RelicStats() {
+        return Database.getRegistry(RELIC_STAT);
     }
 
     public static ExileRegistryContainer<League> Leagues() {
