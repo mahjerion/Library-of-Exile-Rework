@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "library_of_exile:item/legendary_enchant_tool"
+  }
+}

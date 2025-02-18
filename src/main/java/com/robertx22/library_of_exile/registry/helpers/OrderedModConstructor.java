@@ -2,48 +2,53 @@ package com.robertx22.library_of_exile.registry.helpers;
 
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
 import net.minecraftforge.eventbus.api.IEventBus;
 
-import java.util.HashMap;
 import java.util.List;
 
 // used to know how to register stuff properly without headaches
+// Place it right at start of mod constructor
 public abstract class OrderedModConstructor {
 
-    public static HashMap<String, OrderedModConstructor> all = new HashMap<>();
+    //  public static HashMap<String, OrderedModConstructor> all = new HashMap<>();
 
     String modid;
 
-    public OrderedModConstructor(String modid, IEventBus modbus) {
-        this.modid = modid;
-        registerDeferredContainers(modbus);
-        registerDeferredEntries();
-        registerDatabases();
+    public static void register(OrderedModConstructor c, IEventBus modbus) {
+        c.registerDeferredContainers(modbus);
+        c.registerDeferredEntries();
+        c.registerDatabases();
 
         final boolean[] done = {false};
         ExileEvents.EXILE_REGISTRY_GATHER.register(new EventConsumer<ExileRegistryEvent>() {
             @Override
             public void accept(ExileRegistryEvent e) {
                 if (!done[0]) {
-                    registerDatabaseEntries();
+                    c.registerDatabaseEntries();
                     done[0] = true;
                 }
             }
         });
 
-        for (ExileRegistryEventClass event : this.getRegisterEvents()) {
+        for (ExileRegistryEventClass event : c.getRegisterEvents()) {
             event.register();
         }
-
         //registerDatabaseEntries();
 
-        for (ExileKeyHolder holder : getAllKeyHolders()) {
+        for (ExileKeyHolder holder : c.getAllKeyHolders()) {
             holder.init();
         }
+        // all.put(modid, this);
+    }
 
-        all.put(modid, this);
+    public OrderedModConstructor(String modid) {
+        this.modid = modid;
+
+        ExileLog.get().log("Mod Constructor Registered : " + modid);
+
     }
 
     public abstract List<ExileRegistryEventClass> getRegisterEvents();

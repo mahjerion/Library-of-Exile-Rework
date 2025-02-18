@@ -30,6 +30,11 @@ public class DungeonRoomPlacer {
             return false;
         }
 
+        if (template.getSize().getX() > 16 || template.getSize().getZ() > 16) {
+            ExileLog.get().warn("FATAL ERROR: Structure is bigger than possible (" + id + ") " + template.getSize().toString());
+            return false;
+        }
+
         // next if the structure is to be rotated then it must also be offset, because rotating a structure also moves it
         if (rota == Rotation.COUNTERCLOCKWISE_90) {
             // west: rotate CCW and push +Z

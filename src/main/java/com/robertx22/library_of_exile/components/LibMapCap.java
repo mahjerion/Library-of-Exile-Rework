@@ -42,6 +42,10 @@ public class LibMapCap implements ICapabilityProvider, INBTSerializable<Compound
     public static LibMapData getData(Level level, BlockPos pos) {
         ExileEvents.GrabLibMapData event = new ExileEvents.GrabLibMapData(level, pos);
         ExileEvents.GRAB_LIB_MAP_DATA.callEvents(event);
+
+        if (event.data == null) {
+            return new LibMapData();
+        }
         return event.data;
     }
 

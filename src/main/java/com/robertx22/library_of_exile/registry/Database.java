@@ -82,11 +82,4 @@ public class Database {
     public static void addRegistry(ExileRegistryContainer cont) {
         SERVER.put(cont.getType(), cont);
     }
-
-    public static void initRegistries() {
-        SERVER = new HashMap<>();
-
-        ExileRegistryType.init();
-    }
-
 }

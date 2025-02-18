@@ -3,7 +3,7 @@ package com.robertx22.library_of_exile.database.relic.stat;
 import com.robertx22.library_of_exile.localization.ExileTranslation;
 import com.robertx22.library_of_exile.localization.TranslationBuilder;
 
-public class ExtraContentAS extends RelicStat {
+public class ExtraContentRS extends RelicStat {
 
     public transient String modid;
     public transient String contentName;
@@ -23,7 +23,7 @@ public class ExtraContentAS extends RelicStat {
     public static record Data(Type type, int extra, String map_content_id) {
     }
 
-    public ExtraContentAS(String id, String modid, String contentName, Data data) {
+    public ExtraContentRS(String id, String modid, String contentName, Data data) {
         super("extra_content", id);
         this.modid = modid;
         this.contentName = contentName;
@@ -34,7 +34,7 @@ public class ExtraContentAS extends RelicStat {
 
     @Override
     public Class<?> getClassForSerialization() {
-        return ExtraContentAS.class;
+        return ExtraContentRS.class;
     }
 
 

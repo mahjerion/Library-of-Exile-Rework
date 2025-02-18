@@ -7,11 +7,13 @@ import com.robertx22.library_of_exile.main.CommonInit;
 import com.robertx22.library_of_exile.main.Ref;
 import com.robertx22.library_of_exile.util.LazyClass;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,6 +47,7 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.ConfigValue<String> ALLOWED_BLOCK_BREAK_TAG;
     public ForgeConfigSpec.ConfigValue<String> DISABLED_BLOCK_INTERACT_TAG;
     public ForgeConfigSpec.ConfigValue<String> BANNED_ITEMS_TAG;
+    public ForgeConfigSpec.ConfigValue<String> ENVIRO_DMG_TAG;
     public ForgeConfigSpec.ConfigValue<String> DEFAULT_DATA_BLOCK;
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
@@ -73,6 +76,10 @@ public class MapDimensionConfig {
         BANNED_ITEMS_TAG = b
                 .comment("Items in this Tag will be unusable with right click in this dimension. This config isn't meant to be edited! Edit the tag datapack instead!\n As an example, by default chorus fruit and other teleportation items are banned..")
                 .define("BANNED_ITEMS_TAG", Ref.MODID + ":" + "banned_map_items");
+
+        ENVIRO_DMG_TAG = b
+                .comment("Damage Type tags for enviro damage. This is used to stop mobs in this dimension from being hurt by them\nThis only stops the damage if it's enviro dmg, meaning there's no entity/player as damage source")
+                .define("ENVIRO_DMG_TAG", Ref.MODID + ":" + "enviro_damage");
 
         CHUNK_PROCESS_RADIUS = b
                 .comment("The chunk radius in which map data blocks will be turned into map content while in maps. Depending on map type, different values can be good\n" +
@@ -107,7 +114,11 @@ public class MapDimensionConfig {
     public LazyClass<TagKey<Block>> LAZY_ALLOWED_BLOCKS = new LazyClass<>(() -> BlockTags.create(new ResourceLocation(ALLOWED_BLOCK_BREAK_TAG.get())));
     public LazyClass<TagKey<Block>> LAZY_BLOCKED_INTERACT_BLOCKS = new LazyClass<>(() -> BlockTags.create(new ResourceLocation(DISABLED_BLOCK_INTERACT_TAG.get())));
     public LazyClass<TagKey<Item>> LAZY_BANNED_ITEMS = new LazyClass<>(() -> ItemTags.create(new ResourceLocation(BANNED_ITEMS_TAG.get())));
+    public LazyClass<TagKey<DamageType>> LAZY_ENVIRO_TAG = new LazyClass<>(() -> create(new ResourceLocation(ENVIRO_DMG_TAG.get())));
 
+    private static TagKey<DamageType> create(ResourceLocation pName) {
+        return TagKey.create(Registries.DAMAGE_TYPE, pName);
+    }
 
     static boolean isDimension(ResourceLocation id, Level level) {
         return level.dimensionTypeId().location().equals(id);
@@ -313,6 +324,20 @@ public class MapDimensionConfig {
         });
 
 
+        /*
+        List<DamageTypes> enviroDmg= Arrays.asList(
+                DamageTypes.FALL,
+                DamageTypes.LAVA,
+                DamageTypes.CACTUS,
+                DamageTypes.CRAMMING,
+                DamageTypes.FLY_INTO_WALL,
+                DamageTypes.IN_WALL,
+                DamageTypes.WITHER,
+                DamageTypes.
+        )
+
+         */
+
         ApiForgeEvents.registerForgeEvent(LivingAttackEvent.class, event -> {
             try {
                 var en = event.getEntity();
@@ -323,9 +348,13 @@ public class MapDimensionConfig {
                 if (en instanceof Player) {
                     return;
                 }
+
                 if (CONFIG.DIMENSION_MOBS_ENVIRO_IMMUNITY.get()) {
                     if (event.getSource().getEntity() instanceof LivingEntity == false) {
-                        event.setCanceled(true);
+                        if (event.getSource().is(CONFIG.LAZY_ENVIRO_TAG.get())) {
+                            event.setCanceled(true);
+
+                        }
                     }
                 }
             } catch (Exception e) {

@@ -25,8 +25,8 @@ public class TeleportUtils {
             String command = "/execute in " + dimension.toString() + " run tp " + player.getStringUUID() +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 
-            PlayerDataCapability.get(player).delayedTeleportData = new DelayedTeleportData(command, 3, SavedTeleportPos.from(dimension, pos));
-            
+            PlayerDataCapability.get(player).delayedTeleportData = new DelayedTeleportData(command, 2, SavedTeleportPos.from(dimension, pos));
+
             //CommandUtils.execute(player, command);
 
         } catch (Exception e) {

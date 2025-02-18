@@ -1,19 +1,17 @@
 package com.robertx22.library_of_exile.registry;
 
+import com.google.common.base.Preconditions;
+import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.loaders.BaseDataPackLoader;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.fml.ModList;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExileRegistryType {
 
-    private static List<ExileRegistryType> all = new ArrayList<>();
     private static HashMap<String, ExileRegistryType> map = new HashMap<>();
 
     public String id;
@@ -25,6 +23,12 @@ public class ExileRegistryType {
     public String idWithoutModid;
 
     public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
+
+        Preconditions.checkNotNull(modid);
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(order);
+        Preconditions.checkNotNull(synctime);
+
         this.modid = modid;
         this.idWithoutModid = id;
         this.id = modid + "_" + id;
@@ -42,8 +46,13 @@ public class ExileRegistryType {
     }
 
     public static ExileRegistryType register(ExileRegistryType type) {
-        all.add(type);
+        Preconditions.checkNotNull(type);
+
+        if (map.containsKey(type.id)) {
+            ExileLog.get().warn("Duplicate ExileRegistryType: " + type.id);
+        }
         map.put(type.id, type);
+
         return type;
     }
 
@@ -53,7 +62,7 @@ public class ExileRegistryType {
     }
 
     public static List<ExileRegistryType> getInRegisterOrder(SyncTime sync) {
-        List<ExileRegistryType> list = all.stream()
+        List<ExileRegistryType> list = map.values().stream()
                 .filter(x -> x.syncTime == sync)
                 .collect(Collectors.toList());
         list.sort(Comparator.comparingInt(x -> x.order));
@@ -62,31 +71,31 @@ public class ExileRegistryType {
     }
 
     public static List<ExileRegistryType> getAllInRegisterOrder() {
-        List<ExileRegistryType> list = new ArrayList<>(all);
-        list.sort(Comparator.comparingInt(x -> x.order));
+        List<ExileRegistryType> list = new ArrayList<>();
+
+        for (Map.Entry<String, ExileRegistryType> en : map.entrySet()) {
+            if (en.getValue() == null) {
+                throw new RuntimeException(en.getKey() + " is a null registry type, how?!");
+            } else {
+                list.add(en.getValue());
+            }
+        }
+        list.sort(Comparator.comparingInt(x -> {
+            return x.order;
+        }));
         return list;
     }
 
-    // todo remove this after a while,
-    private boolean registeredListener = false;
 
     public static void registerJsonListeners(AddReloadListenerEvent manager) {
-        List<ExileRegistryType> list = new ArrayList<>(all);
-        list.sort(Comparator.comparingInt(x -> x.order));
+        List<ExileRegistryType> list = getAllInRegisterOrder();
         list.forEach(x -> {
-            if (!x.registeredListener) {
-                x.registeredListener = true;
-                if (x.getLoader() != null) {
-                    manager.addListener(x.getLoader());
-                    //manager.getListeners().add(x.getLoader()); // todo ??
-                }
+            if (x.getLoader() != null) {
+                manager.addListener(x.getLoader());
             }
         });
     }
 
-    public static void init() {
-
-    }
 
     public BaseDataPackLoader getLoader() {
         if (this.ser == null) {

@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.database.affix.types.ExileMobAffix;
 import com.robertx22.library_of_exile.localization.ExileLangFile;
 import com.robertx22.library_of_exile.localization.ITranslated;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
+import com.robertx22.orbs_of_crafting.lang.OrbWords;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 
@@ -25,7 +26,8 @@ public class LibDataGen implements DataProvider {
         List<ITranslated> tra = new ArrayList<>();
         tra.addAll(Arrays.stream(ExileMobAffix.Affects.values()).toList());
         tra.addAll(Arrays.stream(LibWords.values()).toList());
-
+        tra.addAll(Arrays.stream(OrbWords.values()).toList());
+        
         for (ITranslated t : tra) {
             t.createTranslationBuilder().build();
         }

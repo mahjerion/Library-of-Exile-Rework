@@ -10,9 +10,14 @@ import com.robertx22.library_of_exile.registry.Database;
 import com.robertx22.library_of_exile.registry.ExileRegistryEvent;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.SyncTime;
+import com.robertx22.library_of_exile.registry.helpers.OrderedModConstructor;
 import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
 import com.robertx22.library_of_exile.unidentified.IdentifiableItems;
 import com.robertx22.library_of_exile.util.wiki.WikiEntryCommands;
+import com.robertx22.orbs_of_crafting.main.OrbsOfCraftingMain;
+import com.robertx22.orbs_of_crafting.register.ExileCurrency;
+import com.robertx22.orbs_of_crafting.register.Orbs;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.network.chat.Component;
@@ -58,6 +63,19 @@ public class CommonInit {
         CREATIVE_TAB.register(bus);
         BLOCKS.register(bus);
         BLOCK_ENTITIES.register(bus);
+
+        CREATIVE_TAB.register("tab", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 2)
+                .icon(() -> Orbs.INSTANCE.LEGENDARY_TOOL_ENCHANT.getItem().getDefaultInstance())
+                .title(LibWords.MOD_NAME.get().withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD))
+                .displayItems(new CreativeModeTab.DisplayItemsGenerator() {
+                    @Override
+                    public void accept(CreativeModeTab.ItemDisplayParameters param, CreativeModeTab.Output output) {
+                        for (Item item : ExileCurrency.CACHED_MAP.get().keySet()) {
+                            output.accept(item);
+                        }
+                    }
+                })
+                .build());
     }
 
     public static void registerEntries() {
@@ -67,6 +85,11 @@ public class CommonInit {
 
 
     public CommonInit() {
+        final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        OrderedModConstructor.register(new LibModConstructor(Ref.MODID), bus);
+
+        OrbsOfCraftingMain.init(bus);
+
 
         if (RUN_DEV_TOOLS) {
             ExileRegistryUtil.setCurrentRegistarMod(Ref.MODID);
@@ -78,8 +101,6 @@ public class CommonInit {
         }
 
         // todo make this separate per each mod?   ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, MapDimensionConfig.SPEC, defaultConfigName(ModConfig.Type.SERVER, "exile_map_dimensions"));
-
-        final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
 
         bus.addListener(this::commonSetupEvent);
@@ -106,7 +127,6 @@ public class CommonInit {
 
         ExileEvents.DAMAGE_AFTER_CALC.register(new OnMobDamaged());
 
-        new LibModConstructor(Ref.MODID, bus);
 
         ApiForgeEvents.registerForgeEvent(LivingDeathEvent.class, x -> {
             if (x.getEntity() instanceof ServerPlayer p) {

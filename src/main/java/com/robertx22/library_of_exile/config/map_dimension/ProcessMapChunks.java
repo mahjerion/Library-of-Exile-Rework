@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -24,6 +23,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProcessMapChunks {
@@ -82,19 +82,20 @@ public class ProcessMapChunks {
 
         CompoundTag data = new CompoundTag();
 
-
         chunk.getCapability(LibChunkCap.INSTANCE).ifPresent(x -> {
-            if (!x.mapGenData.dataBlocks.isEmpty()) {
-                for (BlockData block : x.mapGenData.dataBlocks) {
+            if (!x.mapGenData.mapBlocks.isEmpty()) {
+                for (BlockData block : x.mapGenData.mapBlocks.getOrDefault(type, Arrays.asList())) {
                     generateSingleData(level, chunk, type, block.getPos(), data, block.data);
                 }
             }
-            x.mapGenData.dataBlocks = new ArrayList<>();
+            x.mapGenData.mapBlocks.put(type, new ArrayList<>());
         });
 
     }
 
     public static void generateData(Level level, LevelChunk chunk) {
+
+        var nbt = new CompoundTag();
 
         chunk.getCapability(LibChunkCap.INSTANCE).ifPresent(x -> {
             for (BlockPos tilePos : chunk.getBlockEntitiesPos()) {
@@ -102,10 +103,22 @@ public class ProcessMapChunks {
                 var text = getDataString(tile);
 
                 if (!text.isEmpty()) {
-                    x.mapGenData.dataBlocks.add(new BlockData(tilePos.asLong(), text));
-                    level.removeBlockEntity(tilePos);
-                    //level.destroyBlock(tilePos, false); this has a sound :( and particles
-                    level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+
+                    ChunkProcessType type = ChunkProcessType.NORMAL;
+
+                    var be = LibDatabase.MapDataBlocks().getList().stream().filter(e -> e.matches(text, tilePos, level, nbt)).findFirst();
+
+                    if (be.isPresent()) {
+                        type = be.get().process_on;
+                    }
+
+                    if (!x.mapGenData.mapBlocks.containsKey(type)) {
+                        x.mapGenData.mapBlocks.put(type, new ArrayList<>());
+                    }
+
+                    x.mapGenData.mapBlocks.get(type).add(new BlockData(tilePos.asLong(), text));
+
+                    level.removeBlock(tilePos, false);
                 }
             }
         });
@@ -142,12 +155,11 @@ public class ProcessMapChunks {
                     // only set to air if the processor didnt turn it into another block
                     if (level.getBlockState(tilePos).getBlock() == Blocks.STRUCTURE_BLOCK || level.getBlockState(tilePos).getBlock() == Blocks.COMMAND_BLOCK) {
                         //level.destroyBlock(tilePos, false);
-
                         //  level.removeBlockEntity(tilePos);
                         // level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL); // delete data block
                     }
                 } else {
-                    level.setBlock(tilePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                    level.removeBlock(tilePos, false);
                     boolean oldComplex = text.contains("spawn") && text.contains(";");
 
                     if (!oldComplex) {

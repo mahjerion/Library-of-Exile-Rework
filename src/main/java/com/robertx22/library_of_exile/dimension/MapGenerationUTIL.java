@@ -45,6 +45,11 @@ public class MapGenerationUTIL {
                     }
                     return false;
                 }
+                if (template.getSize().getX() > 16 || template.getSize().getZ() > 16) {
+                    ExileLog.get().warn("FATAL ERROR: Structure is bigger than possible (" + room + ") " + template.getSize().toString());
+                    return false;
+                }
+
                 settings.setRotation(Rotation.NONE);
 
                 template.placeInWorld(level, position, position, settings, level.getRandom(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);

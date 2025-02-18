@@ -9,6 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import java.util.Locale;
 
 public enum LibWords implements ITranslated {
+    MOD_NAME("Library of Exile"),
     UNIDENTIFIED_ITEM("Unidentified. Use to Identify it!");
 
     public String name;
