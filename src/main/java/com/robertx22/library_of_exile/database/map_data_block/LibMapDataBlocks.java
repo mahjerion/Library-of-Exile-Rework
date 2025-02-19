@@ -22,6 +22,7 @@ public class LibMapDataBlocks extends ExileKeyHolder<MapDataBlock> {
     public ExileKey<MapDataBlock, KeyInfo> EMPTY = ExileKey.ofId(this, "empty", x -> new EmptyMBlock(x.GUID()));
     public ExileKey<MapDataBlock, KeyInfo> TELEPORT_BACK_BLOCK = ExileKey.ofId(this, "teleport_back_block", x -> new SetBlockMB(x.GUID(), ExileLibEntries.TELEPORT_BACK_BLOCK.getId().toString()));
     public ExileKey<MapDataBlock, KeyInfo> TP_BACK_LEAGUE_BACK_OLD = ExileKey.ofId(this, "league_back", x -> new SetBlockMB(x.GUID(), ExileLibEntries.TELEPORT_BACK_BLOCK.getId().toString()));
+    // think not needeed? public ExileKey<MapDataBlock, KeyInfo> MAP_TELEPORTER = ExileKey.ofId(this, "map_teleporter", x -> new SetBlockMB(x.GUID(), ExileLibEntries.TELEPORT_BACK_BLOCK.getId().toString()));
 
     @Override
     public void loadClass() {

@@ -15,6 +15,7 @@ import com.robertx22.library_of_exile.registry.util.ExileRegistryUtil;
 import com.robertx22.library_of_exile.unidentified.IdentifiableItems;
 import com.robertx22.library_of_exile.util.wiki.WikiEntryCommands;
 import com.robertx22.orbs_of_crafting.main.OrbsOfCraftingMain;
+import com.robertx22.orbs_of_crafting.misc.OnClick;
 import com.robertx22.orbs_of_crafting.register.ExileCurrency;
 import com.robertx22.orbs_of_crafting.register.Orbs;
 import net.minecraft.ChatFormatting;
@@ -143,6 +144,7 @@ public class CommonInit {
             WikiEntryCommands.init(event.getDispatcher());
         });
 
+        OnClick.register();
     }
 
     public static String defaultConfigName(ModConfig.Type type, String modId) {

@@ -77,9 +77,11 @@ public class RecipeGenerator {
     }
 
     private static void generateC(String modid, Consumer<FinishedRecipe> consumer) {
-        for (Supplier<ConditionalRecipeData> b : forgeConditional.get(modid)) {
-            if (b != null && b.get() != null) {
-                b.get().builder.build(consumer, b.get().id);
+        if (forgeConditional.containsKey(modid)) {
+            for (Supplier<ConditionalRecipeData> b : forgeConditional.get(modid)) {
+                if (b != null && b.get() != null) {
+                    b.get().builder.build(consumer, b.get().id);
+                }
             }
         }
     }

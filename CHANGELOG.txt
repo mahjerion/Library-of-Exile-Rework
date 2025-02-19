@@ -1,2 +1,2 @@
-v.2.0.0
-- starting refactor
+v.2.0.1
+- added some item reqs

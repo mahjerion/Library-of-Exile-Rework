@@ -2,7 +2,7 @@ package com.robertx22.library_of_exile.components;
 
 import com.google.gson.JsonSyntaxException;
 import com.robertx22.library_of_exile.main.Ref;
-import com.robertx22.library_of_exile.registry.IAutoGson;
+import com.robertx22.library_of_exile.utils.LoadSave;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -51,7 +51,7 @@ public class MapConnectionsCap implements ICapabilityProvider, INBTSerializable<
         var nbt = new CompoundTag();
 
         try {
-            nbt.putString("data", IAutoGson.GSON.toJson(data));
+            LoadSave.Save(data, nbt, "data");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,9 +64,10 @@ public class MapConnectionsCap implements ICapabilityProvider, INBTSerializable<
     public void deserializeNBT(CompoundTag nbt) {
 
         try {
-            if (nbt.contains("data")) {
-                this.data = IAutoGson.GSON.fromJson(nbt.getString("data"), AllMapConnectionData.class);
-            }
+
+            this.data = LoadSave.loadOrBlank(AllMapConnectionData.class, new AllMapConnectionData(), nbt, "data", new AllMapConnectionData());
+
+
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
