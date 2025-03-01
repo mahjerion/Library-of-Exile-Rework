@@ -1,2 +1,2 @@
-v.2.0.1
-- added some item reqs
+v.2.0.2
+- try fix event async errors
