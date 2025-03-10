@@ -27,8 +27,11 @@ public class LevelMixin {
                     if (c.config.DISABLE_WORLDBORDER_OVERRIDE.get()) {
                         return;
                     }
+                    var settings = world.getServer().getWorldData().overworldData().getWorldBorder();
+                    if (settings != null) {
+                        cir.setReturnValue(new MapWorldBorder(settings));
+                    }
                 }
-                cir.setReturnValue(new MapWorldBorder());
             }
         } catch (Exception e) {
             e.printStackTrace();

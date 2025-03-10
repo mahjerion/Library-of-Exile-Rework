@@ -7,7 +7,11 @@ import net.minecraft.world.level.border.WorldBorder;
 
 public class MapWorldBorder extends WorldBorder {
 
-    
+
+    public MapWorldBorder(Settings settings) {
+        this.applySettings(settings);
+    }
+
     @Override
     public double getDistanceToBorder(Entity pEntity) {
         return 1000000; // todo or infinite?
