@@ -7,13 +7,7 @@ import net.minecraft.world.level.border.WorldBorder;
 
 public class MapWorldBorder extends WorldBorder {
 
-    public WorldBorder border;
-
-    public MapWorldBorder(WorldBorder border) {
-        this.border = border;
-
-    }
-
+    
     @Override
     public double getDistanceToBorder(Entity pEntity) {
         return 1000000; // todo or infinite?

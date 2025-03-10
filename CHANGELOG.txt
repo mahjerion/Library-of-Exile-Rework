@@ -1,2 +1,2 @@
-v.2.0.2
-- try fix event async errors
+v.2.0.3
+- try fix mohist worldborder crash
