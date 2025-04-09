@@ -1,2 +1,2 @@
-v.2.0.4
-- try fix mohist worldborder crash #2
+v.2.0.5
+- attempt to fix random world load crashes

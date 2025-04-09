@@ -7,6 +7,14 @@ import net.minecraft.world.level.border.WorldBorder;
 
 public class MapWorldBorder extends WorldBorder {
 
+    private static MapWorldBorder instance = null;
+
+    public static MapWorldBorder get(Settings set) {
+        if (instance == null) {
+            instance = new MapWorldBorder(set);
+        }
+        return instance;
+    }
 
     public MapWorldBorder(Settings settings) {
         this.applySettings(settings);

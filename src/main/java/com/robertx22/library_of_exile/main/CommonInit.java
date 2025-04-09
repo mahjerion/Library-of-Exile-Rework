@@ -46,6 +46,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Locale;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Mod(Ref.MODID)
 public class CommonInit {
@@ -170,15 +172,20 @@ public class CommonInit {
         ClientInit.onInitializeClient();
     }
 
+    static Lock lock = new ReentrantLock();
+
     public static void onDatapacksReloaded() {
         try {
-
-            //  Database.backup();
-            Database.checkGuidValidity();
-            Database.unregisterInvalidEntries();
-            Database.getAllRegistries()
-                    .forEach(x -> x.onAllDatapacksLoaded());
-            ExileEvents.AFTER_DATABASE_LOADED.callEvents(new ExileEvents.AfterDatabaseLoaded());
+            lock.lock();
+            try {
+                //  Database.backup();
+                Database.checkGuidValidity();
+                Database.unregisterInvalidEntries();
+                Database.getAllRegistries().forEach(x -> x.onAllDatapacksLoaded());
+                ExileEvents.AFTER_DATABASE_LOADED.callEvents(new ExileEvents.AfterDatabaseLoaded());
+            } finally {
+                lock.unlock();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

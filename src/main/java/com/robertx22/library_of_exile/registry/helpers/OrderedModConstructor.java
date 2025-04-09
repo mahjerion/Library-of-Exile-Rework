@@ -8,6 +8,8 @@ import com.robertx22.library_of_exile.registry.ExileRegistryEventClass;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 // used to know how to register stuff properly without headaches
 // Place it right at start of mod constructor
@@ -17,31 +19,40 @@ public abstract class OrderedModConstructor {
 
     String modid;
 
+    static Lock lock = new ReentrantLock();
+
     public static void register(OrderedModConstructor c, IEventBus modbus) {
-        c.registerDeferredContainers(modbus);
-        c.registerDeferredEntries();
-        c.registerDatabases();
 
-        final boolean[] done = {false};
-        ExileEvents.EXILE_REGISTRY_GATHER.register(new EventConsumer<ExileRegistryEvent>() {
-            @Override
-            public void accept(ExileRegistryEvent e) {
-                if (!done[0]) {
-                    c.registerDatabaseEntries();
-                    done[0] = true;
+        try {
+            lock.lock();
+
+            c.registerDeferredContainers(modbus);
+            c.registerDeferredEntries();
+            c.registerDatabases();
+
+            final boolean[] done = {false};
+            ExileEvents.EXILE_REGISTRY_GATHER.register(new EventConsumer<ExileRegistryEvent>() {
+                @Override
+                public void accept(ExileRegistryEvent e) {
+                    if (!done[0]) {
+                        c.registerDatabaseEntries();
+                        done[0] = true;
+                    }
                 }
+            });
+
+            for (ExileRegistryEventClass event : c.getRegisterEvents()) {
+                event.register();
             }
-        });
+            //registerDatabaseEntries();
 
-        for (ExileRegistryEventClass event : c.getRegisterEvents()) {
-            event.register();
+            for (ExileKeyHolder holder : c.getAllKeyHolders()) {
+                holder.init();
+            }
+            // all.put(modid, this);
+        } finally {
+            lock.unlock();
         }
-        //registerDatabaseEntries();
-
-        for (ExileKeyHolder holder : c.getAllKeyHolders()) {
-            holder.init();
-        }
-        // all.put(modid, this);
     }
 
     public OrderedModConstructor(String modid) {

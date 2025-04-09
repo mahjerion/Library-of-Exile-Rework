@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LevelMixin {
 
 
+    //private boolean mnsborderoverride = false;
+
     @Inject(method = "getWorldBorder", at = @At("RETURN"), cancellable = true)
     private void hook2(CallbackInfoReturnable<WorldBorder> cir) {
         try {
@@ -20,7 +22,6 @@ public class LevelMixin {
             if (world != null && !world.isClientSide) {
                 if (MapDimensions.isMap(world)) {
                     var c = MapDimensions.getInfo(world);
-
                     if (c == null) {
                         return;
                     }
@@ -29,9 +30,13 @@ public class LevelMixin {
                     }
                     var settings = world.getServer().getWorldData().overworldData().getWorldBorder();
                     if (settings != null) {
-                        cir.setReturnValue(new MapWorldBorder(settings));
+                        var border = MapWorldBorder.get(settings);
+                        if (border != null) {
+                            cir.setReturnValue(border);
+                        }
                     }
                 }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
