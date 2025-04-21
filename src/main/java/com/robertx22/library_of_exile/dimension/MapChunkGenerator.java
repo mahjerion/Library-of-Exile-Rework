@@ -74,7 +74,15 @@ public class MapChunkGenerator extends ChunkGenerator {
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor pExecutor, Blender pBlender, RandomState pRandom, StructureManager pStructureManager, ChunkAccess pChunk) {
         //makeBase(pChunk);
-
+        BlockState blockstate = Blocks.BEDROCK.defaultBlockState();
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+        for (int i = pChunk.getMinBuildHeight(); i < pChunk.getHeight(); ++i) {
+            for (int k = 0; k < 16; ++k) {
+                for (int l = 0; l < 16; ++l) {
+                    pChunk.setBlockState(blockpos$mutableblockpos.set(k, i, l), blockstate, false);
+                }
+            }
+        }
         return CompletableFuture.completedFuture(pChunk);
     }
 

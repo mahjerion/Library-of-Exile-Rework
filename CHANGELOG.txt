@@ -1,2 +1,2 @@
-v.2.0.5
-- attempt to fix random world load crashes
+v.2.0.7
+- fill back all dimension worlds with bedrock, to stop mobs spawning out etc

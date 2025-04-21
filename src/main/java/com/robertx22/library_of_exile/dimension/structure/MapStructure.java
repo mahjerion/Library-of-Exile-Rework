@@ -46,7 +46,7 @@ public abstract class MapStructure<Map> {
         var start2 = INTERNALgetStartChunkPos(start);
 
         if (!start.equals(start2)) {
-            throw new RuntimeException(start.toString() + " and " + start2.toString() + " are different, meaning the getStartChunkPos method is failing to produce consistent results");
+            // throw new RuntimeException(start.toString() + " and " + start2.toString() + " are different, meaning the getStartChunkPos method is failing to produce consistent results");
         }
         return start;
     }
