@@ -29,12 +29,6 @@ public abstract class MapStructure<Map> {
         return pos.getY() >= getSpawnHeight() && pos.getY() <= (getSpawnHeight() + getStructureHeight());
     }
 
-    public BlockPos getSpawnTeleportPos(BlockPos pos) {
-        BlockPos p = getStartChunkPos(pos).getMiddleBlockPosition(getSpawnHeight() + 5);
-        p = new BlockPos(p.getX(), getSpawnHeight() + 5, p.getZ());
-        return p;
-    }
-
     protected abstract ChunkPos INTERNALgetStartChunkPos(ChunkPos cp);
 
     public Random createRandom(Level level, ChunkPos cp) {
