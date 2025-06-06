@@ -33,6 +33,7 @@ public class SimplePrebuiltMapData {
                 return new ResourceLocation(rooms_folder + "/" + x + "_" + z);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
