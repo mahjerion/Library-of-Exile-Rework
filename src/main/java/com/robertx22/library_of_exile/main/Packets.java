@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.main;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +20,10 @@ public class Packets {
     static HashMap<ResourceLocation, SimpleChannel> channels = new HashMap<>();
 
     public static <T> void sendToClient(Player player, MyPacket<T> packet) {
+        if (!(player instanceof ServerPlayer)){
+            ExileLog.get().debug("skip sending packet "+ packet.getIdentifier().getPath() + "　to client!");
+            return;
+        }
         try {
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             packet.saveToData(buf);

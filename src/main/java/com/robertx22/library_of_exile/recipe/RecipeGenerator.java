@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.recipe;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -87,6 +88,10 @@ public class RecipeGenerator {
     }
 
     private static void generate(String modid, Consumer<FinishedRecipe> consumer) {
+        if (!map.containsKey(modid)) {
+            ExileLog.get().log(modid + " don't have any recipes need to be built!");
+            return;
+        }
         for (Supplier<RecipeBuilder> b : map.get(modid)) {
             if (b != null && b.get() != null) {
                 b.get().save(consumer);
