@@ -8,6 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public abstract class MyPacket<T> {
+    FriendlyByteBuf buf = null;
 
     public abstract ResourceLocation getIdentifier();
 
@@ -23,6 +24,8 @@ public abstract class MyPacket<T> {
 
         MyPacket<T> data = newInstance();
         try {
+            this.buf = buf;
+
             data.loadFromData(buf);
         } catch (Exception e) {
             e.printStackTrace();
@@ -38,9 +41,15 @@ public abstract class MyPacket<T> {
                 .enqueueWork(
                         () -> {
                             try {
-                                onReceived(new ExilePacketContext(ctx.get()));
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                try {
+                                    onReceived(new ExilePacketContext(ctx.get()));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } finally {
+                                if (buf != null) {
+                                    buf.release();
+                                }
                             }
                         });
 

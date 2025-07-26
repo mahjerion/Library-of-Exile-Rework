@@ -5,19 +5,21 @@ import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfigDef
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapDimensionInfo {
+public abstract class MapDimensionInfo {
 
     public ResourceLocation dimensionId;
     public MapStructure<?> structure;
     public MapContentType contentType = MapContentType.SIDE_CONTENT;
     public List<MapStructure<?>> secondaryStructures = new ArrayList<>();
     public MapDimensionConfig config;
+    public boolean markDataForClear = false;
 
     public MobValidator mobValidator = new MobValidator() {
         @Override
@@ -35,6 +37,8 @@ public class MapDimensionInfo {
         this.mobValidator = mobValidator;
         this.config = MapDimensionConfig.register(this, def);
     }
+
+    public abstract void clearMapDataOnFolderWipe(MinecraftServer server);
 
     public boolean isInside(MapStructure struc, ServerLevel level, BlockPos pos) {
 

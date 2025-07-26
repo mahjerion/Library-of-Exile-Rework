@@ -9,9 +9,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 // todo bug test this, it's a bit confusing code-wise
 public class MapPlayerDataSaver<T> {
+
+    public String uuid = UUID.randomUUID().toString();
 
     // x_z pos - map data map
     private HashMap<String, T> map = new HashMap<String, T>();

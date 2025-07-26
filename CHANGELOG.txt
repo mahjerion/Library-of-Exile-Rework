@@ -1,2 +1,3 @@
-v.2.1.1
-- Merged PRs
+v.2.1.2
+- will wipe map dimensions on boot to fix many bugs and incompatibilities..
+REPORT ANY PROBLEMS QUICKLY, bugs from this feature can be nasty but it's a needed feature

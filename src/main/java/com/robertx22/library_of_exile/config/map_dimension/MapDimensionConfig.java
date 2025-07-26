@@ -1,7 +1,9 @@
 package com.robertx22.library_of_exile.config.map_dimension;
 
+import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
+import com.robertx22.library_of_exile.dimension.WipeDimensionFeature;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
 import com.robertx22.library_of_exile.main.CommonInit;
 import com.robertx22.library_of_exile.main.Ref;
@@ -30,9 +32,12 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -55,6 +60,7 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
     public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
     public ForgeConfigSpec.BooleanValue DIMENSION_MOBS_ENVIRO_IMMUNITY;
+    public ForgeConfigSpec.BooleanValue WIPE_DIMENSION_ON_LOAD;
 
 
     MapDimensionConfig(ForgeConfigSpec.Builder b, MapDimensionConfigDefaults opt, String id) {
@@ -95,6 +101,10 @@ public class MapDimensionConfig {
         DESPAWN_INCORRECT_MOBS = b
                 .comment("Despawns or tries to stop spawning of mobs that shouldn't spawn in the dimension")
                 .define("DESPAWN_INCORRECT_MOBS", true);
+
+        WIPE_DIMENSION_ON_LOAD = b
+                .comment("Wipes the dimension folder on load, this is important to reduce bugs.")
+                .define("WIPE_DIMENSION_ON_LOAD", true);
 
 
         DISABLE_WORLDBORDER_OVERRIDE = b
@@ -176,6 +186,43 @@ public class MapDimensionConfig {
                 e.printStackTrace();
             }
         });
+
+        // todo does this need earlier?
+        ApiForgeEvents.registerForgeEvent(ServerAboutToStartEvent.class, event -> {
+            try {
+                if (CONFIG.WIPE_DIMENSION_ON_LOAD.get()) {
+                    WipeDimensionFeature.OnStartResetMap(info, mapId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        ApiForgeEvents.registerForgeEvent(PlayerEvent.PlayerLoggedInEvent.class, event -> {
+            try {
+                if (CONFIG.WIPE_DIMENSION_ON_LOAD.get()) {
+                    var p = event.getEntity();
+                    PlayerDataCapability.get(p).mapTeleports.teleportHome(p);
+                    // we kick the player out of wiped maps
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        ApiForgeEvents.registerForgeEvent(ServerStartedEvent.class, event -> {
+            try {
+                if (CONFIG.WIPE_DIMENSION_ON_LOAD.get()) {
+                    if (info.markDataForClear) {
+                        info.clearMapDataOnFolderWipe(event.getServer());
+                        info.markDataForClear = false;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
 
         ApiForgeEvents.registerForgeEvent(LivingDestroyBlockEvent.class, event -> {
             try {
