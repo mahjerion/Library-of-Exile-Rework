@@ -202,8 +202,10 @@ public class MapDimensionConfig {
             try {
                 if (CONFIG.WIPE_DIMENSION_ON_LOAD.get()) {
                     var p = event.getEntity();
-                    PlayerDataCapability.get(p).mapTeleports.teleportHome(p);
-                    // we kick the player out of wiped maps
+                    if (MapDimensions.isMap(p.level())) {
+                        PlayerDataCapability.get(p).mapTeleports.teleportHome(p);
+                        // we kick the player out of wiped maps
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
