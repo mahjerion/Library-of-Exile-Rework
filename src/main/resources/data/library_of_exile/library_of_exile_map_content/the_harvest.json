@@ -1,8 +1,0 @@
-{
-  "always_spawn": false,
-  "block_id": "the_harvest:harvest",
-  "id": "the_harvest",
-  "max_blocks": 1,
-  "min_blocks": 1,
-  "weight": 1000
-}

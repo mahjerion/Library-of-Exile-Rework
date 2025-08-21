@@ -1,9 +1,0 @@
-{
-  "aliases": [],
-  "block_id": "the_harvest:harvest_spawner",
-  "id": "harvest_spawner",
-  "process_on": "NORMAL",
-  "serializer": "set_block",
-  "tags": [],
-  "weight": 1000
-}

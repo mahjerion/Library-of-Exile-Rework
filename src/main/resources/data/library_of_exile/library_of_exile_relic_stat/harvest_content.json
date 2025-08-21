@@ -1,9 +1,0 @@
-{
-  "base": 0.0,
-  "id": "harvest_content",
-  "is_percent": true,
-  "map_content_id": "the_harvest",
-  "max": 1000.0,
-  "min": 0.0,
-  "serializer": "content_weight"
-}
