@@ -1,0 +1,8 @@
+{
+  "base": 0.0,
+  "id": "mobs_spawned",
+  "is_percent": true,
+  "max": 100.0,
+  "min": 0.0,
+  "serializer": "manual_stat"
+}
