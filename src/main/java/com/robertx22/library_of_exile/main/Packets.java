@@ -13,6 +13,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class Packets {
 
@@ -58,7 +59,8 @@ public class Packets {
                 (Class<MyPacket<T>>) packet.getClass(), // todo
                 MyPacket::saveToData,
                 packet::loadFromDataUSETHIS,
-                MyPacket::handle
+                MyPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER)
         );
     }
 
@@ -70,7 +72,8 @@ public class Packets {
                 (Class<MyPacket<T>>) packet.getClass(), // todo
                 MyPacket::saveToData,
                 packet::loadFromDataUSETHIS,
-                MyPacket::handle
+                MyPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
 
         // ClientSidePacketRegistry.INSTANCE.register(packet.getIdentifier(), packet);
