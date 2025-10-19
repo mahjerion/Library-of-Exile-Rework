@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.function.Supplier;
+
 
 public class LoadSave {
 
@@ -33,8 +35,7 @@ public class LoadSave {
 
     }
 
-    public static <OBJ extends Object> OBJ Load(Class theclass, OBJ newobj, CompoundTag nbt, String loc) {
-
+    public static <OBJ> OBJ load(Class<OBJ> clazz, CompoundTag nbt, String loc) {
         OBJ o = null;
         if (nbt == null) {
             return null;
@@ -47,27 +48,42 @@ public class LoadSave {
         }
 
         try {
-            o = (OBJ) gson.fromJson(json, theclass);
+            o = gson.fromJson(json, clazz);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
 
         return o;
-
     }
 
-    public static <OBJ> OBJ loadOrBlank(Class theclass, OBJ newobj, CompoundTag nbt, String loc, OBJ blank) {
+    /**
+     * @deprecated Replaced with {@link LoadSave#load(Class, CompoundTag, String)}
+     */
+    @Deprecated(since = "2.2.0", forRemoval = true)
+    public static <OBJ> OBJ Load(Class clazz, OBJ newobj, CompoundTag nbt, String loc) {
+        return load((Class<OBJ>) clazz, nbt, loc);
+    }
+
+    public static <OBJ> OBJ loadOrBlank(Class<OBJ> clazz, CompoundTag nbt, String loc, Supplier<OBJ> blank) {
         try {
-            OBJ data = Load(theclass, newobj, nbt, loc);
+            OBJ data = load(clazz, nbt, loc);
             if (data == null) {
-                return blank;
+                return blank.get();
             } else {
                 return data;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return blank;
+        return blank.get();
+    }
+
+    /**
+     * @deprecated Replaced with {@link  LoadSave#loadOrBlank(Class, CompoundTag, String, Supplier)}
+     */
+    @Deprecated(since = "2.2.0", forRemoval = true)
+    public static <OBJ> OBJ loadOrBlank(Class clazz, OBJ newobj, CompoundTag nbt, String loc, OBJ blank) {
+        return loadOrBlank((Class<OBJ>) clazz, nbt, loc, () -> blank);
     }
 
 }
