@@ -33,7 +33,7 @@ public class LoadSave {
 
     }
 
-    public static <OBJ extends Object> OBJ Load(Class theclass, OBJ newobj, CompoundTag nbt, String loc) {
+    public static <OBJ extends Object> OBJ Load(Class<OBJ> theclass, OBJ newobj, CompoundTag nbt, String loc) {
 
         OBJ o = null;
         if (nbt == null) {
@@ -47,7 +47,7 @@ public class LoadSave {
         }
 
         try {
-            o = (OBJ) gson.fromJson(json, theclass);
+            o = gson.fromJson(json, theclass);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class LoadSave {
 
     }
 
-    public static <OBJ> OBJ loadOrBlank(Class theclass, OBJ newobj, CompoundTag nbt, String loc, OBJ blank) {
+    public static <OBJ> OBJ loadOrBlank(Class<OBJ> theclass, OBJ newobj, CompoundTag nbt, String loc, OBJ blank) {
         try {
             OBJ data = Load(theclass, newobj, nbt, loc);
             if (data == null) {
