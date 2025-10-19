@@ -57,7 +57,7 @@ public class LibChunkCap implements ICap {
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         try {
-            this.mapGenData = LoadSave.loadOrBlank(MapChunkData.class, new MapChunkData(), nbt, "map", new MapChunkData());
+            this.mapGenData = LoadSave.loadOrBlank(MapChunkData.class, nbt, "map", MapChunkData::new);
         } catch (Exception e) {
             e.printStackTrace();
         }
