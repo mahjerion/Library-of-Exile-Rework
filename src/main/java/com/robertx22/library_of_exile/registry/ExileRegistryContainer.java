@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ExileRegistryContainer<C extends ExileRegistry> {
+public class ExileRegistryContainer<C extends ExileRegistry<C>> {
 
     private List<String> registersErrorsAlertedFor = new ArrayList<>();
     private List<String> accessorErrosAletedFor = new ArrayList<>();
@@ -85,7 +85,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         return fromDatapacks;
     }
 
-    public ExileRegistryType getType() {
+    public ExileRegistryType<C> getType() {
         return type;
     }
 
@@ -98,7 +98,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
 
     }
 
-    private ExileRegistryType type;
+    private ExileRegistryType<C> type;
     private String emptyDefault;
 
     public C getDefault() {
@@ -110,23 +110,21 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
     private boolean logAdditionsToRegistry = false;
     private boolean logMissingEntryOnAccess = true;
 
-    public ExileRegistryContainer logAdditions() {
+    public ExileRegistryContainer<C> logAdditions() {
         this.logAdditionsToRegistry = true;
         return this;
     }
 
-    public void unRegister(ExileRegistry entry) {
-        if (map.containsKey(entry.GUID())) {
-            map.remove(entry.GUID());
-        }
+    public void unRegister(ExileRegistry<C> entry) {
+        map.remove(entry.GUID());
     }
 
-    public ExileRegistryContainer dontErrorMissingEntriesOnAccess() {
+    public ExileRegistryContainer<C> dontErrorMissingEntriesOnAccess() {
         this.logMissingEntryOnAccess = false;
         return this;
     }
 
-    public ExileRegistryContainer dontErrorIfEmpty() {
+    public ExileRegistryContainer<C> dontErrorIfEmpty() {
         this.errorIfEmpty = false;
         return this;
     }
@@ -139,7 +137,7 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
         return getSize() > 0;
     }
 
-    public ExileRegistryContainer(ExileRegistryType type, String emptyDefault) {
+    public ExileRegistryContainer(ExileRegistryType<C> type, String emptyDefault) {
         this.type = type;
         this.emptyDefault = emptyDefault;
     }

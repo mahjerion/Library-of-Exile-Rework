@@ -25,23 +25,23 @@ import net.minecraft.data.CachedOutput;
 public class LibDatabase extends ExileDatabaseInit {
     public static LibDatabase INSTANCE = new LibDatabase(Ref.MODID);
 
-    public static ExileRegistryType MAP_DATA_BLOCK = ExileRegistryType.register(Ref.MODID, "map_data_block", 0, MapDataBlock.SERIALIZER, SyncTime.NEVER);
-    public static ExileRegistryType MOB_LIST = ExileRegistryType.register(Ref.MODID, "mob_list", 0, MobList.SERIALIZER, SyncTime.NEVER);
-    public static ExileRegistryType MOB_AFFIX = ExileRegistryType.register(Ref.MODID, "mob_affix", 0, ExileMobAffix.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType MAP_FINISH_RARITY = ExileRegistryType.register(Ref.MODID, "map_finish_rar", 0, MapFinishRarity.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType MAP_CONTENT = ExileRegistryType.register(Ref.MODID, "map_content", 0, MapContent.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType LEAGUE = ExileRegistryType.register(Ref.MODID, "league", 0, null, SyncTime.NEVER);
+    public static ExileRegistryType<MapDataBlock> MAP_DATA_BLOCK = ExileRegistryType.register(Ref.MODID, "map_data_block", 0, MapDataBlock.SERIALIZER, SyncTime.NEVER);
+    public static ExileRegistryType<MobList> MOB_LIST = ExileRegistryType.register(Ref.MODID, "mob_list", 0, MobList.SERIALIZER, SyncTime.NEVER);
+    public static ExileRegistryType<ExileMobAffix> MOB_AFFIX = ExileRegistryType.register(Ref.MODID, "mob_affix", 0, ExileMobAffix.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<MapFinishRarity> MAP_FINISH_RARITY = ExileRegistryType.register(Ref.MODID, "map_finish_rar", 0, MapFinishRarity.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<MapContent> MAP_CONTENT = ExileRegistryType.register(Ref.MODID, "map_content", 0, MapContent.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<League> LEAGUE = ExileRegistryType.register(Ref.MODID, "league", 0, null, SyncTime.NEVER);
 
     // Atlas
-    public static ExileRegistryType RELIC_STAT = ExileRegistryType.register(Ref.MODID, "relic_stat", 0, RelicStat.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType RELIC_TYPE = ExileRegistryType.register(Ref.MODID, "relic_type", 1, RelicType.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType RELIC_AFFIX = ExileRegistryType.register(Ref.MODID, "relic_affix", 2, RelicAffix.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType RELIC_RARITY = ExileRegistryType.register(Ref.MODID, "relic_rarity", 3, RelicRarity.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<RelicStat> RELIC_STAT = ExileRegistryType.register(Ref.MODID, "relic_stat", 0, RelicStat.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<RelicType> RELIC_TYPE = ExileRegistryType.register(Ref.MODID, "relic_type", 1, RelicType.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<RelicAffix> RELIC_AFFIX = ExileRegistryType.register(Ref.MODID, "relic_affix", 2, RelicAffix.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<RelicRarity> RELIC_RARITY = ExileRegistryType.register(Ref.MODID, "relic_rarity", 3, RelicRarity.SERIALIZER, SyncTime.ON_LOGIN);
 
-    public static ExileRegistryType ITEM_MOD = ExileRegistryType.register(Ref.MODID, "item_modification", 48, ItemModification.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType ITEM_REQ = ExileRegistryType.register(Ref.MODID, "item_requirement", 49, ItemRequirement.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType CURRENCY = ExileRegistryType.register(Ref.MODID, "currency", 50, ExileCurrency.SERIALIZER, SyncTime.ON_LOGIN);
-    public static ExileRegistryType ORB_EDIT = ExileRegistryType.register(Ref.MODID, "orb_edit", 51, OrbEdit.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<ItemModification> ITEM_MOD = ExileRegistryType.register(Ref.MODID, "item_modification", 48, ItemModification.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<ItemRequirement> ITEM_REQ = ExileRegistryType.register(Ref.MODID, "item_requirement", 49, ItemRequirement.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<ExileCurrency> CURRENCY = ExileRegistryType.register(Ref.MODID, "currency", 50, ExileCurrency.SERIALIZER, SyncTime.ON_LOGIN);
+    public static ExileRegistryType<OrbEdit> ORB_EDIT = ExileRegistryType.register(Ref.MODID, "orb_edit", 51, OrbEdit.SERIALIZER, SyncTime.ON_LOGIN);
 
     public LibDatabase(String modid) {
         super(modid);
@@ -66,21 +66,21 @@ public class LibDatabase extends ExileDatabaseInit {
     @Override
     public void initDatabases() {
 
-        Database.addRegistry(new ExileRegistryContainer<>(MAP_DATA_BLOCK, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(MOB_LIST, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(MOB_AFFIX, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(MAP_FINISH_RARITY, "common"));
-        Database.addRegistry(new ExileRegistryContainer<>(MAP_CONTENT, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(LEAGUE, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(RELIC_STAT, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(RELIC_TYPE, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(RELIC_AFFIX, "empty"));
-        Database.addRegistry(new ExileRegistryContainer<>(RELIC_RARITY, "common"));
+        Database.addRegistry(new ExileRegistryContainer<MapDataBlock>(MAP_DATA_BLOCK, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<MobList>(MOB_LIST, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<ExileMobAffix>(MOB_AFFIX, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<MapFinishRarity>(MAP_FINISH_RARITY, "common"));
+        Database.addRegistry(new ExileRegistryContainer<MapContent>(MAP_CONTENT, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<League>(LEAGUE, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<RelicStat>(RELIC_STAT, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<RelicType>(RELIC_TYPE, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<RelicAffix>(RELIC_AFFIX, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<RelicRarity>(RELIC_RARITY, "common"));
 
-        Database.addRegistry(new ExileRegistryContainer<>(LibDatabase.ITEM_MOD, ""));
-        Database.addRegistry(new ExileRegistryContainer<>(LibDatabase.ITEM_REQ, ""));
-        Database.addRegistry(new ExileRegistryContainer<>(LibDatabase.ORB_EDIT, ""));
-        Database.addRegistry(new ExileRegistryContainer<>(LibDatabase.CURRENCY, "socket_adder"));
+        Database.addRegistry(new ExileRegistryContainer<ItemModification>(LibDatabase.ITEM_MOD, ""));
+        Database.addRegistry(new ExileRegistryContainer<ItemRequirement>(LibDatabase.ITEM_REQ, ""));
+        Database.addRegistry(new ExileRegistryContainer<OrbEdit>(LibDatabase.ORB_EDIT, ""));
+        Database.addRegistry(new ExileRegistryContainer<ExileCurrency>(LibDatabase.CURRENCY, "socket_adder"));
 
 
     }
