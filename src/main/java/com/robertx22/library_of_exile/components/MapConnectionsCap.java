@@ -65,7 +65,7 @@ public class MapConnectionsCap implements ICapabilityProvider, INBTSerializable<
 
         try {
 
-            this.data = LoadSave.loadOrBlank(AllMapConnectionData.class, new AllMapConnectionData(), nbt, "data", new AllMapConnectionData());
+            this.data = LoadSave.loadOrBlank(AllMapConnectionData.class, nbt, "data", AllMapConnectionData::new);
 
 
         } catch (JsonSyntaxException e) {

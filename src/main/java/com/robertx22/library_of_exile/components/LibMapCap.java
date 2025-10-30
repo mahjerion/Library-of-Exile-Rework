@@ -84,7 +84,7 @@ public class LibMapCap implements ICapabilityProvider, INBTSerializable<Compound
     public void deserializeNBT(CompoundTag nbt) {
 
         try {
-            this.data = LoadSave.loadOrBlank(LibMapDataSaver.class, new LibMapDataSaver(), nbt, "data", new LibMapDataSaver());
+            this.data = LoadSave.loadOrBlank(LibMapDataSaver.class, nbt, "data", LibMapDataSaver::new);
 
         } catch (Exception e) {
             e.printStackTrace();
