@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Database {
 
-    private static HashMap<ExileRegistryType, ExileRegistryContainer> SERVER = new HashMap<>();
+    private static HashMap<ExileRegistryType<?>, ExileRegistryContainer<?>> SERVER = new HashMap<>();
     //  private static HashMap<ExileRegistryType, ExileRegistryContainer> BACKUP = new HashMap<>();
 
     public static boolean areDatapacksLoaded(Level world) {
@@ -21,22 +21,22 @@ public class Database {
     }
 
 
-    public static List<ExileRegistryContainer> getAllRegistries() {
+    public static List<ExileRegistryContainer<?>> getAllRegistries() {
         return new ArrayList<>(SERVER.values());
     }
 
-    public static ExileRegistryContainer getRegistry(ExileRegistryType type) {
-        return SERVER.get(type);
+    public static <T extends ExileRegistry<T>> ExileRegistryContainer<T> getRegistry(ExileRegistryType<T> type) {
+        return (ExileRegistryContainer<T>) SERVER.get(type);
     }
 
-    public static ExileRegistry get(ExileRegistryType type, String guid) {
+    public static <T extends ExileRegistry<T>> ExileRegistry<T> get(ExileRegistryType<T> type, String guid) {
         return getRegistry(type).get(guid);
 
     }
 
     public static void sendPacketsToClient(ServerPlayer player, SyncTime sync) {
 
-        List<ExileRegistryType> list = ExileRegistryType.getInRegisterOrder(sync);
+        List<ExileRegistryType<?>> list = ExileRegistryType.getInRegisterOrder(sync);
 
         list.forEach(x -> getRegistry(x).sendUpdatePacket(player));
     }
@@ -79,7 +79,7 @@ public class Database {
 
     }
 
-    public static void addRegistry(ExileRegistryContainer cont) {
+    public static <C extends ExileRegistry<C>> void addRegistry(ExileRegistryContainer<C> cont) {
         SERVER.put(cont.getType(), cont);
     }
 }
