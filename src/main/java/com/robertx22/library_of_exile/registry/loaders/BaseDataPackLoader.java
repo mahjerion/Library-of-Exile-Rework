@@ -75,6 +75,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                         json = value.getAsJsonObject();
                         object = serializer.fromJson(json);
                     } catch (Exception e) {
+                        System.err.println("Failed to parse file: " + entry.getKey());
                         e.printStackTrace();
 
                         String info = getInfoString(entry.getKey(), LoaderType.ERROR_LOADING);
