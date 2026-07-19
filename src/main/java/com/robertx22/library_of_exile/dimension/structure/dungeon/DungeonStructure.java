@@ -5,7 +5,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
+
+    // key = start ChunkPos of the dungeon instance, scoped per DungeonStructure singleton
+    public final java.util.Map<ChunkPos, BuiltDungeon> builtDungeonCache = new ConcurrentHashMap<>();
 
     @Override
     public boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos) {

@@ -87,7 +87,16 @@ public class DungeonRoomPlacer {
 
     public static boolean generateStructure(MapStructure struc, DungeonBuilder builder, LevelAccessor world, ChunkPos cpos) {
 
-        builder.build();
+        if (struc instanceof DungeonStructure dungeonStruc) {
+            ChunkPos start = dungeonStruc.getStartChunkPos(cpos);
+
+            builder.builtDungeon = dungeonStruc.builtDungeonCache.computeIfAbsent(start, k -> {
+                builder.build();
+                return builder.builtDungeon;
+            });
+        } else {
+            builder.build();
+        }
 
         if (!builder.builtDungeon.hasRoomForChunk(struc, cpos)) {
             return false;
