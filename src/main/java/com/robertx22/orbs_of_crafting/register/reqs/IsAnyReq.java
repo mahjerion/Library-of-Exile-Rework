@@ -45,10 +45,10 @@ public class IsAnyReq extends ItemRequirement {
 
         for (ItemRequirement req : all) {
             if (!req.isValid(p, obj)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
 
