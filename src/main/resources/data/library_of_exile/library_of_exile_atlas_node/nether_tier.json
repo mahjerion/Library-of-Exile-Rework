@@ -1,9 +1,0 @@
-{
-    "id":  "nether_tier",
-    "dungeon":  "nether",
-    "starting_node":  false,
-    "atlas_points_reward":  2,
-    "min_tier":  12,
-    "min_rarity":  "",
-    "require_uber":  false
-}

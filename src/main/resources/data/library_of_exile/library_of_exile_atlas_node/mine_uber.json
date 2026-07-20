@@ -1,9 +1,0 @@
-{
-    "id":  "mine_uber",
-    "dungeon":  "mine",
-    "starting_node":  false,
-    "atlas_points_reward":  2,
-    "min_tier":  0,
-    "min_rarity":  "",
-    "require_uber":  true
-}

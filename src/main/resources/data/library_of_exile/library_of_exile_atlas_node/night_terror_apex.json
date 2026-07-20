@@ -1,9 +1,0 @@
-{
-    "id":  "night_terror_apex",
-    "dungeon":  "night_terror",
-    "starting_node":  false,
-    "atlas_points_reward":  5,
-    "min_tier":  15,
-    "min_rarity":  "",
-    "require_uber":  true
-}

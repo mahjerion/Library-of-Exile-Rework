@@ -1,9 +1,0 @@
-{
-    "id":  "bastion",
-    "dungeon":  "bastion",
-    "starting_node":  false,
-    "atlas_points_reward":  1,
-    "min_tier":  0,
-    "min_rarity":  "",
-    "require_uber":  false
-}
