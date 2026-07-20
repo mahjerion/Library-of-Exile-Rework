@@ -84,6 +84,14 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
                         continue;
                     }
 
+                    if (object == null) {
+                        // serializer not registered (e.g. its owning mod/addon isn't loaded) -
+                        // already logged by GsonCustomSer.fromJson, just skip this entry
+                        String info = getInfoString(entry.getKey(), LoaderType.ERROR_LOADING);
+                        INFO_MAP.get(registryType).add(info);
+                        continue;
+                    }
+
 
                     LoaderType type = LoaderType.REPLACE_FULLY;
 

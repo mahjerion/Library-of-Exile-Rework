@@ -15,6 +15,7 @@ public interface GsonCustomSer<T> extends ICustomSer<T>, ISerializable<T> {
         GsonCustomSer<T> ser = (GsonCustomSer<T>) getSerMap().map.get(serid);
         if (ser == null) {
             ExileLog.get().warn(serid + " is not an existing serializer");
+            return null;
         }
         var t = ser.fromJsonNormal(json, ser.getClassForSerialization());
         return t;
