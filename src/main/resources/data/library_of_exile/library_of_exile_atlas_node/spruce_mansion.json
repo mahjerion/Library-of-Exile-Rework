@@ -1,9 +1,9 @@
 {
-  "id": "spruce_mansion",
-  "dungeon": "spruce_mansion",
-  "x": 4,
-  "y": 4,
-  "neighbors": ["nether", "tent"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "spruce_mansion",
+    "dungeon":  "spruce_mansion",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

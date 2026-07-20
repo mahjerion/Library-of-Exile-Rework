@@ -1,9 +1,9 @@
 {
-  "id": "steampunk",
-  "dungeon": "steampunk",
-  "x": 2,
-  "y": 6,
-  "neighbors": ["stone_brick", "tent", "night_terror"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "steampunk",
+    "dungeon":  "steampunk",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

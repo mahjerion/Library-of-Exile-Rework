@@ -1,9 +1,9 @@
 {
-  "id": "nature",
-  "dungeon": "nature",
-  "x": 2,
-  "y": 2,
-  "neighbors": ["wn", "bastion", "mossy_brick", "nether"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "nature",
+    "dungeon":  "nature",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

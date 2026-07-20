@@ -1,9 +1,9 @@
 {
-    "id":  "night_terror",
-    "dungeon":  "night_terror",
+    "id":  "steampunk_rare",
+    "dungeon":  "steampunk",
     "starting_node":  false,
     "atlas_points_reward":  2,
     "min_tier":  0,
-    "min_rarity":  "",
+    "min_rarity":  "rare",
     "require_uber":  false
 }

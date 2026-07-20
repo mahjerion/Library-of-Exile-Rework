@@ -1,9 +1,9 @@
 {
-  "id": "it",
-  "dungeon": "it",
-  "x": 4,
-  "y": 2,
-  "neighbors": ["bastion", "nether"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "it",
+    "dungeon":  "it",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

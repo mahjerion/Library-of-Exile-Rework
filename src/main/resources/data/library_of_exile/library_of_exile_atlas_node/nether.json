@@ -1,9 +1,9 @@
 {
-  "id": "nether",
-  "dungeon": "nether",
-  "x": 3,
-  "y": 3,
-  "neighbors": ["nature", "it", "sewers", "spruce_mansion"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "nether",
+    "dungeon":  "nether",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

@@ -1,9 +1,9 @@
 {
-  "id": "sandstone",
-  "dungeon": "sandstone",
-  "x": 4,
-  "y": 0,
-  "neighbors": ["bastion"],
-  "starting_node": true,
-  "atlas_points_reward": 1
+    "id":  "sandstone",
+    "dungeon":  "sandstone",
+    "starting_node":  true,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

@@ -1,9 +1,9 @@
 {
-  "id": "mine",
-  "dungeon": "mine",
-  "x": 0,
-  "y": 4,
-  "neighbors": ["mossy_brick", "stone_brick"],
-  "starting_node": false,
-  "atlas_points_reward": 1
+    "id":  "mine",
+    "dungeon":  "mine",
+    "starting_node":  false,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }

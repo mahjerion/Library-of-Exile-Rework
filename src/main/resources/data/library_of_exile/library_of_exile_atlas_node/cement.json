@@ -1,9 +1,9 @@
 {
-  "id": "cement",
-  "dungeon": "cement",
-  "x": 0,
-  "y": 0,
-  "neighbors": ["wn"],
-  "starting_node": true,
-  "atlas_points_reward": 1
+    "id":  "cement",
+    "dungeon":  "cement",
+    "starting_node":  true,
+    "atlas_points_reward":  1,
+    "min_tier":  0,
+    "min_rarity":  "",
+    "require_uber":  false
 }
