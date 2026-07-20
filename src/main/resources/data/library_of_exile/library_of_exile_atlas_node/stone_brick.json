@@ -1,0 +1,9 @@
+{
+  "id": "stone_brick",
+  "dungeon": "stone_brick",
+  "x": 1,
+  "y": 5,
+  "neighbors": ["mine", "sewers", "steampunk"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

@@ -1,0 +1,9 @@
+{
+  "id": "night_terror",
+  "dungeon": "night_terror",
+  "x": 2,
+  "y": 7,
+  "neighbors": ["steampunk"],
+  "starting_node": false,
+  "atlas_points_reward": 2
+}

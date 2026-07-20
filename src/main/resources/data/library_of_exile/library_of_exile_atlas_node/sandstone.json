@@ -1,0 +1,9 @@
+{
+  "id": "sandstone",
+  "dungeon": "sandstone",
+  "x": 4,
+  "y": 0,
+  "neighbors": ["bastion"],
+  "starting_node": true,
+  "atlas_points_reward": 1
+}

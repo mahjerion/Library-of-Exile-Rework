@@ -1,0 +1,9 @@
+{
+  "id": "sewer2",
+  "dungeon": "sewer2",
+  "x": 0,
+  "y": 2,
+  "neighbors": ["wn", "mossy_brick"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

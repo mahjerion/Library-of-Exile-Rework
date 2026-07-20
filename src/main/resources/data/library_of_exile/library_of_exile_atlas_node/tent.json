@@ -1,0 +1,9 @@
+{
+  "id": "tent",
+  "dungeon": "tent",
+  "x": 3,
+  "y": 5,
+  "neighbors": ["sewers", "spruce_mansion", "steampunk"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

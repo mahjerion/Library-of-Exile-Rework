@@ -1,0 +1,9 @@
+{
+  "id": "warped",
+  "dungeon": "warped",
+  "x": 2,
+  "y": 0,
+  "neighbors": ["wn", "bastion"],
+  "starting_node": true,
+  "atlas_points_reward": 1
+}

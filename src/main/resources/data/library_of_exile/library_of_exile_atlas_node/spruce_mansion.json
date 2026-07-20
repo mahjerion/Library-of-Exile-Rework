@@ -1,0 +1,9 @@
+{
+  "id": "spruce_mansion",
+  "dungeon": "spruce_mansion",
+  "x": 4,
+  "y": 4,
+  "neighbors": ["nether", "tent"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

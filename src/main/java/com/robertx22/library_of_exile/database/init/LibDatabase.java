@@ -1,6 +1,7 @@
 package com.robertx22.library_of_exile.database.init;
 
 import com.robertx22.library_of_exile.database.affix.types.ExileMobAffix;
+import com.robertx22.library_of_exile.database.atlas.AtlasNode;
 import com.robertx22.library_of_exile.database.extra_map_content.MapContent;
 import com.robertx22.library_of_exile.database.league.League;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
@@ -31,6 +32,7 @@ public class LibDatabase extends ExileDatabaseInit {
     public static ExileRegistryType MAP_FINISH_RARITY = ExileRegistryType.register(Ref.MODID, "map_finish_rar", 0, MapFinishRarity.SERIALIZER, SyncTime.ON_LOGIN);
     public static ExileRegistryType MAP_CONTENT = ExileRegistryType.register(Ref.MODID, "map_content", 0, MapContent.SERIALIZER, SyncTime.ON_LOGIN);
     public static ExileRegistryType LEAGUE = ExileRegistryType.register(Ref.MODID, "league", 0, null, SyncTime.NEVER);
+    public static ExileRegistryType ATLAS_NODE = ExileRegistryType.register(Ref.MODID, "atlas_node", 0, AtlasNode.SERIALIZER, SyncTime.ON_LOGIN);
 
     // Atlas
     public static ExileRegistryType RELIC_STAT = ExileRegistryType.register(Ref.MODID, "relic_stat", 0, RelicStat.SERIALIZER, SyncTime.ON_LOGIN);
@@ -72,6 +74,7 @@ public class LibDatabase extends ExileDatabaseInit {
         Database.addRegistry(new ExileRegistryContainer<>(MAP_FINISH_RARITY, "common"));
         Database.addRegistry(new ExileRegistryContainer<>(MAP_CONTENT, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(LEAGUE, "empty"));
+        Database.addRegistry(new ExileRegistryContainer<>(ATLAS_NODE, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(RELIC_STAT, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(RELIC_TYPE, "empty"));
         Database.addRegistry(new ExileRegistryContainer<>(RELIC_AFFIX, "empty"));
@@ -112,6 +115,10 @@ public class LibDatabase extends ExileDatabaseInit {
 
     public static ExileRegistryContainer<MapFinishRarity> MapFinishRarity() {
         return Database.getRegistry(MAP_FINISH_RARITY);
+    }
+
+    public static ExileRegistryContainer<AtlasNode> AtlasNodes() {
+        return Database.getRegistry(ATLAS_NODE);
     }
 
     public static ExileRegistryContainer<MapDataBlock> MapDataBlocks() {

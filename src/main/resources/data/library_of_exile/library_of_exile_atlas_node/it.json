@@ -1,0 +1,9 @@
+{
+  "id": "it",
+  "dungeon": "it",
+  "x": 4,
+  "y": 2,
+  "neighbors": ["bastion", "nether"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

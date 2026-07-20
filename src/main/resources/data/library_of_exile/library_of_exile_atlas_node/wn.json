@@ -1,0 +1,9 @@
+{
+  "id": "wn",
+  "dungeon": "wn",
+  "x": 1,
+  "y": 1,
+  "neighbors": ["cement", "warped", "sewer2", "nature"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

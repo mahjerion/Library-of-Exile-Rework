@@ -1,0 +1,9 @@
+{
+  "id": "bastion",
+  "dungeon": "bastion",
+  "x": 3,
+  "y": 1,
+  "neighbors": ["warped", "sandstone", "nature", "it"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}

@@ -1,0 +1,9 @@
+{
+  "id": "steampunk",
+  "dungeon": "steampunk",
+  "x": 2,
+  "y": 6,
+  "neighbors": ["stone_brick", "tent", "night_terror"],
+  "starting_node": false,
+  "atlas_points_reward": 1
+}
