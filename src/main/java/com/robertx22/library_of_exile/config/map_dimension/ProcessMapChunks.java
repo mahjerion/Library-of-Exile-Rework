@@ -82,10 +82,13 @@ public class ProcessMapChunks {
 
         CompoundTag data = new CompoundTag();
 
+        // fetch the processor list once per call instead of re-allocating it per data block (getList() allocates a fresh ArrayList)
+        List<MapDataBlock> processors = LibDatabase.MapDataBlocks().getList();
+
         chunk.getCapability(LibChunkCap.INSTANCE).ifPresent(x -> {
             if (!x.mapGenData.mapBlocks.isEmpty()) {
                 for (BlockData block : x.mapGenData.mapBlocks.getOrDefault(type, Arrays.asList())) {
-                    generateSingleData(level, chunk, type, block.getPos(), data, block.data);
+                    generateSingleData(level, chunk, type, block.getPos(), data, block.data, processors);
                 }
             }
             x.mapGenData.mapBlocks.put(type, new ArrayList<>());
@@ -97,6 +100,9 @@ public class ProcessMapChunks {
 
         var nbt = new CompoundTag();
 
+        // fetch the processor list once per chunk instead of re-allocating it for every block entity
+        List<MapDataBlock> processors = LibDatabase.MapDataBlocks().getList();
+
         chunk.getCapability(LibChunkCap.INSTANCE).ifPresent(x -> {
             for (BlockPos tilePos : chunk.getBlockEntitiesPos()) {
                 BlockEntity tile = level.getBlockEntity(tilePos);
@@ -106,10 +112,11 @@ public class ProcessMapChunks {
 
                     ChunkProcessType type = ChunkProcessType.NORMAL;
 
-                    var be = LibDatabase.MapDataBlocks().getList().stream().filter(e -> e.matches(text, tilePos, level, nbt)).findFirst();
-
-                    if (be.isPresent()) {
-                        type = be.get().process_on;
+                    for (MapDataBlock processor : processors) {
+                        if (processor.matches(text, tilePos, level, nbt)) {
+                            type = processor.process_on;
+                            break;
+                        }
                     }
 
                     if (!x.mapGenData.mapBlocks.containsKey(type)) {
@@ -124,7 +131,7 @@ public class ProcessMapChunks {
         });
     }
 
-    public static void generateSingleData(Level level, LevelChunk chunk, ChunkProcessType type, BlockPos tilePos, CompoundTag data, String text) {
+    public static void generateSingleData(Level level, LevelChunk chunk, ChunkProcessType type, BlockPos tilePos, CompoundTag data, String text, List<MapDataBlock> processors) {
 
         if (!text.isEmpty()) {
 
@@ -138,16 +145,18 @@ public class ProcessMapChunks {
 
             ctx.libMapData = libdata;
 
-            for (MapDataBlock processor : LibDatabase.MapDataBlocks().getList()) {
+            // only process() a matching processor - non-matching ones previously reached process() only to no-op
+            // (process() re-checks matches() internally), so skipping them is behavior-identical and avoids the double-match
+            for (MapDataBlock processor : processors) {
                 if (processor.matches(text, tilePos, level, data)) {
                     if (processor.process_on != type) {
                         skip = true;
                         break;
                     }
-                }
-                boolean did = processor.process(text, tilePos, level, data, ctx);
-                if (did) {
-                    any = true;
+                    boolean did = processor.process(text, tilePos, level, data, ctx);
+                    if (did) {
+                        any = true;
+                    }
                 }
             }
             if (!skip) {
