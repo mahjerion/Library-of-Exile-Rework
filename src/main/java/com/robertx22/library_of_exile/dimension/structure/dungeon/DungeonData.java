@@ -13,7 +13,19 @@ import java.util.stream.Collectors;
 
 public class DungeonData {
 
+    // a room is always a square of whole chunks. the grid of rooms is a fixed amount of cells, so bigger
+    // rooms mean a bigger dungeon in blocks, not fewer rooms. changing this requires the instance spacing
+    // to have room for GRID_CELLS * MAX_ROOM_CHUNKS chunks, which is why it's capped.
+    public static final int MAX_ROOM_CHUNKS = 4;
+
     public String folder = "";
+
+    // blocks per side of every room in this dungeon. must be a multiple of 16, all rooms must match it.
+    public int room_size = 16;
+
+    // 0 means fall back to whatever the host mod's config says
+    public int min_rooms = 0;
+    public int max_rooms = 0;
 
     public ExileTagRequirement<MobList> mob_list_tag_check = new ExileTagRequirement().createBuilder().includes(MobListTags.MAP).build();
 
@@ -27,12 +39,25 @@ public class DungeonData {
     private transient List<DungeonRoom> rooms = new ArrayList<>();
 
 
+    // how many chunks wide/long a single room of this dungeon is
+    public int getRoomSizeInChunks() {
+        return Math.max(1, room_size / 16);
+    }
+
     public boolean checkValidity(ExileRegistry reg) {
         for (RoomType type : RoomType.values()) {
             if (getRoomList(type).isEmpty()) {
                 ExileLog.get().warn("Dungeons must have rooms of each type! " + reg.getRegistryIdPlusGuid() + " is missing " + type.name() + " rooms");
                 return false;
             }
+        }
+        if (room_size < 16 || room_size % 16 != 0) {
+            ExileLog.get().warn("Dungeon room_size must be a multiple of 16! " + reg.getRegistryIdPlusGuid() + " has " + room_size);
+            return false;
+        }
+        if (getRoomSizeInChunks() > MAX_ROOM_CHUNKS) {
+            ExileLog.get().warn("Dungeon room_size can't be bigger than " + (MAX_ROOM_CHUNKS * 16) + "! " + reg.getRegistryIdPlusGuid() + " has " + room_size);
+            return false;
         }
         return true;
     }

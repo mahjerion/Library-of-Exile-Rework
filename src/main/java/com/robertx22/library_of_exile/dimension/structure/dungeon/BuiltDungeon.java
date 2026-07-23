@@ -61,20 +61,70 @@ public class BuiltDungeon {
 
     }
 
-    public BuiltRoom getRoomForChunk(MapStructure s, ChunkPos pos) {
-        try {
-            ChunkPos start = s.getStartChunkPos(pos.getMiddleBlockPosition(50));
-            ChunkPos relative = new ChunkPos(pos.x - start.x, pos.z - start.z);
-            return rooms[getMiddle() + relative.x][getMiddle() + relative.z];
-        } catch (Exception e) {
-        }
-        // todo.. why is this nulling now
-        return null;//  return BuiltRoom.getBarrier();
+    // a room can span several chunks, so a chunk maps to a grid cell plus which sub chunk of that room it is.
+    // the origin chunk is the room's min corner, which is where its structure has to be anchored.
+    public static class RoomPlacement {
+        public final BuiltRoom room;
+        public final ChunkPos originChunk;
+        public final int subX;
+        public final int subZ;
 
+        public RoomPlacement(BuiltRoom room, ChunkPos originChunk, int subX, int subZ) {
+            this.room = room;
+            this.originChunk = originChunk;
+            this.subX = subX;
+            this.subZ = subZ;
+        }
+
+        public boolean isOriginChunk() {
+            return subX == 0 && subZ == 0;
+        }
+    }
+
+    public RoomPlacement getPlacementForChunk(MapStructure s, ChunkPos pos, int roomChunks) {
+
+        ChunkPos start = s.getStartChunkPos(pos.getMiddleBlockPosition(50));
+
+        int relX = pos.x - start.x;
+        int relZ = pos.z - start.z;
+
+        // relative coords are negative on half the grid, and / and % truncate towards zero,
+        // which would fold cell -1 into cell 0. floorDiv/floorMod are required here.
+        int cellX = getMiddle() + Math.floorDiv(relX, roomChunks);
+        int cellZ = getMiddle() + Math.floorDiv(relZ, roomChunks);
+
+        if (!isWithinBounds(cellX, cellZ)) {
+            return null;
+        }
+        BuiltRoom room = rooms[cellX][cellZ];
+        if (room == null) {
+            return null;
+        }
+
+        int subX = Math.floorMod(relX, roomChunks);
+        int subZ = Math.floorMod(relZ, roomChunks);
+        ChunkPos origin = new ChunkPos(pos.x - subX, pos.z - subZ);
+
+        return new RoomPlacement(room, origin, subX, subZ);
+    }
+
+    public BuiltRoom getRoomForChunk(MapStructure s, ChunkPos pos) {
+        return getRoomForChunk(s, pos, b == null ? 1 : b.getRoomChunks());
+    }
+
+    public BuiltRoom getRoomForChunk(MapStructure s, ChunkPos pos, int roomChunks) {
+        var placement = getPlacementForChunk(s, pos, roomChunks);
+        return placement == null ? null : placement.room;
     }
 
     public boolean hasRoomForChunk(MapStructure s, ChunkPos pos) {
         return getRoomForChunk(s, pos) != null;
+    }
+
+    // rooms bigger than a chunk cover roomChunks^2 chunks each
+    public int getTotalChunkCount() {
+        int roomChunks = b == null ? 1 : b.getRoomChunks();
+        return amount * roomChunks * roomChunks;
     }
 
     public BuiltRoom getRoom(int x, int z) {

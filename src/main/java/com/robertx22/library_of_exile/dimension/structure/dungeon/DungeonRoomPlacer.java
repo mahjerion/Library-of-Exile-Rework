@@ -13,52 +13,81 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DungeonRoomPlacer {
 
+    // rooms are placed once per chunk they cover, so a size warning would otherwise repeat every chunk
+    private static final Set<ResourceLocation> WARNED_ABOUT_SIZE = ConcurrentHashMap.newKeySet();
 
     public static boolean generatePiece(LevelAccessor world, BlockPos position, RandomSource random, Rotation rota, ResourceLocation id) {
+        return generatePiece(world, position, random, rota, id, null, true, 16, 0);
+    }
 
-        var template = world.getServer().getStructureManager().get(id).get();
-        StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE)
-                .setRotation(rota)
-                .setIgnoreEntities(false);
-        List<StructureTemplate.StructureBlockInfo> commandBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.COMMAND_BLOCK, true);
-        List<StructureTemplate.StructureBlockInfo> structureBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.STRUCTURE_BLOCK, true);
+    /**
+     * @param clip                 if set, only blocks/entities inside this box are placed. used to place a room
+     *                             that spans several chunks one chunk at a time, since worldgen only lets us
+     *                             write to the chunk currently being generated.
+     * @param fireDataBlockEvents  data blocks must only be announced once per room, not once per chunk it covers.
+     * @param expectedSize         the dungeon's room size in blocks, every room must fit within it.
+     * @param maxHeight            the structure height the map dimension considers "inside", 0 to skip the check.
+     */
+    public static boolean generatePiece(LevelAccessor world, BlockPos position, RandomSource random, Rotation rota, ResourceLocation id,
+                                        @Nullable BoundingBox clip, boolean fireDataBlockEvents, int expectedSize, int maxHeight) {
 
-        final BlockPos finalPosition = position;
-
-        commandBlocks
-        .forEach((block) -> {
-            BlockPos worldPos = finalPosition.offset(block.pos());
-
-            var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
-            ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
-        });
-
-        structureBlocks
-        .forEach((block) -> {
-            BlockPos worldPos = finalPosition.offset(block.pos());
-
-            var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
-            ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
-        });
-
-        settings.setBoundingBox(settings.getBoundingBox());
-
-        if (template == null) {
+        var opt = world.getServer().getStructureManager().get(id);
+        if (opt.isEmpty()) {
             ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + id + ")");
             return false;
         }
+        var template = opt.get();
 
-        if (template.getSize().getX() > 16 || template.getSize().getZ() > 16) {
-            ExileLog.get().warn("FATAL ERROR: Structure is bigger than possible (" + id + ") " + template.getSize().toString());
+        if (template.getSize().getX() > expectedSize || template.getSize().getZ() > expectedSize) {
+            ExileLog.get().warn("FATAL ERROR: Structure is bigger than possible (" + id + ") " + template.getSize().toString() + " max is " + expectedSize);
             return false;
         }
+        if (maxHeight > 0 && template.getSize().getY() > maxHeight) {
+            // taller than what the dimension treats as inside its map, so isInside(...) would mis-report it
+            ExileLog.get().warn("FATAL ERROR: Structure is taller than the map allows (" + id + ") " + template.getSize().toString() + " max height is " + maxHeight);
+            return false;
+        }
+        warnAboutOddSize(id, template, expectedSize);
+
+        StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE)
+                .setRotation(rota)
+                .setIgnoreEntities(false);
+
+        if (fireDataBlockEvents) {
+            List<StructureTemplate.StructureBlockInfo> commandBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.COMMAND_BLOCK, true);
+            List<StructureTemplate.StructureBlockInfo> structureBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.STRUCTURE_BLOCK, true);
+
+            final BlockPos finalPosition = position;
+
+            commandBlocks
+            .forEach((block) -> {
+                BlockPos worldPos = finalPosition.offset(block.pos());
+
+                var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
+                ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
+            });
+
+            structureBlocks
+            .forEach((block) -> {
+                BlockPos worldPos = finalPosition.offset(block.pos());
+
+                var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
+                ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
+            });
+        }
+
+        settings.setBoundingBox(clip);
 
         // next if the structure is to be rotated then it must also be offset, because rotating a structure also moves it
         if (rota == Rotation.COUNTERCLOCKWISE_90) {
@@ -85,6 +114,17 @@ public class DungeonRoomPlacer {
         return done;
     }
 
+    private static void warnAboutOddSize(ResourceLocation id, StructureTemplate template, int expectedSize) {
+        if (template.getSize().getX() == expectedSize && template.getSize().getZ() == expectedSize) {
+            return;
+        }
+        if (!WARNED_ABOUT_SIZE.add(id)) {
+            return;
+        }
+        ExileLog.get().warn("Dungeon room (" + id + ") is " + template.getSize().toString()
+                + " but every room of its dungeon must be " + expectedSize + " wide. It will generate with gaps.");
+    }
+
     public static boolean generateStructure(MapStructure struc, DungeonBuilder builder, LevelAccessor world, ChunkPos cpos) {
 
         if (struc instanceof DungeonStructure dungeonStruc) {
@@ -98,17 +138,33 @@ public class DungeonRoomPlacer {
             builder.build();
         }
 
-        if (!builder.builtDungeon.hasRoomForChunk(struc, cpos)) {
-            return false;
-        }
-        BuiltRoom room = builder.builtDungeon.getRoomForChunk(struc, cpos);
-        if (room == null) {
+        int roomChunks = builder.getRoomChunks();
+
+        var placement = builder.builtDungeon.getPlacementForChunk(struc, cpos, roomChunks);
+        if (placement == null) {
             return false;
         }
 
-        BlockPos position = cpos.getBlockAt(0, 50, 0);
-        generatePiece(world, position, world.getRandom(), room.data.rotation, room.getStructure());
+        int y = struc.getSpawnHeight();
+        int maxHeight = struc.getStructureHeight();
+
+        if (placement.room.room.isBarrier) {
+            // the barrier is a chunk sized filler, so for bigger rooms it's simply tiled over every sub chunk
+            return generatePiece(world, cpos.getBlockAt(0, y, 0), world.getRandom(), Rotation.NONE, placement.room.getStructure(), null, true, 16, maxHeight);
+        }
+
+        // anchor at the room's own corner, not this chunk's, then only let it write into this chunk
+        BlockPos anchor = placement.originChunk.getBlockAt(0, y, 0);
+        BoundingBox clip = roomChunks == 1 ? null : chunkBox(world, cpos);
+
+        generatePiece(world, anchor, world.getRandom(), placement.room.data.rotation, placement.room.getStructure(),
+                clip, placement.isOriginChunk(), roomChunks * 16, maxHeight);
         return true;
+    }
+
+    private static BoundingBox chunkBox(LevelAccessor world, ChunkPos cpos) {
+        return new BoundingBox(cpos.getMinBlockX(), world.getMinBuildHeight(), cpos.getMinBlockZ(),
+                cpos.getMaxBlockX(), world.getMaxBuildHeight(), cpos.getMaxBlockZ());
     }
 
 }

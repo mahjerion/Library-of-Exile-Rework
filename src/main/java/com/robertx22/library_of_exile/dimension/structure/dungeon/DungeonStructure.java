@@ -5,12 +5,26 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
 
-    // key = start ChunkPos of the dungeon instance, scoped per DungeonStructure singleton
-    public final java.util.Map<ChunkPos, BuiltDungeon> builtDungeonCache = new ConcurrentHashMap<>();
+    private static final int MAX_CACHED_DUNGEONS = 32;
+
+    // key = start ChunkPos of the dungeon instance, scoped per DungeonStructure singleton.
+    // bounded because every instance a player ever brushes past would otherwise keep a full room grid
+    // alive for the server's lifetime. evicting is safe, builds are deterministic from the start chunk
+    // + world seed, so a rebuilt dungeon is identical. synchronizedMap because worldgen is threaded and
+    // its computeIfAbsent runs under the wrapper's mutex.
+    public final Map<ChunkPos, BuiltDungeon> builtDungeonCache = Collections.synchronizedMap(
+            new LinkedHashMap<>(MAX_CACHED_DUNGEONS * 2, 0.75F, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<ChunkPos, BuiltDungeon> eldest) {
+                    return size() > MAX_CACHED_DUNGEONS;
+                }
+            });
 
     @Override
     public boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos) {

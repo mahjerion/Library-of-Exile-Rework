@@ -50,6 +50,12 @@ public class DungeonBuilder {
     public int size;
 
 
+    // how many chunks wide a single room of this dungeon is. 1 for every pre existing dungeon.
+    public int getRoomChunks() {
+        return dungeon == null ? 1 : dungeon.getDungeonData().getRoomSizeInChunks();
+    }
+
+
     public void build() {
         builtDungeon = new BuiltDungeon(size, this);
         builtDungeon.setupBarriers();
