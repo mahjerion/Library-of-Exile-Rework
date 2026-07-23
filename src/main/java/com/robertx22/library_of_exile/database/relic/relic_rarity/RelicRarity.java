@@ -18,6 +18,7 @@ public class RelicRarity implements JsonExileRegistry<RelicRarity>, IAutoGson<Re
     public int affixes = 0;
     public int min_affix_percent = 0;
     public int max_affix_percent = 100;
+    public int max_uses = 1;
 
 
     @Override

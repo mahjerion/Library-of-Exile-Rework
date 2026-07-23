@@ -22,6 +22,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 1;
         r.min_affix_percent = 0;
         r.max_affix_percent = 25;
+        r.max_uses = 3;
 
         return r;
     });
@@ -33,6 +34,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 1;
         r.min_affix_percent = 5;
         r.max_affix_percent = 50;
+        r.max_uses = 3;
 
 
         return r;
@@ -45,6 +47,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 1;
         r.min_affix_percent = 10;
         r.max_affix_percent = 65;
+        r.max_uses = 3;
 
 
         return r;
@@ -57,6 +60,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 2;
         r.min_affix_percent = 15;
         r.max_affix_percent = 80;
+        r.max_uses = 3;
 
         return r;
     });
@@ -68,6 +72,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 2;
         r.min_affix_percent = 20;
         r.max_affix_percent = 100;
+        r.max_uses = 3;
 
         return r;
     });
@@ -79,6 +84,7 @@ public class LibRelicRarities extends ExileKeyHolder<RelicRarity> {
         r.affixes = 3;
         r.min_affix_percent = 25;
         r.max_affix_percent = 100;
+        r.max_uses = 3;
 
         return r;
     });
