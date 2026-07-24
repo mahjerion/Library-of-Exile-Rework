@@ -31,6 +31,13 @@ public abstract class MapStructure<Map> {
 
     protected abstract ChunkPos INTERNALgetStartChunkPos(ChunkPos cp);
 
+    // blocks to shift the spawn from the start chunk's center to the actual room's center, in both
+    // X and Z. 0 for single-chunk rooms (and every prebuilt map); dungeons with rooms bigger than one
+    // chunk override this so the player lands in the middle of the room instead of a corner quadrant.
+    public int getSpawnCenterBlockOffset(ChunkPos start) {
+        return 0;
+    }
+
     public Random createRandom(Level level, ChunkPos cp) {
         return MapGenerationUTIL.createRandom(level, getStartChunkPos(cp));
     }

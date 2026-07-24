@@ -26,6 +26,17 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
                 }
             });
 
+    // the built room grid for the instance at this start chunk. deterministic from start + world seed,
+    // so a cache miss just rebuilds an identical grid. shared by generation and the map_bug report so
+    // both see the exact same layout.
+    public BuiltDungeon getBuiltDungeon(ChunkPos start) {
+        return builtDungeonCache.computeIfAbsent(start, k -> {
+            var b = getMap(start);
+            b.build();
+            return b.builtDungeon;
+        });
+    }
+
     @Override
     public boolean generateInChunk(ServerLevelAccessor level, StructureTemplateManager man, ChunkPos cpos) {
         var start = getStartChunkPos(cpos);

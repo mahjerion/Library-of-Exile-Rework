@@ -52,7 +52,9 @@ public class BuiltDungeon {
         if (isTooCloseToGridEdge(point)) {
             return true;
         }
-        return amount > size;
+        // >= not >: start closing branches one room earlier, so junction rooms placed near the
+        // target don't overshoot the requested room count as much.
+        return amount >= size;
     }
 
     public boolean isTooCloseToGridEdge(PointData p) {

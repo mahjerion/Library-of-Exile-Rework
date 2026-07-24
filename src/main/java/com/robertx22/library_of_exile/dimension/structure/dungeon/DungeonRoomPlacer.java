@@ -129,11 +129,8 @@ public class DungeonRoomPlacer {
 
         if (struc instanceof DungeonStructure dungeonStruc) {
             ChunkPos start = dungeonStruc.getStartChunkPos(cpos);
-
-            builder.builtDungeon = dungeonStruc.builtDungeonCache.computeIfAbsent(start, k -> {
-                builder.build();
-                return builder.builtDungeon;
-            });
+            // shared cache/build path with the map_bug report, so both resolve the identical layout
+            builder.builtDungeon = dungeonStruc.getBuiltDungeon(start);
         } else {
             builder.build();
         }

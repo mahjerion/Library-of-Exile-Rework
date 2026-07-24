@@ -9,6 +9,7 @@ import com.robertx22.library_of_exile.dimension.teleport.SavedTeleportPos;
 import com.robertx22.library_of_exile.vanilla_util.main.VanillaUTIL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.NotNull;
@@ -48,8 +49,12 @@ public class TeleportUtils {
     }
 
     public static @NotNull BlockPos getOriginalTeleportPos(MapStructure<?> structure, BlockPos pos) {
-        BlockPos p = structure.getStartChunkPos(pos).getMiddleBlockPosition(structure.getSpawnHeight() + 5);
-        p = new BlockPos(p.getX(), structure.getSpawnHeight() + 5, p.getZ());
+        ChunkPos start = structure.getStartChunkPos(pos);
+        BlockPos p = start.getMiddleBlockPosition(structure.getSpawnHeight() + 5);
+        // shift from the start chunk's center to the actual room's center. 0 for single-chunk rooms,
+        // so this is byte-identical for every existing map; only big-room dungeons override it.
+        int off = structure.getSpawnCenterBlockOffset(start);
+        p = new BlockPos(p.getX() + off, structure.getSpawnHeight() + 5, p.getZ() + off);
         return p;
     }
 }
