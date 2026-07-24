@@ -143,6 +143,22 @@ public class MapDimensionConfig {
         return true;
     }
 
+    // shared by every right-click event we gate on the banned-items tag (RightClickItem, RightClickBlock,
+    // EntityInteract, EntityInteractSpecific): they all expose the same getItemStack()/getEntity()/setCanceled
+    // via the common PlayerInteractEvent base, so one check covers open-air, block-targeted, and entity-targeted
+    // item use alike.
+    private static void cancelIfBannedItem(MapDimensionConfig CONFIG, PlayerInteractEvent event) {
+        if (event.getItemStack().is(CONFIG.LAZY_BANNED_ITEMS.get())) {
+            if (tryGiveLeeWay(event.getEntity())) {
+                if (!event.getEntity().level().isClientSide) {
+                    event.getEntity().sendSystemMessage(Component.literal("Item is banned in This Dimension: ")
+                            .append(event.getItemStack().getDisplayName()).withStyle(ChatFormatting.BOLD));
+                }
+                event.setCanceled(true);
+            }
+        }
+    }
+
 
     public static MapDimensionConfig register(MapDimensionInfo info, MapDimensionConfigDefaults opt) {
         ResourceLocation mapId = info.dimensionId;
@@ -155,20 +171,37 @@ public class MapDimensionConfig {
 
 
         ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.RightClickItem.class, event -> {
-
             if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
                 return;
             }
+            cancelIfBannedItem(CONFIG, event);
+        });
 
-            if (event.getItemStack().is(CONFIG.LAZY_BANNED_ITEMS.get())) {
-                if (tryGiveLeeWay(event.getEntity())) {
-                    if (!event.getLevel().isClientSide) {
-                        event.getEntity().sendSystemMessage(Component.literal("Item is banned in This Dimension: ")
-                                .append(event.getItemStack().getDisplayName()).withStyle(ChatFormatting.BOLD));
-                    }
-                    event.setCanceled(true);
-                }
+        // RightClickItem alone only catches right-clicks in open air (Item#use). A player right-clicking
+        // while aiming at a block or entity - the common case in enclosed dungeon rooms - instead runs
+        // Item#onItemUseFirst/#useOn or Entity#interact/Item#interactLivingEntity via these earlier
+        // events, and only falls through to RightClickItem if all of those PASS. A banned item whose
+        // ability lives in one of those overrides (e.g. a block/entity-targeted teleport "hand" item)
+        // could otherwise fully execute before the ban was ever checked.
+        ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.RightClickBlock.class, event -> {
+            if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
+                return;
             }
+            cancelIfBannedItem(CONFIG, event);
+        });
+
+        ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.EntityInteract.class, event -> {
+            if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
+                return;
+            }
+            cancelIfBannedItem(CONFIG, event);
+        });
+
+        ApiForgeEvents.registerForgeEvent(PlayerInteractEvent.EntityInteractSpecific.class, event -> {
+            if (!isDimension(mapId, event.getEntity().level()) || !MapDimensions.isMap(event.getEntity().level())) {
+                return;
+            }
+            cancelIfBannedItem(CONFIG, event);
         });
 
         ApiForgeEvents.registerForgeEvent(BlockEvent.BreakEvent.class, event -> {

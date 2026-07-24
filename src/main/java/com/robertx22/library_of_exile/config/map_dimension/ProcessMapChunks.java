@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -197,6 +198,22 @@ public class ProcessMapChunks {
             return cb.getCommandBlock().getCommand();
         }
 
+        return "";
+    }
+
+    // same two conventions as above, but read straight off a structure template's block info, for
+    // callers that look at a room before it's placed in the world and so have no block entity yet
+    public static String getDataString(StructureTemplate.StructureBlockInfo block) {
+        CompoundTag nbt = block.nbt();
+        if (nbt == null) {
+            return "";
+        }
+        if (nbt.contains("metadata")) { // structure block
+            return nbt.getString("metadata");
+        }
+        if (nbt.contains("Command")) { // command block
+            return nbt.getString("Command");
+        }
         return "";
     }
 }

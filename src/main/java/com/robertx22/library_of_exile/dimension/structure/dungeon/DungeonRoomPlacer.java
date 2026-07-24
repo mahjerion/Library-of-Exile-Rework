@@ -68,11 +68,11 @@ public class DungeonRoomPlacer {
             List<StructureTemplate.StructureBlockInfo> commandBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.COMMAND_BLOCK, true);
             List<StructureTemplate.StructureBlockInfo> structureBlocks = template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.STRUCTURE_BLOCK, true);
 
-            final BlockPos finalPosition = position;
+            final BlockPos anchor = position;
 
             commandBlocks
             .forEach((block) -> {
-                BlockPos worldPos = finalPosition.offset(block.pos());
+                BlockPos worldPos = dataBlockWorldPos(anchor, rota, template, block.pos());
 
                 var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
                 ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
@@ -80,7 +80,7 @@ public class DungeonRoomPlacer {
 
             structureBlocks
             .forEach((block) -> {
-                BlockPos worldPos = finalPosition.offset(block.pos());
+                BlockPos worldPos = dataBlockWorldPos(anchor, rota, template, block.pos());
 
                 var event = new ExileEvents.DungeonDataBlockPlaced(world, worldPos, block, id);
                 ExileEvents.DUNGEON_DATA_BLOCK_PLACED.callEvents(event);
@@ -89,29 +89,46 @@ public class DungeonRoomPlacer {
 
         settings.setBoundingBox(clip);
 
-        // next if the structure is to be rotated then it must also be offset, because rotating a structure also moves it
-        if (rota == Rotation.COUNTERCLOCKWISE_90) {
-            // west: rotate CCW and push +Z
-            settings.setRotation(Rotation.COUNTERCLOCKWISE_90);
-            position = position.offset(0, 0, template.getSize().getZ() - 1);
-        } else if (rota == Rotation.CLOCKWISE_90) {
-            // east rotate CW and push +X
-            settings.setRotation(Rotation.CLOCKWISE_90);
-            position = position.offset(template.getSize().getX() - 1, 0, 0);
-        } else if (rota == Rotation.CLOCKWISE_180) {
-            // south: rotate 180 and push both +X and +Z
-            settings.setRotation(Rotation.CLOCKWISE_180);
-            position = position.offset(template.getSize().getX() - 1, 0, template.getSize().getZ() - 1);
-        } else //if (nextRoom.rotation == Rotation.NONE)
-        {                // north: no rotation
-            settings.setRotation(Rotation.NONE);
-        }
-
+        // rotating a structure also moves it, so the anchor has to be pushed to compensate
+        position = rotatedAnchor(position, rota, template);
 
         // Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE is experimental thing that should reduce updatenighbor block lag in map generation
         var done = template.placeInWorld((ServerLevelAccessor) world, position, position, settings, random, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
 
         return done;
+    }
+
+    /**
+     * Where a room anchored at {@code anchor} actually has to be placed, because rotating a structure
+     * also moves it. Rooms are anchored at their min corner, so a rotation pushes that corner along
+     * the axes the rotation swept it out of.
+     */
+    public static BlockPos rotatedAnchor(BlockPos anchor, Rotation rota, StructureTemplate template) {
+        if (rota == Rotation.COUNTERCLOCKWISE_90) {
+            // west: rotate CCW and push +Z
+            return anchor.offset(0, 0, template.getSize().getZ() - 1);
+        }
+        if (rota == Rotation.CLOCKWISE_90) {
+            // east: rotate CW and push +X
+            return anchor.offset(template.getSize().getX() - 1, 0, 0);
+        }
+        if (rota == Rotation.CLOCKWISE_180) {
+            // south: rotate 180 and push both +X and +Z
+            return anchor.offset(template.getSize().getX() - 1, 0, template.getSize().getZ() - 1);
+        }
+        // north: no rotation
+        return anchor;
+    }
+
+    /**
+     * World position a block of {@code template} ends up at once the room is placed at {@code anchor}
+     * with {@code rota}. This is the same math placeInWorld does internally (rotate around the default
+     * ZERO pivot, then offset by the placed position), so it can be used to locate a data block either
+     * while placing the room or without placing it at all.
+     */
+    public static BlockPos dataBlockWorldPos(BlockPos anchor, Rotation rota, StructureTemplate template, BlockPos localPos) {
+        var settings = new StructurePlaceSettings().setRotation(rota);
+        return rotatedAnchor(anchor, rota, template).offset(StructureTemplate.calculateRelativePosition(settings, localPos));
     }
 
     private static void warnAboutOddSize(ResourceLocation id, StructureTemplate template, int expectedSize) {
