@@ -146,13 +146,18 @@ public class DungeonRoomPlacer {
 
         if (struc instanceof DungeonStructure dungeonStruc) {
             ChunkPos start = dungeonStruc.getStartChunkPos(cpos);
-            // shared cache/build path with the map_bug report, so both resolve the identical layout
-            builder.builtDungeon = dungeonStruc.getBuiltDungeon(start);
+            // shared cache/build path with the map_bug report, so both resolve the identical layout.
+            // the caller already resolved this builder for this chunk, so hand it over rather than
+            // making the cache resolve a second one.
+            builder.builtDungeon = dungeonStruc.getBuiltDungeon(start, builder);
         } else {
             builder.build();
         }
 
-        int roomChunks = builder.getRoomChunks();
+        // room size has to come from the dungeon the grid was actually built from. the passed builder can
+        // have resolved a different dungeon than the cached layout (different room size = every room
+        // anchored to the wrong chunk), so the layout's own builder wins whenever there is one.
+        int roomChunks = builder.builtDungeon.b != null ? builder.builtDungeon.b.getRoomChunks() : builder.getRoomChunks();
 
         var placement = builder.builtDungeon.getPlacementForChunk(struc, cpos, roomChunks);
         if (placement == null) {

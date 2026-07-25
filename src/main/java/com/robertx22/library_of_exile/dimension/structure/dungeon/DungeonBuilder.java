@@ -49,6 +49,12 @@ public class DungeonBuilder {
     public final Random rand;
     public int size;
 
+    // true only when the host mod knew which dungeon belongs at this instance from the saved map data.
+    // false means the dungeon was guessed, which must never be cached as the instance's layout - the
+    // guess would outlive the moment the real data becomes readable and lock the whole instance to the
+    // wrong dungeon. set by the getMap implementation.
+    public boolean resolvedFromMapData = false;
+
 
     // how many chunks wide a single room of this dungeon is. 1 for every pre existing dungeon.
     public int getRoomChunks() {

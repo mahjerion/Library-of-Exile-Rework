@@ -39,12 +39,54 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
     // the built room grid for the instance at this start chunk. deterministic from start + world seed,
     // so a cache miss just rebuilds an identical grid. shared by generation and the map_bug report so
     // both see the exact same layout.
+    //
+    // resolving WHICH dungeon belongs here is cheap, building its grid is not, so the cached grid is
+    // kept only while it still belongs to that dungeon. it's re-resolved every call because the answer
+    // can change under us: the first chunk of a brand new instance can be generated in the window
+    // before its map data is readable, and a layout built from that guess must not become the
+    // instance's identity - that's what made a "Warped" map generate as an entirely different dungeon.
     public BuiltDungeon getBuiltDungeon(ChunkPos start) {
+        return getBuiltDungeon(start, getMap(start));
+    }
+
+    /**
+     * @param resolved a builder already resolved for this start chunk. Generation resolves one per chunk
+     *                 anyway, so passing it in keeps this to a cache lookup instead of a second
+     *                 (list-copying) getMap call per chunk.
+     */
+    public BuiltDungeon getBuiltDungeon(ChunkPos start, DungeonBuilder resolved) {
+
+        if (!resolved.resolvedFromMapData) {
+            // a guess. never cache it, and drop any cached guess so the next caller that CAN see the
+            // map data replaces it instead of inheriting this one.
+            builtDungeonCache.remove(start);
+            resolved.build();
+            return resolved.builtDungeon;
+        }
+
+        var cached = builtDungeonCache.get(start);
+        if (cached != null) {
+            if (isSameDungeon(cached, resolved)) {
+                return cached;
+            }
+            // cached grid belongs to a different dungeon than this instance actually is - it was built
+            // from a guess made before the map data was readable. drop it and build the real one.
+            builtDungeonCache.remove(start);
+        }
+
+        // computeIfAbsent, not put: it runs under the wrapper's mutex, so the first thread to enter a
+        // new instance builds the grid once instead of every worldgen thread building its own copy.
         return builtDungeonCache.computeIfAbsent(start, k -> {
-            var b = getMap(start);
-            b.build();
-            return b.builtDungeon;
+            resolved.build();
+            return resolved.builtDungeon;
         });
+    }
+
+    private static boolean isSameDungeon(BuiltDungeon cached, DungeonBuilder resolved) {
+        if (cached.b == null || cached.b.dungeon == null || resolved.dungeon == null) {
+            return false;
+        }
+        return cached.b.dungeon.GUID().equals(resolved.dungeon.GUID());
     }
 
     /**
