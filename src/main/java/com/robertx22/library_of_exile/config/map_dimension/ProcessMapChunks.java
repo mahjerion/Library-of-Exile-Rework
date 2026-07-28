@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.components.BlockData;
 import com.robertx22.library_of_exile.components.LibChunkCap;
 import com.robertx22.library_of_exile.components.LibMapCap;
 import com.robertx22.library_of_exile.database.init.LibDatabase;
+import com.robertx22.library_of_exile.database.map_data_block.DataBlockText;
 import com.robertx22.library_of_exile.database.map_data_block.MapBlockCtx;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
@@ -107,7 +108,9 @@ public class ProcessMapChunks {
         chunk.getCapability(LibChunkCap.INSTANCE).ifPresent(x -> {
             for (BlockPos tilePos : chunk.getBlockEntitiesPos()) {
                 BlockEntity tile = level.getBlockEntity(tilePos);
-                var text = getDataString(tile);
+                // functional command blocks come back empty here, so they are neither recorded into the
+                // chunk cap nor removed below - they stay in the world and run like any other command block
+                var text = getDataBlockKey(level, tile, processors);
 
                 if (!text.isEmpty()) {
 
@@ -199,6 +202,54 @@ public class ProcessMapChunks {
         }
 
         return "";
+    }
+
+    /**
+     * The data block key of a block, or empty if it isn't a data block at all. Everything that looks
+     * up data blocks goes through this rather than the raw {@link #getDataString} readers, so a
+     * command block a builder put in a room to actually run its command can't be mistaken for content
+     * and eaten by the chunk scan.
+     * <p>
+     * Only command blocks are classified. A structure block can't execute anything, so treating its
+     * metadata as a command would just leave a visible structure block standing in the room.
+     */
+    public static String getDataBlockKey(Level level, BlockEntity be, List<MapDataBlock> processors) {
+        String text = getDataString(be);
+        if (be instanceof CommandBlockEntity && isFunctionalCommand(level, text, processors)) {
+            return "";
+        }
+        return text;
+    }
+
+    public static String getDataBlockKey(Level level, StructureTemplate.StructureBlockInfo block) {
+        CompoundTag nbt = block.nbt();
+        if (nbt == null) {
+            return "";
+        }
+        if (nbt.contains("metadata")) { // structure block, never a command
+            return nbt.getString("metadata");
+        }
+        if (nbt.contains("Command")) {
+            String text = nbt.getString("Command");
+            return isFunctionalCommand(level, text, LibDatabase.MapDataBlocks().getList()) ? "" : text;
+        }
+        return "";
+    }
+
+    /**
+     * @param level the dimension the block is in, or null when it isn't known yet (a room read
+     *              straight off its template). A null level, or one outside a map dimension, just
+     *              means the per-dimension opt-out can't apply.
+     */
+    private static boolean isFunctionalCommand(Level level, String text, List<MapDataBlock> processors) {
+        if (!DataBlockText.isFunctionalCommand(text, processors)) {
+            return false;
+        }
+        if (level == null) {
+            return true;
+        }
+        var info = MapDimensions.getInfo(level);
+        return info == null || info.config.ALLOW_FUNCTIONAL_COMMAND_BLOCKS.get();
     }
 
     // same two conventions as above, but read straight off a structure template's block info, for

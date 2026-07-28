@@ -57,6 +57,7 @@ public class MapDimensionConfig {
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
     public ForgeConfigSpec.IntValue CHUNK_SPAWN_RADIUS;
+    public ForgeConfigSpec.BooleanValue ALLOW_FUNCTIONAL_COMMAND_BLOCKS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
     public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
     public ForgeConfigSpec.BooleanValue DIMENSION_MOBS_ENVIRO_IMMUNITY;
@@ -70,6 +71,15 @@ public class MapDimensionConfig {
         DEFAULT_DATA_BLOCK = b
                 .comment("Sometimes structures have old/wrong data blocks, instead of skipping them, we can instead use them to spawn a replacement.\nBy default, a small mob pack will spawn instead.\nAdvised to leave this as is")
                 .define("DEFAULT_DATA_BLOCK", "mob");
+
+        ALLOW_FUNCTIONAL_COMMAND_BLOCKS = b
+                .comment("Room structures use command blocks as data blocks, by typing a data block id as the command.\n" +
+                        "With this on, a command block whose command doesn't name a data block and does look like a real command\n" +
+                        "(it starts with / or contains a space) is left alone and runs like a command block anywhere else.\n" +
+                        "Note that vanilla still requires enable-command-block=true in server.properties for it to execute.\n" +
+                        "Turn this off if you don't want a downloaded structure pack to be able to run commands in your world.\n" +
+                        "Those command blocks then become DEFAULT_DATA_BLOCK instead, like they did before this option existed.")
+                .define("ALLOW_FUNCTIONAL_COMMAND_BLOCKS", true);
 
         ALLOWED_BLOCK_BREAK_TAG = b
                 .comment("Blocks in this tag will be breakable. This config isn't meant to be edited! Edit the tag datapack instead!\nUse this for stuff like Grave mod blocks")

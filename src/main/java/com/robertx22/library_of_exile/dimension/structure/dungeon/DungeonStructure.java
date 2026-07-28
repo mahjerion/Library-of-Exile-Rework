@@ -123,7 +123,9 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
 
             for (Block type : Arrays.asList(Blocks.COMMAND_BLOCK, Blocks.STRUCTURE_BLOCK)) {
                 for (var block : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), type, true)) {
-                    if (!matches.test(ProcessMapChunks.getDataString(block))) {
+                    // null level: the dimension may not have generated anything yet, so the per-dimension
+                    // opt-out can't be read here. A functional command block matches no data block id anyway.
+                    if (!matches.test(ProcessMapChunks.getDataBlockKey(null, block))) {
                         continue;
                     }
                     BlockPos world = DungeonRoomPlacer.dataBlockWorldPos(anchor, rota, template, block.pos());
