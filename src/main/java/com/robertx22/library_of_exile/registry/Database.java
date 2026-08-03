@@ -38,7 +38,17 @@ public class Database {
 
         List<ExileRegistryType> list = ExileRegistryType.getInRegisterOrder(sync);
 
-        list.forEach(x -> getRegistry(x).sendUpdatePacket(player));
+        // per-type try/catch: one throwing registry used to abort the whole loop, so every type after
+        // it in `order` silently never reached the client and the failure only showed up as missing
+        // content in game. Degrade one type instead, and say which one.
+        list.forEach(x -> {
+            try {
+                getRegistry(x).sendUpdatePacket(player);
+            } catch (Exception e) {
+                ExileLog.get().warn("Failed to sync registry '" + x.id + "' to client, it will be missing content!");
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void checkGuidValidity() {

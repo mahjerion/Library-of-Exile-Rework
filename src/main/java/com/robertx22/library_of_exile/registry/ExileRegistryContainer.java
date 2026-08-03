@@ -54,8 +54,10 @@ public class ExileRegistryContainer<C extends ExileRegistry> {
             return;
         }
 
-        Preconditions.checkNotNull(cachedBuf, type.id + " error, cachedbuf is null!!!");
-
+        // no cachedBuf assertion here: it stays null for any registry that legitimately has zero
+        // datapack entries, and it isn't what gets sent anyway (a fresh packet is built below), so
+        // asserting on it threw on a valid state and - because Database.sendPacketsToClient iterates
+        // with forEach - aborted every remaining registry type in the login sync.
         Packets.sendToClient(player, new EfficientRegistryPacket(this.type, Database.getRegistry(type).getFromDatapacks()));
 
     }
