@@ -5,10 +5,7 @@ import com.robertx22.library_of_exile.utils.SoundUtils;
 import com.robertx22.orbs_of_crafting.register.ExileCurrency;
 import com.robertx22.orbs_of_crafting.register.mods.base.ItemModification;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 
 import java.util.ArrayList;
@@ -36,63 +33,61 @@ public class OnClick {
     }
 
     private abstract static class ClickFeature {
-        public abstract Result tryApply(Player player, ItemStack craftedStack, ItemStack currency, Slot slot);
+        public abstract Result tryApply(ClickContext ctx);
     }
 
     public static void register() {    // new datapack currencies
         CLICKS.add(new ClickFeature() {
             @Override
-            public Result tryApply(Player player, ItemStack craftedStack, ItemStack currency, Slot slot) {
-                var opt = ExileCurrency.get(currency);
-                var opt2 = ExileCurrency.get(craftedStack);
+            public Result tryApply(ClickContext ctx) {
+                var opt = ExileCurrency.get(ctx.currency);
 
-                if (opt2.isPresent()) {
+                if (opt.isEmpty()) {
+                    return new Result(false);
+                }
+                if (ExileCurrency.get(ctx.target).isPresent()) {
                     // we don't want to ding the player when they try stacking 2 currencies
                     return new Result(false);
                 }
-
-                if (opt.isPresent()) {
-                    LocReqContext ctx = new LocReqContext(player, craftedStack.copy(), currency);
-
-                    var cur = opt.get();
-                    if (!craftedStack.isEmpty()) {
-                        var can = cur.canItemBeModified(ctx);
-
-                        if (can.can) {
-                            var result = cur.modifyItem(ctx);
-
-                            if (result.resultEnum != ModifyResult.SUCCESS) {
-                                player.sendSystemMessage(result.result.answer);
-                                return new Result(false);
-                            }
-
-                            craftedStack.shrink(1); // seems the currency creates a copy of a new item, so we delete the old one
-                            currency.shrink(1);
-                            // PlayerUtils.giveItem(result, player);
-                            slot.set(result.stack.copy());
-
-                            if (result.outcome == ItemModification.OutcomeType.BAD) {
-                                SoundUtils.playSound(player.level(), player.blockPosition(), SoundEvents.GLASS_BREAK, 1, 1);
-                                return new Result(true);
-                            } else if (result.outcome == ItemModification.OutcomeType.NEUTRAL) {
-                                SoundUtils.playSound(player.level(), player.blockPosition(), SoundEvents.STONE_PLACE, 1, 1);
-                                return new Result(true);
-                            } else {
-                                return new Result(true).ding();
-                            }
-                        } else {
-                            SoundUtils.playSound(player.level(), player.blockPosition(), SoundEvents.VILLAGER_NO, 1, 1);
-                            player.sendSystemMessage(can.answer);
-                        }
-                    }
-
+                if (!ctx.isValid()) {
+                    return new Result(false);
                 }
-                return new Result(false);
+
+                LocReqContext req = new LocReqContext(ctx.player, ctx.target.copy(), ctx.currency);
+
+                var cur = opt.get();
+                var can = cur.canItemBeModified(req);
+
+                if (!can.can) {
+                    SoundUtils.playSound(ctx.player.level(), ctx.player.blockPosition(), SoundEvents.VILLAGER_NO, 1, 1);
+                    ctx.player.sendSystemMessage(can.answer);
+                    return new Result(false);
+                }
+
+                var result = cur.modifyItem(req);
+
+                if (result.resultEnum != ModifyResult.SUCCESS) {
+                    ctx.player.sendSystemMessage(result.result.answer);
+                    return new Result(false);
+                }
+
+                ctx.consumeCurrency(1);
+                ctx.replaceTarget(result.stack.copy()); // the currency builds a new item, so the old one goes away
+
+                if (result.outcome == ItemModification.OutcomeType.BAD) {
+                    SoundUtils.playSound(ctx.player.level(), ctx.player.blockPosition(), SoundEvents.GLASS_BREAK, 1, 1);
+                    return new Result(true);
+                } else if (result.outcome == ItemModification.OutcomeType.NEUTRAL) {
+                    SoundUtils.playSound(ctx.player.level(), ctx.player.blockPosition(), SoundEvents.STONE_PLACE, 1, 1);
+                    return new Result(true);
+                } else {
+                    return new Result(true).ding();
+                }
             }
         });
 
         ApiForgeEvents.registerForgeEvent(ItemStackedOnOtherEvent.class, x -> {
-            Player player = x.getPlayer();
+            var player = x.getPlayer();
 
             if (player.level().isClientSide) {
                 return;
@@ -101,12 +96,10 @@ public class OnClick {
                 // return;
             }
 
-            ItemStack currency = x.getStackedOnItem();
-            ItemStack craftedStack = x.getCarriedItem();
-
+            ClickContext ctx = ClickContext.of(x);
 
             for (ClickFeature click : CLICKS) {
-                var result = click.tryApply(player, craftedStack, currency, x.getSlot());
+                var result = click.tryApply(ctx);
 
                 if (result.doDing) {
                     SoundUtils.ding(player.level(), player.blockPosition());
@@ -118,8 +111,6 @@ public class OnClick {
                     break;
                 }
             }
-
-
         });
 
     }
