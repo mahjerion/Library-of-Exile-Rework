@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.dimension;
 
+import com.robertx22.library_of_exile.components.LibMapCap;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -27,8 +28,21 @@ public class MapDimensions {
         return map.get(id.toString());
     }
 
+    // the map is keyed by dimension id, but a structure's guid is not a dimension id - dungeon_realm's
+    // is "dungeon", and its arena/reward rooms are "boss_arena"/"reward_room". looking a structure up by
+    // guid therefore always missed, which silently killed every map connection created from a dungeon and
+    // left callers unable to resolve which dimension a structure belongs to. match on the structure
+    // itself instead, primary or secondary.
     public static MapDimensionInfo getInfo(MapStructure s) {
-        return map.get(s.guid());
+        if (s == null) {
+            return null;
+        }
+        for (MapDimensionInfo info : map.values()) {
+            if (info.hasStructure(s)) {
+                return info;
+            }
+        }
+        return null;
     }
 
     public static MapDimensionInfo getInfo(Level world) {
@@ -37,5 +51,13 @@ public class MapDimensions {
 
     public static void register(MapDimensionInfo info) {
         map.put(info.dimensionId.toString(), info);
+
+        // LibMapData (relic stats) is keyed only by instance coordinates, with no dimension in the key, so
+        // it can only be cleared wholesale. That is safe here because the primary content dimension is its
+        // only writer - deliberately NOT registered for side content, since a wipe of one league can be
+        // run by itself (the wipe_world_data command) while another league's maps are still being played.
+        if (info.contentType.canSpawnSideContent) {
+            info.addOnWipeListener(server -> LibMapCap.get(server.overworld()).data.clearAll());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.config.map_dimension;
 
+import com.robertx22.library_of_exile.command_wrapper.CommandBuilder;
+import com.robertx22.library_of_exile.command_wrapper.PermWrapper;
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
@@ -34,6 +36,7 @@ import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
@@ -57,6 +60,7 @@ public class MapDimensionConfig {
 
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
     public ForgeConfigSpec.IntValue CHUNK_SPAWN_RADIUS;
+    public ForgeConfigSpec.IntValue SPAWN_GRACE_SECONDS;
     public ForgeConfigSpec.BooleanValue ALLOW_FUNCTIONAL_COMMAND_BLOCKS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
     public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
@@ -107,6 +111,14 @@ public class MapDimensionConfig {
         CHUNK_SPAWN_RADIUS = b
                 .comment("Radius in which the data blocks will turn to actual content in map.")
                 .defineInRange("CHUNK_SPAWN_RADIUS", opt.chunkSpawnRadius, 0, 8);
+
+        SPAWN_GRACE_SECONDS = b
+                .comment("Seconds after a player is teleported into this dimension during which content will not\n" +
+                        "spawn around them. The server places the player instantly, but their client can need a few\n" +
+                        "seconds to load the chunks - without this, players on slower hardware are attacked before\n" +
+                        "they can see or act. Waves and room content simply start once the window is over.\n" +
+                        "Set to 0 for the old behaviour of spawning everything immediately.")
+                .defineInRange("SPAWN_GRACE_SECONDS", 10, 0, 60);
 
         DESPAWN_INCORRECT_MOBS = b
                 .comment("Despawns or tries to stop spawning of mobs that shouldn't spawn in the dimension")
@@ -259,10 +271,49 @@ public class MapDimensionConfig {
             try {
                 if (CONFIG.WIPE_DIMENSION_ON_LOAD.get()) {
                     if (info.markDataForClear) {
-                        info.clearMapDataOnFolderWipe(event.getServer());
+                        // not clearMapDataOnFolderWipe directly - onFolderWipe also clears the stores
+                        // other mods keep for this dimension, and its stale map connections.
+                        // true: markDataForClear is only set once WipeDimensionFeature really deleted the
+                        // folder, so this is the one path allowed to restart the instance counter
+                        info.onFolderWipe(event.getServer(), true);
                         info.markDataForClear = false;
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // every map dimension gets "/<modid> wipe_world_data", registered here rather than left to each
+        // addon: two of the three addons never registered one, so server owners running all three on a
+        // restart timer were silently wiping only one league while believing they wiped all of them.
+        // routing it through onFolderWipe (rather than replacing the mod's own store, which is what the
+        // one hand written command did) is what also clears the map connections and the level/relic stores
+        // that outlive the counter reset.
+        ApiForgeEvents.registerForgeEvent(RegisterCommandsEvent.class, event -> {
+            try {
+                CommandBuilder.of(info.dimensionId.getNamespace(), event.getDispatcher(), x -> {
+                    x.addLiteral("wipe_world_data", PermWrapper.OP);
+
+                    x.action(e -> {
+                        var server = e.getSource().getServer();
+                        // false: a running server cannot delete this dimension's region files, so the
+                        // instance counter is kept and new maps carry on past the coordinates already used
+                        info.onFolderWipe(server, false);
+
+                        // sendSuccess, not getPlayer().sendSystemMessage: getPlayer() is null when the
+                        // command comes from the console, which is how a restart script runs it, and the
+                        // NPE made a wipe that had already happened look like a failed command
+                        e.getSource().sendSuccess(() -> Component.literal(
+                                "Wiped " + info.dimensionId + " instance data, map connections and map levels,"
+                                        + " and sent anyone inside home. The instance counter was kept, because the"
+                                        + " chunks of those instances are still in savefolder/dimensions/"
+                                        + info.dimensionId.getNamespace() + "/" + info.dimensionId.getPath()
+                                        + " - reusing their coordinates would drop the next player into the previous"
+                                        + " run's leftover mobs. The counter restarts on the next boot, when that"
+                                        + " folder is actually deleted.").withStyle(ChatFormatting.GREEN), true);
+                    });
+                }, "Wipes this map dimension's saved instance data, map connections and map levels, and sends anyone inside home.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

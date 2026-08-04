@@ -18,8 +18,13 @@ public class SavedPlayerMapTeleports {
     // the dimension the player came from, the dim must be not one of the 'map' dimensions
     public SavedTeleportPos home = new SavedTeleportPos();
 
-    // the last tp 
+    // the last tp
     public List<SavedTeleportPos> last = new ArrayList<>();
+
+    // game time of the last teleport INTO a map dimension. read by MapEntryGrace to hold content back while
+    // a slow client is still loading the chunks it was just dropped into. saved rather than transient so a
+    // relog straight back into an instance is still covered.
+    public long lastMapEnterTime = 0;
 
 
     SavedTeleportPos getLast() {
@@ -80,6 +85,9 @@ public class SavedPlayerMapTeleports {
             data.setFrom(p);
             last.add(data);
         }
+        // every league enters its dimension through here (entranceTeleportLogic), so this is the one place
+        // that has to stamp the arrival
+        this.lastMapEnterTime = p.level().getGameTime();
         teleport(p, to, topos);
     }
 

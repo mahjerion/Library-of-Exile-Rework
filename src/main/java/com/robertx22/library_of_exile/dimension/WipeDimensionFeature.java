@@ -20,16 +20,33 @@ public class WipeDimensionFeature {
         File file = new File(FMLPaths.GAMEDIR.get().toAbsolutePath().toString());
         var list = FileUtils.listFilesAndDirs(file, new Dir(), new Dir());
 
+        boolean found = false;
+
         for (File dir : list) {
             try {
                 if (dirMatches(dir, mapid)) {
+                    found = true;
                     deleteDirectoryRecursion(dir.toPath());
                     map.markDataForClear = true;
                 }
             } catch (IOException e) {
+                // a half deleted folder leaves markDataForClear false, so the saved instance data is kept
+                // too - which is the right call (clearing it would hand new maps coordinates whose chunks
+                // still exist on disk) but it silently disables the whole wipe, so say so loudly.
+                ExileLog.get().warn("Failed to delete the " + mapid + " dimension folder (" + dir + "): " + e
+                        + ". Its saved map data will NOT be cleared, so instance coordinates keep climbing."
+                        + " Free whatever is locking the folder, or wipe it manually while the server is down.");
                 e.printStackTrace();
             }
 
+        }
+
+        if (!found) {
+            ExileLog.get().warn("Dimension wipe is ON for " + mapid + " but no matching folder was found under "
+                    + file + " (looking for dimensions" + File.separator + mapid.getNamespace() + File.separator
+                    + mapid.getPath() + "). Nothing was wiped and its saved map data will NOT be cleared."
+                    + " If the world folder lives outside the game directory, use the '/"
+                    + mapid.getNamespace() + " wipe_world_data' command instead.");
         }
 
     }

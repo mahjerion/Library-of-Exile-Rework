@@ -9,6 +9,7 @@ import com.robertx22.library_of_exile.database.map_data_block.MapBlockCtx;
 import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
+import com.robertx22.library_of_exile.dimension.MapEntryGrace;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
@@ -66,6 +67,14 @@ public class ProcessMapChunks {
                 }
             }
         }
+        // the loop above only reads the invisible data blocks into LibChunkCap and takes them out of the
+        // world, so it can run the moment the player arrives. this one is what actually creates the
+        // content, and it waits out the entry grace - the queued blocks stay in mapGenData.mapBlocks
+        // because spawnDataFromChunk is what clears that list, so nothing is lost, it just spawns later.
+        if (MapEntryGrace.isInGrace(p, config)) {
+            return;
+        }
+
         for (ChunkPos cpos : spawnChunks) {
             if (!level.hasChunk(cpos.x, cpos.z)) {
                 continue;

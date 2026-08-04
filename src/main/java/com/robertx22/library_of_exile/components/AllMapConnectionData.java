@@ -51,23 +51,34 @@ public class AllMapConnectionData {
         }
     }
 
-    public void tryCreateConnection(MapDimensionInfo origin, BlockPos oPos, MapDimensionInfo side, BlockPos sPos) {
+    // called every time a side content instance is (re)started, connected or not. a side content tile is
+    // handed out by a MapStructureCounter that restarts at 0 whenever its dimension is wiped, so tiles are
+    // recycled constantly - and a connection that isn't overwritten outlives the instance it described.
+    // a harvest run started from the overworld would then read a previous occupant's map, which is how
+    // low level players ended up fighting level 100 mobs. writing "no connection" is as important as
+    // writing one.
+    public void updateConnection(MapDimensionInfo origin, BlockPos oPos, MapDimensionInfo side, BlockPos sPos) {
 
-        if (origin == null || side == null) {
-            return;
-        }
-        if (!origin.contentType.canSpawnSideContent) {
-            //ExileLog.get().warn(origin.dimensionId.toString() + " can not create side content!");
-            return;
-        }
-        if (side.contentType != MapContentType.SIDE_CONTENT) {
+        if (side == null || side.contentType != MapContentType.SIDE_CONTENT) {
             //ExileLog.get().warn(side.dimensionId.toString() + " is not valid side content!");
             return;
         }
-        var key = createKey(origin, oPos);
-        var key2 = createKey(side, sPos);
-        map.put(key2, key);
 
+        var key2 = createKey(side, sPos);
+
+        if (origin == null || !origin.contentType.canSpawnSideContent) {
+            //ExileLog.get().warn(origin.dimensionId.toString() + " can not create side content!");
+            map.remove(key2);
+            return;
+        }
+        map.put(key2, createKey(origin, oPos));
+    }
+
+    // every connection touching this dimension, from either end. used when a dimension's instance store is
+    // wiped: its coordinates are about to be handed out again, so nothing may still point at the old ones.
+    public void removeAllFor(ResourceLocation dimensionId) {
+        String prefix = dimensionId.toString() + "-";
+        map.entrySet().removeIf(x -> x.getKey().startsWith(prefix) || x.getValue().startsWith(prefix));
     }
 
     // todo use this to connect map stats to side content
