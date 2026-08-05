@@ -8,6 +8,7 @@ import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 
 public abstract class MapDimensionInfo {
 
@@ -27,6 +29,20 @@ public abstract class MapDimensionInfo {
     public List<MapStructure<?>> secondaryStructures = new ArrayList<>();
     public MapDimensionConfig config;
     public boolean markDataForClear = false;
+
+    /**
+     * Optional per-second "content starts in N seconds" action bar shown while a player is inside this
+     * dimension's {@link MapEntryGrace} window, given the whole seconds left.
+     * <p>
+     * It has to be driven from the library's player tick rather than by the league itself: a league's own
+     * per-second logic hangs off a spawner block entity, and those blocks ARE content - they're created by
+     * ProcessMapChunks.spawnDataFromChunk, which is precisely what the grace window holds back. On a fresh
+     * instance the block doesn't exist yet, so nothing league-side ticks to say anything.
+     * <p>
+     * Null (the default) means this dimension shows nothing, which is the right thing for one whose grace
+     * only delays scenery the player wasn't waiting on anyway.
+     */
+    public IntFunction<Component> graceCountdownText = null;
 
     public MobValidator mobValidator = new MobValidator() {
         @Override

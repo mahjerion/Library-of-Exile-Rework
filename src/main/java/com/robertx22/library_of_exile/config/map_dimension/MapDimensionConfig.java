@@ -5,6 +5,7 @@ import com.robertx22.library_of_exile.command_wrapper.PermWrapper;
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
+import com.robertx22.library_of_exile.dimension.MapEntryGrace;
 import com.robertx22.library_of_exile.dimension.WipeDimensionFeature;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
 import com.robertx22.library_of_exile.main.CommonInit;
@@ -13,7 +14,9 @@ import com.robertx22.library_of_exile.util.LazyClass;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -426,6 +429,16 @@ public class MapDimensionConfig {
             }
             if (!isDimension(mapId, p.level()) || !MapDimensions.isMap(p.level())) {
                 return;
+            }
+            // this runs once a second and, unlike anything league side, runs during the grace window too -
+            // see MapDimensionInfo.graceCountdownText for why the leagues can't announce this themselves.
+            // action bar rather than chat: it repeats every second, and it stays readable while the client
+            // is still drawing the chunks it was dropped into
+            if (info.graceCountdownText != null && p instanceof ServerPlayer sp) {
+                int graceLeft = MapEntryGrace.secondsLeft(p, CONFIG);
+                if (graceLeft > 0) {
+                    sp.connection.send(new ClientboundSetActionBarTextPacket(info.graceCountdownText.apply(graceLeft)));
+                }
             }
             ProcessMapChunks.process(p, info, CONFIG, ChunkProcessType.NORMAL);
         });

@@ -46,4 +46,31 @@ public class MapEntryGrace {
         }
         return false;
     }
+
+    /**
+     * Whole seconds still to wait before content starts, rounded up; 0 once the window is over or when
+     * it's disabled. Lives next to {@link #isInGrace} and reads the same two numbers on purpose - a
+     * countdown derived separately could tell the player "0" while spawning is still held, or "1" after
+     * it already resumed.
+     */
+    public static int secondsLeft(Player p, MapDimensionConfig config) {
+        try {
+            int seconds = config.SPAWN_GRACE_SECONDS.get();
+            if (seconds < 1) {
+                return 0;
+            }
+            long since = p.level().getGameTime() - PlayerDataCapability.get(p).mapTeleports.lastMapEnterTime;
+            long remaining = seconds * 20L - since;
+            // remaining > seconds * 20 means since went negative, ie the stamp is from a world whose game
+            // time has since gone backwards - isInGrace treats that as expired, so this must report 0 too
+            if (remaining <= 0 || since < 0) {
+                return 0;
+            }
+            return (int) Math.ceil(remaining / 20.0);
+        } catch (Exception e) {
+            // a display helper must never be the thing that breaks a map
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }
