@@ -8,8 +8,10 @@ import com.robertx22.library_of_exile.tags.ExileTagRequirement;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class DungeonData {
 
@@ -36,7 +38,19 @@ public class DungeonData {
     public List<String> triple_hallway = new ArrayList<>();
     public List<String> ends = new ArrayList<>();
 
-    private transient List<DungeonRoom> rooms = new ArrayList<>();
+    // built once from the id lists above, then published as an immutable snapshot.
+    //
+    // worldgen resolves rooms from several threads at once, and the old "if (rooms.isEmpty())" lazy
+    // init let two of them populate the same list simultaneously - which leaves every room in it
+    // twice. Doubling the list changes which entry weightedRandom returns for the same roll, so a
+    // layout rebuilt after a cache eviction resolved different room files than the layout it
+    // replaced. That is exactly the determinism DungeonStructure.builtDungeonCache's eviction is
+    // documented to rely on.
+    //
+    // roomsByType is written before rooms, so any thread that sees a non null rooms is guaranteed to
+    // see roomsByType too.
+    private transient volatile List<DungeonRoom> rooms = null;
+    private transient volatile Map<RoomType, List<DungeonRoom>> roomsByType = null;
 
 
     // how many chunks wide/long a single room of this dungeon is
@@ -63,22 +77,43 @@ public class DungeonData {
     }
 
     public List<DungeonRoom> getRooms() {
-        if (rooms.isEmpty()) {
-            addRooms(RoomType.ENTRANCE, entrances);
-            addRooms(RoomType.FOUR_WAY, four_ways);
-            addRooms(RoomType.STRAIGHT_HALLWAY, straight_hallways);
-            addRooms(RoomType.CURVED_HALLWAY, curved_hallways);
-            addRooms(RoomType.TRIPLE_HALLWAY, triple_hallway);
-            addRooms(RoomType.END, ends);
+        List<DungeonRoom> built = rooms;
+        if (built != null) {
+            return built;
+        }
+        synchronized (this) {
+            if (rooms == null) {
+                List<DungeonRoom> all = new ArrayList<>();
+                addRooms(all, RoomType.ENTRANCE, entrances);
+                addRooms(all, RoomType.FOUR_WAY, four_ways);
+                addRooms(all, RoomType.STRAIGHT_HALLWAY, straight_hallways);
+                addRooms(all, RoomType.CURVED_HALLWAY, curved_hallways);
+                addRooms(all, RoomType.TRIPLE_HALLWAY, triple_hallway);
+                addRooms(all, RoomType.END, ends);
+
+                Map<RoomType, List<DungeonRoom>> byType = new EnumMap<>(RoomType.class);
+                for (RoomType type : RoomType.values()) {
+                    List<DungeonRoom> ofType = new ArrayList<>();
+                    for (DungeonRoom room : all) {
+                        if (room.type.equals(type)) {
+                            ofType.add(room);
+                        }
+                    }
+                    byType.put(type, Collections.unmodifiableList(ofType));
+                }
+
+                roomsByType = byType;
+                rooms = Collections.unmodifiableList(all);
+            }
         }
         return rooms;
     }
 
+    // pre split per type instead of filtering the full list on every call. this runs once per room
+    // placed, for every room of every layout build, so the stream and its copy were pure overhead.
     public List<DungeonRoom> getRoomsOfType(RoomType type) {
-        return getRooms()
-                .stream()
-                .filter(x -> x.type.equals(type)).collect(Collectors.toList());
-
+        getRooms();
+        return roomsByType.getOrDefault(type, Collections.emptyList());
     }
 
     public List<String> getRoomList(RoomType type) {
@@ -106,17 +141,13 @@ public class DungeonData {
     }
 
 
-    private void addRooms(RoomType type, List<String> list) {
+    private void addRooms(List<DungeonRoom> into, RoomType type, List<String> list) {
         for (String room : list) {
-            DungeonRoom b = new DungeonRoom(this.folder, room, type);
-            this.rooms.add(b);
+            into.add(new DungeonRoom(this.folder, room, type));
         }
     }
 
     public final boolean hasRoomFor(RoomType type) {
-        return getRooms()
-                .stream()
-                .anyMatch(x -> x.type.equals(type));
-
+        return !getRoomsOfType(type).isEmpty();
     }
 }

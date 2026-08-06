@@ -64,6 +64,7 @@ public class MapDimensionConfig {
     public ForgeConfigSpec.IntValue CHUNK_PROCESS_RADIUS;
     public ForgeConfigSpec.IntValue CHUNK_SPAWN_RADIUS;
     public ForgeConfigSpec.IntValue SPAWN_GRACE_SECONDS;
+    public ForgeConfigSpec.IntValue INSTANCE_KEEPALIVE_MINUTES;
     public ForgeConfigSpec.BooleanValue ALLOW_FUNCTIONAL_COMMAND_BLOCKS;
     public ForgeConfigSpec.BooleanValue DESPAWN_INCORRECT_MOBS;
     public ForgeConfigSpec.BooleanValue DISABLE_WORLDBORDER_OVERRIDE;
@@ -122,6 +123,16 @@ public class MapDimensionConfig {
                         "they can see or act. Waves and room content simply start once the window is over.\n" +
                         "Set to 0 for the old behaviour of spawning everything immediately.")
                 .defineInRange("SPAWN_GRACE_SECONDS", 10, 0, 60);
+
+        INSTANCE_KEEPALIVE_MINUTES = b
+                .comment("How long an instance of this dimension is kept alive after the last moment a player was\n" +
+                        "seen standing in it. Instances are cleaned up whenever anyone starts a map, and that check\n" +
+                        "can only see who is inside right now - so a party whose members are all momentarily dead,\n" +
+                        "respawning, teleporting or relogging would otherwise have their run deleted underneath them.\n" +
+                        "Losing an instance's data mid run is what makes the rest of it generate as a different,\n" +
+                        "randomly picked map. Raise this if players report that happening; lower it to reclaim\n" +
+                        "abandoned instances sooner. 0 restores the old behaviour of dropping them immediately.")
+                .defineInRange("INSTANCE_KEEPALIVE_MINUTES", 5, 0, 1440);
 
         DESPAWN_INCORRECT_MOBS = b
                 .comment("Despawns or tries to stop spawning of mobs that shouldn't spawn in the dimension")

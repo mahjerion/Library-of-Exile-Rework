@@ -102,18 +102,25 @@ public class DungeonRoomPlacer {
      * Where a room anchored at {@code anchor} actually has to be placed, because rotating a structure
      * also moves it. Rooms are anchored at their min corner, so a rotation pushes that corner along
      * the axes the rotation swept it out of.
+     * <p>
+     * Sizes are taken from the axis the rotation actually pulls the corner along, which is not the
+     * same axis for the two quarter turns: placeInWorld rotates around the ZERO pivot, so a local
+     * (x, z) lands at (-z, x) clockwise and (z, -x) counterclockwise. The corner therefore drops to
+     * -(Z-1) on X clockwise, and to -(X-1) on Z counterclockwise. Every room shipped today is square,
+     * which is why using the other axis has gone unnoticed, but warnAboutOddSize deliberately lets a
+     * smaller room through, and that one would be placed a block off.
      */
     public static BlockPos rotatedAnchor(BlockPos anchor, Rotation rota, StructureTemplate template) {
         if (rota == Rotation.COUNTERCLOCKWISE_90) {
-            // west: rotate CCW and push +Z
-            return anchor.offset(0, 0, template.getSize().getZ() - 1);
+            // west: rotate CCW and push +Z by the footprint's X extent
+            return anchor.offset(0, 0, template.getSize().getX() - 1);
         }
         if (rota == Rotation.CLOCKWISE_90) {
-            // east: rotate CW and push +X
-            return anchor.offset(template.getSize().getX() - 1, 0, 0);
+            // east: rotate CW and push +X by the footprint's Z extent
+            return anchor.offset(template.getSize().getZ() - 1, 0, 0);
         }
         if (rota == Rotation.CLOCKWISE_180) {
-            // south: rotate 180 and push both +X and +Z
+            // south: rotate 180, each axis pushed by its own extent
             return anchor.offset(template.getSize().getX() - 1, 0, template.getSize().getZ() - 1);
         }
         // north: no rotation
