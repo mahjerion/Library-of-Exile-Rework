@@ -1,5 +1,7 @@
 package com.robertx22.library_of_exile.events.base;
 
+import com.robertx22.library_of_exile.main.ExileLog;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +24,13 @@ public class ExileEventCaller<T extends ExileEvent> {
                 try {
                     x.accept(event);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // still swallow and carry on to the next consumer - four mods rely on one bad
+                    // listener not taking the others down. but it goes through the logger now: as a
+                    // bare printStackTrace this landed in STDERR with nothing saying which event it
+                    // came from, which is how chunk generation failures stayed invisible in server
+                    // logs for two rounds of investigation.
+                    ExileLog.get().error("Exile event consumer threw while handling "
+                            + event.getClass().getSimpleName() + " (" + x.getClass().getName() + ")", e);
                 }
             }
         });

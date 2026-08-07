@@ -21,9 +21,10 @@ public class SavedPlayerMapTeleports {
     // the last tp
     public List<SavedTeleportPos> last = new ArrayList<>();
 
-    // game time of the last teleport INTO a map dimension. read by MapEntryGrace to hold content back while
-    // a slow client is still loading the chunks it was just dropped into. saved rather than transient so a
-    // relog straight back into an instance is still covered.
+    // game time of the last teleport INTO a map dimension from outside it. read by MapEntryGrace to hold
+    // content back while a slow client is still loading the chunks it was just dropped into. saved rather
+    // than transient so a relog straight back into an instance is still covered. teleports that stay inside
+    // the dimension - the arena pads, the tp to boss button - deliberately leave this alone, see teleportToMap.
     public long lastMapEnterTime = 0;
 
 
@@ -86,8 +87,17 @@ public class SavedPlayerMapTeleports {
             last.add(data);
         }
         // every league enters its dimension through here (entranceTeleportLogic), so this is the one place
-        // that has to stamp the arrival
-        this.lastMapEnterTime = p.level().getGameTime();
+        // that has to stamp the arrival - but only a genuine arrival. the arena / uber / reward room pads
+        // (CustomSpawnTpBlock) and the tp to boss button also come through here, with from == to, and
+        // restamping there handed the player a fresh 10 seconds of empty arena plus a second countdown. the
+        // grace covers a client loading a dimension it was just dropped into; by the time you reach the
+        // arena that has long since happened.
+        //
+        // the from.equals(to) half keeps a real map -> different map entry covered, for a league whose
+        // entrance can be reached from inside another league's dimension.
+        if (!fromMap || !from.equals(to)) {
+            this.lastMapEnterTime = p.level().getGameTime();
+        }
         teleport(p, to, topos);
     }
 

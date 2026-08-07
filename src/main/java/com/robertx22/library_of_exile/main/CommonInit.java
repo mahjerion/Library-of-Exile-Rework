@@ -2,7 +2,9 @@ package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.components.OnMobDamaged;
 import com.robertx22.library_of_exile.database.affix.base.MobAffixEvents;
+import com.robertx22.library_of_exile.dimension.MapGenerationUTIL;
 import com.robertx22.library_of_exile.events.ExileLibEvents;
+import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.registers.client.S2CPacketRegister;
 import com.robertx22.library_of_exile.registers.common.C2SPacketRegister;
@@ -92,6 +94,15 @@ public class CommonInit {
         OrderedModConstructor.register(new LibModConstructor(Ref.MODID), bus);
 
         OrbsOfCraftingMain.init(bus);
+
+        // a datapack reload can bring a structure back, so a template that already reported itself
+        // missing has to be able to report again - otherwise the second, real failure stays quiet.
+        ExileEvents.AFTER_DATABASE_LOADED.register(new EventConsumer<ExileEvents.AfterDatabaseLoaded>() {
+            @Override
+            public void accept(ExileEvents.AfterDatabaseLoaded event) {
+                MapGenerationUTIL.forgetMissingStructureWarnings();
+            }
+        });
 
 
         if (RUN_DEV_TOOLS) {

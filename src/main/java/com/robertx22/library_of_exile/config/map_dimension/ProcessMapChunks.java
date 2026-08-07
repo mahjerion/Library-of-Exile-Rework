@@ -34,10 +34,14 @@ public class ProcessMapChunks {
     static List<ChunkPos> getChunksInRadius(Player p, int terrain) {
         var start = p.chunkPosition();
         List<ChunkPos> all = new ArrayList<>();
-        all.add(start);
 
-        for (int x = -terrain; x < terrain; x++) {
-            for (int z = -terrain; z < terrain; z++) {
+        // <=, not <: the exclusive bound returned the -X/-Z half of the square only, so a room entered
+        // walking +X or +Z had its content placed a chunk later than the same room entered walking
+        // -X/-Z - late enough that the player watched the mobs appear around them.
+        // the player's own chunk is no longer added separately, because radius 0 already yields exactly
+        // it, and listing it twice made it processed twice per call.
+        for (int x = -terrain; x <= terrain; x++) {
+            for (int z = -terrain; z <= terrain; z++) {
                 all.add(new ChunkPos(start.x + x, start.z + z));
             }
         }

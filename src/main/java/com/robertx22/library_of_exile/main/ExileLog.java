@@ -31,6 +31,13 @@ public class ExileLog {
         LOGGER.debug(str, obj);
     }
 
+    // for the places that used to `e.printStackTrace()`. that writes to STDERR with no logger name
+    // and no context, which is how worldgen failures ended up invisible in server logs - the trace
+    // was there, but nothing said which chunk or which structure it belonged to.
+    public void error(String str, Throwable t) {
+        LOGGER.error(str, t);
+    }
+
     public void onlyInConsole(String str) {
         System.out.println(str);
     }

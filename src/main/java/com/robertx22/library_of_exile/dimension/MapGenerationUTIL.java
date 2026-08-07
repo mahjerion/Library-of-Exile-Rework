@@ -14,6 +14,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MapGenerationUTIL {
     public static Random createRandom(Level level, ChunkPos start) {
@@ -28,45 +30,60 @@ public class MapGenerationUTIL {
         return createRandom(ServerLifecycleHooks.getCurrentServer().overworld(), start);
     }
 
-    public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room, boolean errorIfMissing) {
+    // a map chunk starts as solid bedrock and is only ever carved once, so a template that fails to
+    // place leaves a permanent bedrock hole in an arena or a dungeon. this used to be reported only
+    // when the caller opted in, and the one caller that mattered opted out - which is why holes were
+    // only ever found by players walking into them. it always reports now.
+    //
+    // rate limited per template rather than per call: a missing room is asked for once per chunk of
+    // every instance that rolls that arena, which would be thousands of identical lines a session.
+    private static final Set<ResourceLocation> WARNED_MISSING = ConcurrentHashMap.newKeySet();
+
+    // a wipe/reload can bring a datapack's structures back, so a template that reported missing has
+    // to be able to report again instead of staying quiet about a second, real failure.
+    public static void forgetMissingStructureWarnings() {
+        WARNED_MISSING.clear();
+    }
+
+    public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room) {
 
         try {
 
             var opt = man.get(room);
-            if (opt.isPresent()) {
-                var template = opt.get();
-                StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE).setIgnoreEntities(false);
-                settings.setBoundingBox(settings.getBoundingBox());
-                BlockPos position = cpos.getBlockAt(0, y, 0);
-
-                if (template == null) {
-                    if (errorIfMissing) {
-                        ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
-                    }
-                    return false;
-                }
-                if (template.getSize().getX() > 16 || template.getSize().getZ() > 16) {
-                    ExileLog.get().warn("FATAL ERROR: Structure is bigger than possible (" + room + ") " + template.getSize().toString());
-                    return false;
-                }
-
-                settings.setRotation(Rotation.NONE);
-
-                template.placeInWorld(level, position, position, settings, level.getRandom(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            } else {
-                if (errorIfMissing) {
-
-                    ExileLog.get().warn("FATAL ERROR: Structure does not exist (" + room.toString() + ")");
-                }
+            if (opt.isEmpty() || opt.get() == null) {
+                warnMissing(room, cpos, y, "does not exist");
                 return false;
             }
 
+            var template = opt.get();
+
+            if (template.getSize().getX() > 16 || template.getSize().getZ() > 16) {
+                warnMissing(room, cpos, y, "is bigger than one chunk " + template.getSize());
+                return false;
+            }
+
+            StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE).setIgnoreEntities(false);
+            settings.setBoundingBox(settings.getBoundingBox());
+            settings.setRotation(Rotation.NONE);
+
+            BlockPos position = cpos.getBlockAt(0, y, 0);
+
+            template.placeInWorld(level, position, position, settings, level.getRandom(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            ExileLog.get().error("Failed to place structure (" + room + ") at " + cpos + " y=" + y
+                    + ". That chunk stays solid bedrock, and generation never runs there again.", e);
             return false;
         }
 
         return true;
+    }
+
+    private static void warnMissing(ResourceLocation room, ChunkPos cpos, int y, String problem) {
+        if (WARNED_MISSING.add(room)) {
+            ExileLog.get().warn("Map structure (" + room + ") " + problem + ", first seen at " + cpos + " y=" + y
+                    + ". Every chunk that wants it stays solid bedrock. Further reports for this structure are suppressed.");
+        }
     }
 
 }
