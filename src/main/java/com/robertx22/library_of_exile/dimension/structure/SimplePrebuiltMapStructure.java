@@ -6,8 +6,13 @@ import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePrebuiltMapData> {
 
@@ -30,9 +35,61 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
         return true;
     }
 
-    // columns sampled to decide whether a chunk was ever carved. the chunk's own centre plus the four
-    // quadrant centres - a room a player can stand in has air somewhere in at least one of them.
-    private static final int[][] PROBE_COLUMNS = {{8, 8}, {4, 4}, {12, 4}, {4, 12}, {12, 12}};
+    @Override
+    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks) {
+        int repaired = 0;
+        StructureTemplateManager man = level.getServer().getStructureManager();
+
+        // group by instance first - see DungeonStructure.repairChunksAround. getMap is a lookup
+        // through a synchronized LRU for the arenas, and getRoomForChunk builds a ResourceLocation
+        // from string concatenation, so doing either per chunk is pure waste when a whole process
+        // radius almost always belongs to one instance.
+        Map<ChunkPos, List<ChunkPos>> byInstance = new HashMap<>();
+        for (ChunkPos cpos : chunks) {
+            // never let the repair be the thing that generates a chunk - that is the hang this whole
+            // change exists to stop.
+            if (level.hasChunk(cpos.x, cpos.z)) {
+                byInstance.computeIfAbsent(getStartChunkPos(cpos), k -> new ArrayList<>()).add(cpos);
+            }
+        }
+
+        for (var entry : byInstance.entrySet()) {
+            // per instance, so one broken instance can't skip the repair for everyone else in the batch
+            try {
+                // resolved lazily, on the first chunk that actually needs carving - see the same
+                // comment in DungeonStructure. This runs on every map chunk load, and an already carved
+                // chunk must cost one block read and nothing else.
+                SimplePrebuiltMapData map = null;
+                boolean instanceResolved = false;
+
+                for (ChunkPos cpos : entry.getValue()) {
+                    if (repairFailedBefore(cpos)) {
+                        continue;
+                    }
+                    if (!isUncarved(level, cpos)) {
+                        continue;
+                    }
+
+                    if (!instanceResolved) {
+                        instanceResolved = true;
+                        map = getMap(entry.getKey());
+                        if (map == null) {
+                            break;
+                        }
+                        map.resolveFootprint(man);
+                    }
+
+                    if (repairChunk(level, cpos, map, man)) {
+                        repaired++;
+                    }
+                }
+            } catch (Exception e) {
+                ExileLog.get().error("Failed while repairing chunks of '" + guid() + "' at instance "
+                        + entry.getKey() + ".", e);
+            }
+        }
+        return repaired;
+    }
 
     /**
      * Re-carves any chunk of this structure's footprint that generation left as solid bedrock, and
@@ -68,33 +125,14 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
                 for (int z = 0; z <= map.maxRoomZ(); z++) {
 
                     ChunkPos cpos = new ChunkPos(start.x + x, start.z + z);
-
-                    if (!isUncarved(level, cpos)) {
+                    // repairChunk deliberately does not test these itself - the chunk load path has to
+                    // do them BEFORE resolving the instance, so they live with the caller.
+                    if (repairFailedBefore(cpos) || !isUncarved(level, cpos)) {
                         continue;
                     }
-                    var room = map.getRoomForChunk(cpos, this);
-                    if (room == null) {
-                        continue;
+                    if (repairChunk(level, cpos, map, man)) {
+                        repaired++;
                     }
-                    // spawnStructure reports a missing or oversized template itself. nothing can be
-                    // done about those here - there is no template to place - so just don't count it.
-                    if (!MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room)) {
-                        continue;
-                    }
-
-                    // the chunk was already marked processed while it was still bedrock, so without
-                    // this the data blocks just placed would never be looked at and the room would be
-                    // an empty shell with no mobs, chests or teleporters.
-                    level.getChunk(cpos.x, cpos.z).getCapability(LibChunkCap.INSTANCE)
-                            .ifPresent(cap -> cap.mapGenData.clearGeneratedData());
-
-                    repaired++;
-
-                    // deliberately loud. this firing is the evidence that generation dropped a chunk,
-                    // which is the thing that has been invisible in server logs.
-                    ExileLog.get().warn("Repaired an un-carved chunk of '" + guid() + "' at " + cpos
-                            + " (instance start " + start + ", room " + room + "). It was solid bedrock, meaning"
-                            + " chunk generation never placed this room. Re-placed it now.");
                 }
             }
             return repaired;
@@ -106,25 +144,33 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
     }
 
     /**
-     * True only when every sampled block in the structure's height band is bedrock, which is exactly
-     * the state {@code fillFromNoise} leaves a chunk in before anything carves it.
-     * <p>
-     * The all-or-nothing test is the point: it is what stops a repair from overwriting an arena
-     * players have already fought through and dug into.
+     * Re-carves one chunk generation left as bedrock. The caller owns the loaded check, the
+     * {@code repairFailedBefore} check and the {@code isUncarved} check.
      */
-    private boolean isUncarved(ServerLevel level, ChunkPos cpos) {
-        var chunk = level.getChunk(cpos.x, cpos.z);
-
-        int from = getSpawnHeight();
-        int to = getSpawnHeight() + getStructureHeight();
-
-        for (int[] col : PROBE_COLUMNS) {
-            for (int y = from; y < to; y++) {
-                if (!chunk.getBlockState(cpos.getBlockAt(col[0], y, col[1])).is(Blocks.BEDROCK)) {
-                    return false;
-                }
-            }
+    private boolean repairChunk(ServerLevel level, ChunkPos cpos, SimplePrebuiltMapData map, StructureTemplateManager man) {
+        var room = map.getRoomForChunk(cpos, this);
+        if (room == null) {
+            // outside the resolved footprint - this chunk is meant to be bedrock
+            return false;
         }
+        // spawnStructure reports a missing or oversized template itself. nothing can be done about
+        // those here - there is no template to place - so don't count it, and don't come back.
+        if (!MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room)) {
+            rememberRepairFailure(cpos);
+            return false;
+        }
+
+        // the chunk was already marked processed while it was still bedrock, so without this the data
+        // blocks just placed would never be looked at and the room would be an empty shell with no
+        // mobs, chests or teleporters.
+        level.getChunk(cpos.x, cpos.z).getCapability(LibChunkCap.INSTANCE)
+                .ifPresent(cap -> cap.mapGenData.clearGeneratedData());
+
+        // deliberately loud. this firing is the evidence that generation dropped a chunk, which is the
+        // thing that has been invisible in server logs.
+        ExileLog.get().warn("Repaired an un-carved chunk of '" + guid() + "' at " + cpos
+                + " (instance start " + getStartChunkPos(cpos) + ", room " + room + "). It was solid bedrock,"
+                + " meaning chunk generation never placed this room. Re-placed it now.");
         return true;
     }
 }

@@ -10,9 +10,11 @@ import com.robertx22.library_of_exile.database.map_data_block.MapDataBlock;
 import com.robertx22.library_of_exile.dimension.MapDimensionInfo;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.dimension.MapEntryGrace;
+import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -54,6 +56,10 @@ public class ProcessMapChunks {
         var spawnChunks = getChunksInRadius(p, config.CHUNK_SPAWN_RADIUS.get());
         var level = p.level();
 
+        // Repairing un-carved chunks used to happen here, once a second over the whole process radius.
+        // It now hangs off ChunkEvent.Load (see CommonInit): a chunk load is exactly when a dropped
+        // chunk starts to matter, so the repair is both earlier - the player never sees the bedrock -
+        // and far cheaper than re-walking 49 chunks every second for every player.
         for (ChunkPos cpos : processChunks) {
             if (!level.hasChunk(cpos.x, cpos.z)) {
                 continue;

@@ -157,6 +157,12 @@ public class DungeonRoomPlacer {
             // the caller already resolved this builder for this chunk, so hand it over rather than
             // making the cache resolve a second one.
             builder.builtDungeon = dungeonStruc.getBuiltDungeon(start, builder);
+            if (builder.builtDungeon == null) {
+                // the instance's map data can't be read, so there is no layout that is safe to write
+                // here. Leave the chunk as the bedrock it already is - DungeonStructure.getBuiltDungeon
+                // explains why, and repairChunksAround carves it once the data is readable.
+                return false;
+            }
         } else {
             builder.build();
         }

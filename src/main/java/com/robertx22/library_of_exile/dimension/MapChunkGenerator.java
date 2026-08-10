@@ -61,6 +61,21 @@ public class MapChunkGenerator extends ChunkGenerator {
 
     @Override
     public void buildSurface(WorldGenRegion pLevel, StructureManager pStructureManager, RandomState pRandom, ChunkAccess pChunk) {
+
+        // Chunk generation here is not driven by players alone - Distant Horizons runs it on its own
+        // worker threads across a huge radius, and a blocking raycast can make vanilla worldgen do the
+        // same. Both reach instances that have never been handed to anybody, and building rooms in one
+        // of those is worse than useless: the layout is guessed, and a generated chunk is never offered
+        // to the structures again, so the guess is permanent for whoever is later given those
+        // coordinates. One map lookup rejects all of it before any structure allocates anything.
+        //
+        // The chunk keeps the bedrock fillFromNoise gave it and is carved for real on chunk load, once
+        // the instance exists. See MapDimensionInfo.hasInstanceData.
+        var info = MapDimensions.getInfo(pLevel.getLevel());
+        if (info != null && !info.hasInstanceData(pLevel.getLevel(), pChunk.getPos().getMiddleBlockPosition(5))) {
+            return;
+        }
+
         var event = new MapChunkGenEvent(pRandom, pLevel.getServer().getStructureManager(), pChunk, pLevel, mapId);
         MapGenEvents.MAP_CHUNK_GEN.callEvents(event);
     }

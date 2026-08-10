@@ -5,6 +5,7 @@ import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfig;
 import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfigDefaults;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
+import com.robertx22.library_of_exile.dimension.worlddata.MapPlayerDataSaver;
 import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 public abstract class MapDimensionInfo {
@@ -43,6 +45,49 @@ public abstract class MapDimensionInfo {
      * only delays scenery the player wasn't waiting on anyway.
      */
     public IntFunction<Component> graceCountdownText = null;
+
+    /**
+     * Where this league keeps its per instance data, used to answer "has any player actually been given
+     * the instance at this position" during chunk generation. Optional - null means every chunk generates,
+     * which is the old behaviour.
+     *
+     * @see #hasInstanceData
+     */
+    private Function<ServerLevel, MapPlayerDataSaver<?>> instanceDataSource = null;
+
+    public void setInstanceDataSource(Function<ServerLevel, MapPlayerDataSaver<?>> source) {
+        this.instanceDataSource = source;
+    }
+
+    /**
+     * Whether the instance covering {@code pos} has been handed to a player.
+     * <p>
+     * Chunk generation is not driven by players alone. Distant Horizons runs this dimension's generator
+     * on its own worker threads across a huge radius, and a blocking raycast can make vanilla worldgen do
+     * the same - both reaching instances the counter has never handed out. Generating those used to roll
+     * a random dungeon per chunk and carve it permanently, so whoever was later given those coordinates
+     * inherited someone else's randomly themed rooms. Even after generation learned to refuse that, the
+     * work leading up to it (a builder, a Random, two copies of the dungeon registry, per chunk, per
+     * structure) still ran on every one of those threads.
+     * <p>
+     * So answer it once, up front, with a single map lookup: no instance here, nothing to build. The
+     * chunk stays the bedrock fillFromNoise gave it and is carved for real when the instance is
+     * eventually handed out and its chunks load.
+     */
+    public boolean hasInstanceData(ServerLevel level, BlockPos pos) {
+        if (instanceDataSource == null) {
+            return true;
+        }
+        try {
+            MapPlayerDataSaver<?> saver = instanceDataSource.apply(level);
+            return saver == null || saver.hasData(structure, pos);
+        } catch (Exception e) {
+            // never let this be the reason a chunk fails to generate - generating something is the
+            // strictly safer direction, it is only wasteful
+            ExileLog.get().warn("Could not check instance data for " + dimensionId + " at " + pos + ": " + e);
+            return true;
+        }
+    }
 
     public MobValidator mobValidator = new MobValidator() {
         @Override

@@ -1,9 +1,12 @@
 package com.robertx22.library_of_exile.dimension.structure.dungeon;
 
+import com.robertx22.library_of_exile.components.LibChunkCap;
 import com.robertx22.library_of_exile.config.map_dimension.ProcessMapChunks;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
+import com.robertx22.library_of_exile.main.ExileLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -12,11 +15,17 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
@@ -57,11 +66,18 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
     public BuiltDungeon getBuiltDungeon(ChunkPos start, DungeonBuilder resolved) {
 
         if (!resolved.resolvedFromMapData) {
-            // a guess. never cache it, and drop any cached guess so the next caller that CAN see the
-            // map data replaces it instead of inheriting this one.
+            // a guess, and there is no right answer to give. This used to build the grid anyway, which
+            // did two bad things: it cost a full 12-20 room build PER CHUNK (chunk generation is
+            // already blocking a server thread by the time it gets here), and it wrote rooms of a
+            // randomly rolled dungeon permanently into the world - a chunk is offered to the
+            // structures exactly once, so the guess outlives the moment the real map data becomes
+            // readable. That is how a 'nature' room ended up in the middle of a 'watcher' map.
+            //
+            // So refuse to answer. The chunk keeps the bedrock fillFromNoise left it as, and
+            // repairChunksAround carves it for real once a caller can actually read the instance's
+            // map data. Bedrock that becomes the right room beats a wrong room that is forever.
             builtDungeonCache.remove(start);
-            resolved.build();
-            return resolved.builtDungeon;
+            return null;
         }
 
         var cached = builtDungeonCache.get(start);
@@ -80,6 +96,18 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
             resolved.build();
             return resolved.builtDungeon;
         });
+    }
+
+    /**
+     * The already-built grid for this instance, or null if nothing has built it yet. Never builds
+     * one and never evicts.
+     * <p>
+     * For diagnostics that must not do work: {@code /report map_bug} is permission 0, and every other
+     * entry point here either builds a grid or drops a cached one, so letting a player drive it is a
+     * free way to make the server rebuild layouts on demand.
+     */
+    public BuiltDungeon getCachedDungeon(ChunkPos start) {
+        return builtDungeonCache.get(start);
     }
 
     private static boolean isSameDungeon(BuiltDungeon cached, DungeonBuilder resolved) {
@@ -148,5 +176,117 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
         var start = getStartChunkPos(cpos);
         var data = getMap(start);
         return DungeonRoomPlacer.generateStructure(this, data, level, cpos);
+    }
+
+    // one line per instance: repairChunksAround runs per player per second, so an instance that stays
+    // unreadable would otherwise flood the log with the same sentence forever.
+    private static final Set<ChunkPos> WARNED_SKIPPED_CARVE = ConcurrentHashMap.newKeySet();
+
+    public static void forgetSkippedCarveWarnings() {
+        WARNED_SKIPPED_CARVE.clear();
+    }
+
+    @Override
+    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks) {
+        int repaired = 0;
+
+        // group by instance FIRST, so getMap and getBuiltDungeon are resolved once per instance
+        // instead of once per chunk. That matters more than it looks: getMap allocates an
+        // AtomicReference, a DungeonBuilder and a Random and copies a registry list, and
+        // getBuiltDungeon takes the builtDungeonCache mutex - which worldgen threads hold for the
+        // whole of a DungeonBuilder.build(). Doing that per chunk put ~49 acquisitions per player per
+        // second on the server thread, on a lock a background thread can be sitting on. Instances are
+        // DUNGEON_LENGTH chunks apart, so a process radius is almost always a single group anyway.
+        Map<ChunkPos, List<ChunkPos>> byInstance = new HashMap<>();
+        for (ChunkPos cpos : chunks) {
+            // never let the repair be the thing that generates a chunk - that is the hang this whole
+            // change exists to stop.
+            if (level.hasChunk(cpos.x, cpos.z)) {
+                byInstance.computeIfAbsent(getStartChunkPos(cpos), k -> new ArrayList<>()).add(cpos);
+            }
+        }
+
+        for (var entry : byInstance.entrySet()) {
+            ChunkPos start = entry.getKey();
+            // per instance, so one broken instance can't skip the repair for everyone else in the batch
+            try {
+                // resolved lazily, on the first chunk that actually needs carving. This runs on every
+                // map chunk load, and getMap allocates a builder + a Random + two registry copies while
+                // getBuiltDungeon takes a mutex worldgen threads hold for whole dungeon builds. The
+                // overwhelming majority of chunk loads are of already carved chunks, and those must not
+                // pay any of that - isUncarved answers them in a single block read.
+                boolean instanceResolved = false;
+                DungeonBuilder resolved = null;
+                BuiltDungeon built = null;
+                int roomChunks = 1;
+
+                for (ChunkPos cpos : entry.getValue()) {
+                    if (repairFailedBefore(cpos)) {
+                        // nothing placeable here, and finding that out again costs the full scan below
+                        continue;
+                    }
+                    if (!isUncarved(level, cpos)) {
+                        continue;
+                    }
+
+                    if (!instanceResolved) {
+                        instanceResolved = true;
+                        resolved = getMap(start);
+
+                        if (resolved == null || !resolved.resolvedFromMapData) {
+                            // still can't tell which dungeon belongs here, so there is still nothing
+                            // safe to place. Say so once, then leave the instance alone.
+                            if (WARNED_SKIPPED_CARVE.add(start)) {
+                                ExileLog.get().warn("Not carving chunks of the dungeon instance at " + start
+                                        + ": its map data is unreadable, so any room placed now would permanently"
+                                        + " be the wrong dungeon. Leaving them as bedrock; they will be carved as"
+                                        + " soon as the map data can be read.");
+                            }
+                            break;
+                        }
+                        built = getBuiltDungeon(start, resolved);
+                        if (built == null) {
+                            break;
+                        }
+                        roomChunks = built.b != null ? built.b.getRoomChunks() : resolved.getRoomChunks();
+                    }
+
+                    if (repairChunk(level, cpos, start, resolved, built, roomChunks)) {
+                        repaired++;
+                    }
+                }
+            } catch (Exception e) {
+                ExileLog.get().error("Failed while repairing chunks of '" + guid() + "' at instance " + start + ".", e);
+            }
+        }
+        return repaired;
+    }
+
+    /**
+     * Re-carves one chunk generation left as bedrock. The caller owns the loaded check, the
+     * {@code repairFailedBefore} check and the {@code isUncarved} check.
+     */
+    private boolean repairChunk(ServerLevel level, ChunkPos cpos, ChunkPos start, DungeonBuilder resolved,
+                                BuiltDungeon built, int roomChunks) {
+        if (built.getPlacementForChunk(this, cpos, roomChunks) == null) {
+            // no cell of the grid covers this chunk - it is meant to be bedrock
+            return false;
+        }
+        if (!DungeonRoomPlacer.generateStructure(this, resolved, level, cpos)) {
+            rememberRepairFailure(cpos);
+            return false;
+        }
+
+        // the chunk was already marked processed while it was still bedrock, so without this the data
+        // blocks just placed would never be looked at and the room would be an empty shell with no
+        // mobs, chests or teleporters.
+        level.getChunk(cpos.x, cpos.z).getCapability(LibChunkCap.INSTANCE)
+                .ifPresent(cap -> cap.mapGenData.clearGeneratedData());
+
+        // deliberately loud. this firing is the evidence that generation dropped a chunk.
+        ExileLog.get().warn("Repaired an un-carved chunk of '" + guid() + "' at " + cpos
+                + " (instance start " + start + ", dungeon '" + (resolved.dungeon == null ? "?" : resolved.dungeon.GUID())
+                + "'). It was solid bedrock, meaning chunk generation never placed this room.");
+        return true;
     }
 }

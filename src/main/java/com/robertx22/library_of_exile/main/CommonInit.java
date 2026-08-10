@@ -2,7 +2,9 @@ package com.robertx22.library_of_exile.main;
 
 import com.robertx22.library_of_exile.components.OnMobDamaged;
 import com.robertx22.library_of_exile.database.affix.base.MobAffixEvents;
+import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.dimension.MapGenerationUTIL;
+import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.events.ExileLibEvents;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
 import com.robertx22.library_of_exile.events.base.ExileEvents;
@@ -24,6 +26,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -33,6 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -47,6 +51,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -101,6 +106,41 @@ public class CommonInit {
             @Override
             public void accept(ExileEvents.AfterDatabaseLoaded event) {
                 MapGenerationUTIL.forgetMissingStructureWarnings();
+                // same reasoning for the chunks whose repair gave up because that template was
+                // missing: a reload that brings it back has to let them be carved.
+                MapStructure.forgetRepairFailures();
+            }
+        });
+
+        // A map chunk is offered to the structures exactly once, when buildSurface runs, and Minecraft
+        // never runs it again. Anything that skipped or refused that carve - generation threw, a template
+        // was missing, or the instance had not been handed to a player yet (which is the normal case for
+        // everything Distant Horizons or a blocking raycast generates ahead of time) - leaves permanent
+        // bedrock. This is the moment to fix it: the chunk is loading because someone is about to need it.
+        //
+        // Deferred to the server thread deliberately. Repairing inline would mean reading and writing
+        // blocks of a chunk that is still completing its own load, which is exactly the re-entrant chunk
+        // access this whole change exists to remove. By the time the task runs the chunk is fully loaded,
+        // and repairChunksAround re-checks hasChunk in case it unloaded again in between.
+        ApiForgeEvents.registerForgeEvent(ChunkEvent.Load.class, event -> {
+            try {
+                if (!(event.getLevel() instanceof ServerLevel level)) {
+                    return;
+                }
+                var info = MapDimensions.getInfo(level);
+                if (info == null) {
+                    return;
+                }
+                var cpos = event.getChunk().getPos();
+                level.getServer().execute(() -> {
+                    var one = List.of(cpos);
+                    info.structure.repairChunksAround(level, one);
+                    for (MapStructure<?> secondary : info.secondaryStructures) {
+                        secondary.repairChunksAround(level, one);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
