@@ -155,7 +155,11 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
         }
         // spawnStructure reports a missing or oversized template itself. nothing can be done about
         // those here - there is no template to place - so don't count it, and don't come back.
-        if (!MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room)) {
+        //
+        // knownShape = true: unlike generation, this runs on the server thread against a live world,
+        // where vanilla's edge fixup would read and write the neighbouring chunk and block until it
+        // loaded. See the parameter's doc on spawnStructure.
+        if (!MapGenerationUTIL.spawnStructure(level, cpos, man, getSpawnHeight(), room, true)) {
             rememberRepairFailure(cpos);
             return false;
         }

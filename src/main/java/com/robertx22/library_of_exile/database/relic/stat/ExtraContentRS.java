@@ -11,7 +11,7 @@ public class ExtraContentRS extends RelicStat {
     public Data data;
 
     public enum Type {
-        ADDITION(" more"), MULTIPLY("x");
+        ADDITION(" Extra"), MULTIPLY("x");
 
         String term;
 
@@ -40,6 +40,6 @@ public class ExtraContentRS extends RelicStat {
 
     @Override
     public TranslationBuilder createTranslationBuilder() {
-        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, "%1$s chance to contain " + data.extra + data.type.term + " " + contentName));
+        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, "%1$s Chance for " + data.extra + data.type.term + " " + contentName));
     }
 }

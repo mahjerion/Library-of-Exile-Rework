@@ -18,6 +18,11 @@ public class RelicAffix implements JsonExileRegistry<RelicAffix>, IAutoGson<Reli
 
     public String relic_type = "";
 
+    // implicit affixes are rolled into their own dedicated slot on a relic, one per relic, and are
+    // never picked as one of the rarity's regular affixes. An implicit with an empty relic_type can
+    // be rolled by any relic type - see RelicGenerator.
+    public boolean implicit = false;
+
     public List<RelicMod> mods = new ArrayList<>();
 
     public RelicAffix(String id, String relic_type, RelicMod... mods) {
@@ -26,7 +31,12 @@ public class RelicAffix implements JsonExileRegistry<RelicAffix>, IAutoGson<Reli
         this.mods = Arrays.asList(mods);
     }
 
-  
+    public RelicAffix setImplicit() {
+        this.implicit = true;
+        return this;
+    }
+
+
     @Override
     public ExileRegistryType getExileRegistryType() {
         return LibDatabase.RELIC_AFFIX;

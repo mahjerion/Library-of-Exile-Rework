@@ -45,7 +45,29 @@ public class MapGenerationUTIL {
         WARNED_MISSING.clear();
     }
 
+    /**
+     * Places a room the way chunk generation does, letting vanilla fix up the shapes at the edges.
+     * Kept as its own overload so anything compiled against the old signature still links.
+     */
     public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room) {
+        return spawnStructure(level, cpos, man, y, room, false);
+    }
+
+    /**
+     * @param knownShape true to skip vanilla's edge shape fixup. That pass reads AND writes the block
+     *                   one step outside every face of the placed room (StructureTemplate line 352 and
+     *                   360), and a room fills its chunk, so "one step outside" is the neighbouring
+     *                   chunk. On the repair path that runs on the server thread with no guarantee the
+     *                   neighbour is loaded, so it forces a blocking chunk load - which was ~54% of all
+     *                   time spent in ticks over 100ms on the live server.
+     *                   <p>
+     *                   Only the repair path passes true. Generation still passes false: it runs on a
+     *                   WorldGenRegion where reaching one chunk out is free, and that is what lets a
+     *                   fence or a pane on the seam connect to the room next door. The cost of true is
+     *                   that a repaired room does not get that connection - which is a fair trade for a
+     *                   chunk that would otherwise have stayed solid bedrock.
+     */
+    public static boolean spawnStructure(ServerLevelAccessor level, ChunkPos cpos, StructureTemplateManager man, int y, ResourceLocation room, boolean knownShape) {
 
         try {
 
@@ -62,7 +84,7 @@ public class MapGenerationUTIL {
                 return false;
             }
 
-            StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE).setIgnoreEntities(false);
+            StructurePlaceSettings settings = new StructurePlaceSettings().setMirror(Mirror.NONE).setIgnoreEntities(false).setKnownShape(knownShape);
             settings.setBoundingBox(settings.getBoundingBox());
             settings.setRotation(Rotation.NONE);
 

@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.components.OnMobDamaged;
 import com.robertx22.library_of_exile.database.affix.base.MobAffixEvents;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.dimension.MapGenerationUTIL;
+import com.robertx22.library_of_exile.dimension.structure.MapChunkRepairQueue;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.events.ExileLibEvents;
 import com.robertx22.library_of_exile.events.base.EventConsumer;
@@ -39,6 +40,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -51,7 +53,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -118,27 +119,31 @@ public class CommonInit {
         // everything Distant Horizons or a blocking raycast generates ahead of time) - leaves permanent
         // bedrock. This is the moment to fix it: the chunk is loading because someone is about to need it.
         //
-        // Deferred to the server thread deliberately. Repairing inline would mean reading and writing
-        // blocks of a chunk that is still completing its own load, which is exactly the re-entrant chunk
-        // access this whole change exists to remove. By the time the task runs the chunk is fully loaded,
-        // and repairChunksAround re-checks hasChunk in case it unloaded again in between.
+        // Only record the position here - MapChunkRepairQueue explains why this must not call
+        // server.execute, which despite its name runs the task inline when the caller is already the
+        // server thread and outside a task. That made the repair re-entrant with the chunk load that
+        // triggered it, and nested chunk loads on top of that were the server's worst tick spikes.
         ApiForgeEvents.registerForgeEvent(ChunkEvent.Load.class, event -> {
             try {
                 if (!(event.getLevel() instanceof ServerLevel level)) {
                     return;
                 }
-                var info = MapDimensions.getInfo(level);
-                if (info == null) {
+                if (MapDimensions.getInfo(level) == null) {
                     return;
                 }
-                var cpos = event.getChunk().getPos();
-                level.getServer().execute(() -> {
-                    var one = List.of(cpos);
-                    info.structure.repairChunksAround(level, one);
-                    for (MapStructure<?> secondary : info.secondaryStructures) {
-                        secondary.repairChunksAround(level, one);
-                    }
-                });
+                MapChunkRepairQueue.enqueue(level, event.getChunk().getPos());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // and the other half: drain a fixed budget per level per tick, where no chunk is mid-load.
+        ApiForgeEvents.registerForgeEvent(TickEvent.LevelTickEvent.class, event -> {
+            try {
+                if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) {
+                    return;
+                }
+                MapChunkRepairQueue.tick(level);
             } catch (Exception e) {
                 e.printStackTrace();
             }

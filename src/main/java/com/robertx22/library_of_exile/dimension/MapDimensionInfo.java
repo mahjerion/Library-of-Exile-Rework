@@ -4,6 +4,7 @@ import com.robertx22.library_of_exile.components.MapConnectionsCap;
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfig;
 import com.robertx22.library_of_exile.config.map_dimension.MapDimensionConfigDefaults;
+import com.robertx22.library_of_exile.dimension.structure.MapChunkRepairQueue;
 import com.robertx22.library_of_exile.dimension.structure.MapStructure;
 import com.robertx22.library_of_exile.dimension.worlddata.MapPlayerDataSaver;
 import com.robertx22.library_of_exile.main.ExileLog;
@@ -156,6 +157,14 @@ public abstract class MapDimensionInfo {
         int evicted = evictPlayers(server);
 
         clearMapDataOnFolderWipe(server);
+
+        // queued repairs describe instances that are about to stop existing. harmless if they ran
+        // anyway - repairChunksAround re-checks that the chunk is loaded and still bedrock - but this
+        // server recycles instance coordinates every few hours, so don't carry them across.
+        var wipedLevel = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
+        if (wipedLevel != null) {
+            MapChunkRepairQueue.clear(wipedLevel);
+        }
 
         if (chunksDeleted) {
             resetInstanceCounter(server);

@@ -10,12 +10,15 @@ import java.util.HashMap;
 public class MapDimensions {
 
     // this way I can keep track of what dimensions are maps
-    private static HashMap<String, MapDimensionInfo> map = new HashMap<>();
+    // keyed by ResourceLocation, not by its toString(): isMap runs from the Level#getWorldBorder mixin,
+    // one of the hottest methods in the game, and building the "namespace:path" string on every call
+    // allocated ~700MB per 2 minutes of server time on a 20 player server. ResourceLocation already
+    // hashes and compares by namespace+path, so the key change is behaviour-neutral.
+    private static HashMap<ResourceLocation, MapDimensionInfo> map = new HashMap<>();
 
 
     public static boolean isMap(ResourceLocation id) {
-        boolean is = map.getOrDefault(id.toString(), null) != null;
-        return is;
+        return map.containsKey(id);
     }
 
     public static boolean isMap(Level world) {
@@ -25,7 +28,7 @@ public class MapDimensions {
     }
 
     public static MapDimensionInfo getInfo(ResourceLocation id) {
-        return map.get(id.toString());
+        return map.get(id);
     }
 
     // the map is keyed by dimension id, but a structure's guid is not a dimension id - dungeon_realm's
@@ -50,7 +53,7 @@ public class MapDimensions {
     }
 
     public static void register(MapDimensionInfo info) {
-        map.put(info.dimensionId.toString(), info);
+        map.put(info.dimensionId, info);
 
         // LibMapData (relic stats) is keyed only by instance coordinates, with no dimension in the key, so
         // it can only be cleared wholesale. That is safe here because the primary content dimension is its

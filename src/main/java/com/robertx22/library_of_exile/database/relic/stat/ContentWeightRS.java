@@ -28,6 +28,6 @@ public class ContentWeightRS extends RelicStat {
 
     @Override
     public TranslationBuilder createTranslationBuilder() {
-        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, "Your maps are %1$s more likely to contain " + name + " Content"));
+        return TranslationBuilder.of(modid).name(ExileTranslation.registry(this, "%1$s Increased Chance of " + name));
     }
 }
