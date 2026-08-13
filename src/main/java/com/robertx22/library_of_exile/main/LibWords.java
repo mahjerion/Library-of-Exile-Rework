@@ -10,7 +10,10 @@ import java.util.Locale;
 
 public enum LibWords implements ITranslated {
     MOD_NAME("Library of Exile"),
-    UNIDENTIFIED_ITEM("Unidentified. Use to Identify it!");
+    UNIDENTIFIED_ITEM("Unidentified. Use to Identify it!"),
+    // shown while a teleport waits for its destination chunks. deliberately not map specific -
+    // every teleport goes through DelayedTeleportData, including the one home.
+    LOADING_DESTINATION("Loading destination...");
 
     public String name;
 

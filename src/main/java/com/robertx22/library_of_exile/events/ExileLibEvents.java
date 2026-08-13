@@ -2,6 +2,7 @@ package com.robertx22.library_of_exile.events;
 
 import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.main.ApiForgeEvents;
+import com.robertx22.library_of_exile.main.LibWords;
 import com.robertx22.library_of_exile.registry.ExileRegistryType;
 import com.robertx22.library_of_exile.registry.JsonExileRegistry;
 import com.robertx22.library_of_exile.util.UNICODE;
@@ -9,7 +10,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -108,17 +111,31 @@ public class ExileLibEvents {
             try {
                 var cap = PlayerDataCapability.get(p);
                 if (cap != null) {
-                    var delayed = PlayerDataCapability.get(p).delayedTeleportData;
+                    var delayed = cap.delayedTeleportData;
                     if (delayed != null) {
-                        if (!delayed.command.isEmpty()) {
-                            if (delayed.ticks-- < 1) {
-                                delayed.teleport(p);
-                            }
+                        delayed.tick(p);
+
+                        // the destination can take a second or two to generate, and until it has the
+                        // player is still standing where they pressed the button. say so, or a slow
+                        // entry reads as nothing having happened.
+                        //
+                        // the map grace countdown can't cover this: it only runs for players already
+                        // inside a map dimension, and this is the window before they get there.
+                        if (delayed.shouldAnnounceWait() && p instanceof ServerPlayer sp) {
+                            sp.connection.send(new ClientboundSetActionBarTextPacket(
+                                    LibWords.LOADING_DESTINATION.get().withStyle(ChatFormatting.YELLOW)));
                         }
                     }
                 }
             } catch (Exception e) {
-                PlayerDataCapability.get(p).delayedTeleportData = null;
+                // null check, because this runs every tick and the capability is genuinely absent for
+                // part of a normal player's life - it is invalidated between death and respawn. An NPE
+                // thrown from inside the handler that exists to swallow errors would escape into the
+                // event bus on every one of those ticks.
+                var cap = PlayerDataCapability.get(p);
+                if (cap != null) {
+                    cap.delayedTeleportData = null;
+                }
                 e.printStackTrace();
             }
         });

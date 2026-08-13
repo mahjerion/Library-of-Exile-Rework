@@ -1,5 +1,6 @@
 package com.robertx22.library_of_exile.dimension.teleport;
 
+import com.robertx22.library_of_exile.components.PlayerDataCapability;
 import com.robertx22.library_of_exile.dimension.MapDimensions;
 import com.robertx22.library_of_exile.utils.TeleportUtils;
 import net.minecraft.core.BlockPos;
@@ -95,10 +96,23 @@ public class SavedPlayerMapTeleports {
         //
         // the from.equals(to) half keeps a real map -> different map entry covered, for a league whose
         // entrance can be reached from inside another league's dimension.
-        if (!fromMap || !from.equals(to)) {
+        //
+        // the decision is made here, but the stamp itself happens on ARRIVAL - see
+        // DelayedTeleportData.stampMapEnterOnArrival. The teleport now waits for the destination
+        // chunks, which can take seconds, and stamping up front would spend that part of the grace
+        // while the player is still standing in the dimension they came from.
+        boolean stampOnArrival = !fromMap || !from.equals(to);
+
+        teleport(p, to, topos);
+
+        var cap = PlayerDataCapability.get(p);
+        var delayed = cap == null ? null : cap.delayedTeleportData;
+        if (delayed != null) {
+            delayed.stampMapEnterOnArrival = stampOnArrival;
+        } else if (stampOnArrival) {
+            // teleport() always sets one, but never silently lose the grace if that ever changes
             this.lastMapEnterTime = p.level().getGameTime();
         }
-        teleport(p, to, topos);
     }
 
     private void teleport(Player p, ResourceLocation to, BlockPos pos) {

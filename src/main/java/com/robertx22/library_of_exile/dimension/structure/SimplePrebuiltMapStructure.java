@@ -35,8 +35,12 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
         return true;
     }
 
+    // deferred is never added to here: unlike a dungeon, an arena's layout does not depend on map data
+    // that can arrive late. getMap returning null means there is no arena at this instance at all, which
+    // is an answer, not a "not yet" - retrying it would spin forever. See DungeonStructure for the case
+    // this parameter exists for.
     @Override
-    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks) {
+    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks, Collection<ChunkPos> deferred) {
         int repaired = 0;
         StructureTemplateManager man = level.getServer().getStructureManager();
 

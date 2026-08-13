@@ -10,6 +10,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -115,6 +116,25 @@ public abstract class MapStructure<Map> {
      * loaded; this must never be the thing that forces a chunk to generate.
      */
     public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks) {
+        return repairChunksAround(level, chunks, new ArrayList<>());
+    }
+
+    /**
+     * As above, but able to report chunks it refused to carve <i>for now</i> as distinct from chunks
+     * it had nothing to do about.
+     * <p>
+     * The distinction is the whole point. An instance whose map data is not readable yet must not be
+     * carved - a room placed from a guess is permanent and wrong - but "not yet" is not "never", and
+     * the queue that drives this pass removes a chunk from its pending set before handing it over. So
+     * without somewhere to say "ask me again", a chunk deferred here is dropped, and the only thing
+     * that ever queues it again is a fresh chunk load - which for the chunk a player is standing in
+     * never comes. That is how an instance stayed solid bedrock for the player who created it while
+     * the map data it was waiting for became readable seconds later.
+     *
+     * @param deferred receives positions that are still uncarved and worth retrying. Implementations
+     *                 that can never be in that state simply never add to it.
+     */
+    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks, Collection<ChunkPos> deferred) {
         return 0;
     }
 

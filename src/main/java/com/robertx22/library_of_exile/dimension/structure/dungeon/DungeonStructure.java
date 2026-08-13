@@ -187,7 +187,7 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
     }
 
     @Override
-    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks) {
+    public int repairChunksAround(ServerLevel level, Collection<ChunkPos> chunks, Collection<ChunkPos> deferred) {
         int repaired = 0;
 
         // group by instance FIRST, so getMap and getBuiltDungeon are resolved once per instance
@@ -242,6 +242,14 @@ public abstract class DungeonStructure extends MapStructure<DungeonBuilder> {
                                         + " be the wrong dungeon. Leaving them as bedrock; they will be carved as"
                                         + " soon as the map data can be read.");
                             }
+                            // "as soon as the map data can be read" is only true if somebody asks again.
+                            // Hand the whole instance back to the caller to retry rather than letting
+                            // these positions fall out of the queue - a chunk the player is standing in
+                            // will not fire another chunk load event to re-queue itself, so this is the
+                            // only thing keeping the promise above. Chunks already carved are cheap to
+                            // re-offer: isUncarved answers them in a single block read and they are not
+                            // deferred a second time.
+                            deferred.addAll(entry.getValue());
                             break;
                         }
                         built = getBuiltDungeon(start, resolved);
