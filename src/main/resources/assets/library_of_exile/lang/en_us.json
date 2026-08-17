@@ -38,6 +38,7 @@
 	"library_of_exile.words.currency": "Crafting Orb",
 	"library_of_exile.words.drag_and_drop": "[Stack/Drag on another item to use]",
 	"library_of_exile.words.drag_no_work_creative": "Item can not be used in Creative Mode!",
+	"library_of_exile.words.loading_destination": "Loading destination...",
 	"library_of_exile.words.mod_name": "Orbs of Crafting",
 	"library_of_exile.words.not_a_potential_consumer": "Does not consume potential when used",
 	"library_of_exile.words.outcome_tip": "%1$s - %2$s",
