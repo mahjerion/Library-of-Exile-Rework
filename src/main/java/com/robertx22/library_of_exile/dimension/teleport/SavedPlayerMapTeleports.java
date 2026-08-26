@@ -41,8 +41,16 @@ public class SavedPlayerMapTeleports {
 
     // teleports to maps
     public void entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos) {
+        entranceTeleportLogic(p, to, topos, true);
+    }
+
+    /**
+     * @param grace whether this entry should get the {@link com.robertx22.library_of_exile.dimension.MapEntryGrace}
+     *              window. Only the entry that CREATES an instance should ask for it - see teleportToMap.
+     */
+    public void entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos, boolean grace) {
         ResourceLocation from = p.level().dimensionTypeId().location();
-        teleportToMap(p, from, to, topos);
+        teleportToMap(p, from, to, topos, grace);
     }
 
     // if in map, teleports to last map teleport point, or if theres no more points, tps back home
@@ -77,6 +85,10 @@ public class SavedPlayerMapTeleports {
     }
 
     public void teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos) {
+        teleportToMap(p, from, to, topos, true);
+    }
+
+    public void teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos, boolean grace) {
         boolean fromMap = MapDimensions.isMap(from);
 
         if (!fromMap) {
@@ -97,11 +109,17 @@ public class SavedPlayerMapTeleports {
         // the from.equals(to) half keeps a real map -> different map entry covered, for a league whose
         // entrance can be reached from inside another league's dimension.
         //
+        // the `grace` half is the league saying which entry this is. only the one that CREATES the
+        // instance asks for it: re-entering, or joining someone else's run, arrives into a room whose
+        // content already exists, and the grace only ever held back NEW spawns - it never stopped the
+        // mobs already standing there. Worse, MapEntryGrace.anyInGrace is per instance, so a re-entry
+        // used to freeze the wave logic for everyone in the room, repeatably.
+        //
         // the decision is made here, but the stamp itself happens on ARRIVAL - see
         // DelayedTeleportData.stampMapEnterOnArrival. The teleport now waits for the destination
         // chunks, which can take seconds, and stamping up front would spend that part of the grace
         // while the player is still standing in the dimension they came from.
-        boolean stampOnArrival = !fromMap || !from.equals(to);
+        boolean stampOnArrival = grace && (!fromMap || !from.equals(to));
 
         teleport(p, to, topos);
 
