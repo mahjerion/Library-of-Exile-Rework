@@ -40,17 +40,19 @@ public class SavedPlayerMapTeleports {
     }
 
     // teleports to maps
-    public void entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos) {
-        entranceTeleportLogic(p, to, topos, true);
+    public boolean entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos) {
+        return entranceTeleportLogic(p, to, topos, true);
     }
 
     /**
      * @param grace whether this entry should get the {@link com.robertx22.library_of_exile.dimension.MapEntryGrace}
      *              window. Only the entry that CREATES an instance should ask for it - see teleportToMap.
+     * @return false when a teleport was already in flight for this player, so this entry was ignored.
+     * A caller that does follow up work on arrival must not do it when this is false.
      */
-    public void entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos, boolean grace) {
+    public boolean entranceTeleportLogic(Player p, ResourceLocation to, BlockPos topos, boolean grace) {
         ResourceLocation from = p.level().dimensionTypeId().location();
-        teleportToMap(p, from, to, topos, grace);
+        return teleportToMap(p, from, to, topos, grace);
     }
 
     // if in map, teleports to last map teleport point, or if theres no more points, tps back home
@@ -84,12 +86,22 @@ public class SavedPlayerMapTeleports {
         deleteLast();
     }
 
-    public void teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos) {
-        teleportToMap(p, from, to, topos, true);
+    public boolean teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos) {
+        return teleportToMap(p, from, to, topos, true);
     }
 
-    public void teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos, boolean grace) {
+    /** @return false when a teleport was already pending, so this request was ignored entirely */
+    public boolean teleportToMap(Player p, ResourceLocation from, ResourceLocation to, BlockPos topos, boolean grace) {
         boolean fromMap = MapDimensions.isMap(from);
+
+        // scheduled first, because everything below belongs to THIS request and must not be applied
+        // when a teleport is already on its way - the home/last bookkeeping would record a second exit
+        // hop, and the stamp decision would hand the in flight teleport this entry's grace answer
+        // instead of its own. teleport() only schedules a command, so the player has not moved yet and
+        // the bookkeeping still reads the position they left from.
+        if (!teleport(p, to, topos)) {
+            return false;
+        }
 
         if (!fromMap) {
             home.setFrom(p);
@@ -121,8 +133,6 @@ public class SavedPlayerMapTeleports {
         // while the player is still standing in the dimension they came from.
         boolean stampOnArrival = grace && (!fromMap || !from.equals(to));
 
-        teleport(p, to, topos);
-
         var cap = PlayerDataCapability.get(p);
         var delayed = cap == null ? null : cap.delayedTeleportData;
         if (delayed != null) {
@@ -131,10 +141,12 @@ public class SavedPlayerMapTeleports {
             // teleport() always sets one, but never silently lose the grace if that ever changes
             this.lastMapEnterTime = p.level().getGameTime();
         }
+        return true;
     }
 
-    private void teleport(Player p, ResourceLocation to, BlockPos pos) {
-        TeleportUtils.teleport((ServerPlayer) p, pos, to);
+    /** @return false when a teleport was already pending, so this request was ignored */
+    private boolean teleport(Player p, ResourceLocation to, BlockPos pos) {
+        return TeleportUtils.teleport((ServerPlayer) p, pos, to);
     }
 
 }

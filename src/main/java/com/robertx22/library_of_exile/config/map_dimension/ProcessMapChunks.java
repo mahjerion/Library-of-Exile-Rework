@@ -81,7 +81,17 @@ public class ProcessMapChunks {
         // world, so it can run the moment the player arrives. this one is what actually creates the
         // content, and it waits out the entry grace - the queued blocks stay in mapGenData.mapBlocks
         // because spawnDataFromChunk is what clears that list, so nothing is lost, it just spawns later.
+        // the arriving player's own window first - it costs nothing and is the common case for the
+        // player the grace is actually for
         if (MapEntryGrace.isInGrace(p, config)) {
+            return;
+        }
+        // ...then anyone else's, because this hold is per instance, not per player. spawnDataFromChunk
+        // CLEARS mapGenData.mapBlocks as it goes, so a player who arrives without a grace of their own -
+        // anyone joining an instance they didn't open - would otherwise consume the content in the very
+        // chunks the player who did open it is still waiting on, handing them the swarm on arrival this
+        // whole window exists to prevent.
+        if (MapEntryGrace.anyInGrace(info.structure.getAllPlayersInMap(level, p.blockPosition()), config)) {
             return;
         }
 

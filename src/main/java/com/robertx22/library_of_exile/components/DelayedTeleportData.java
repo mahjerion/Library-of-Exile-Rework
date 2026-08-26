@@ -51,6 +51,16 @@ public class DelayedTeleportData {
         this.tp = tp;
     }
 
+    /**
+     * True while a teleport has been scheduled and has neither fired nor failed yet.
+     * <p>
+     * Cleared the moment {@link #teleport} runs or anything throws, and {@link #tick} always reaches one
+     * of those within {@code MAX_WAIT_TICKS + 2} ticks - so this can never latch on.
+     */
+    public boolean isPending() {
+        return !command.isEmpty();
+    }
+
     /** True while the destination is being brought up, so the caller can say so on the action bar. */
     public boolean isWaitingForChunks() {
         return !command.isEmpty() && requested;

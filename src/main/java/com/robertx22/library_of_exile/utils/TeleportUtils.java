@@ -16,26 +16,42 @@ import org.jetbrains.annotations.NotNull;
 
 public class TeleportUtils {
 
-    public static void teleport(ServerPlayer player, BlockPos pos) {
-        teleport(player, pos, player.level().dimensionType());
+    public static boolean teleport(ServerPlayer player, BlockPos pos) {
+        return teleport(player, pos, player.level().dimensionType());
     }
 
-    public static void teleport(ServerPlayer player, BlockPos pos, DimensionType dimension) {
-        teleport(player, pos, VanillaUTIL.REGISTRY.dimensionTypes(player.level()).getKey(dimension));
+    public static boolean teleport(ServerPlayer player, BlockPos pos, DimensionType dimension) {
+        return teleport(player, pos, VanillaUTIL.REGISTRY.dimensionTypes(player.level()).getKey(dimension));
     }
 
-    public static void teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
+    /**
+     * Schedules a teleport. Returns false when it did NOT schedule one, which callers must respect -
+     * see the pending check below.
+     */
+    public static boolean teleport(ServerPlayer player, BlockPos pos, ResourceLocation dimension) {
         try {
             // todo is the gameprofile/uuid name correct?
             String command = "/execute in " + dimension.toString() + " run tp " + player.getStringUUID() +
                     " " + pos.getX() + " " + pos.getY() + " " + pos.getZ();
 
-            PlayerDataCapability.get(player).delayedTeleportData = new DelayedTeleportData(command, 2, SavedTeleportPos.from(dimension, pos));
+            var cap = PlayerDataCapability.get(player);
+
+            // a teleport is already in flight for this player, so leave it alone. overwriting it drops
+            // the pending instance's onArrival work - in a dungeon that is placeReturnDevice, so an
+            // impatient second click on the map device during the "loading destination" wait used to
+            // land the player in a dungeon with no device to get home from.
+            if (cap.delayedTeleportData != null && cap.delayedTeleportData.isPending()) {
+                return false;
+            }
+
+            cap.delayedTeleportData = new DelayedTeleportData(command, 2, SavedTeleportPos.from(dimension, pos));
 
             //CommandUtils.execute(player, command);
 
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
