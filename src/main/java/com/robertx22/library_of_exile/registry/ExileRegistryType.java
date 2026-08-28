@@ -1,9 +1,13 @@
 package com.robertx22.library_of_exile.registry;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.loaders.BaseDataPackLoader;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.fml.ModList;
 
@@ -108,6 +112,8 @@ public class ExileRegistryType {
         return new ExileDatapackGenerator<>(modid, getAllForSerialization(), this.id);
     }
 
+    public void injectResources(ResourceManager manager, String name, Gson gson, Map<ResourceLocation, JsonElement> output) {
+    }
 
     public List getAllForSerialization() {
         return Database.getRegistry(this)

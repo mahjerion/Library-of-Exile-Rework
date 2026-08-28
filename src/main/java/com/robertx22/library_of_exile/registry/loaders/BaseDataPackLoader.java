@@ -41,9 +41,10 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
 
     @Override
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
-
-
-        return super.prepare(manager, profiler);
+        Map<ResourceLocation, JsonElement> map = new HashMap();
+        scanDirectory(manager, id, GSON, map);
+        registryType.injectResources(manager, id, GSON, map);
+        return map;
     }
 
     public static String ENABLED = "enabled";
