@@ -4,13 +4,22 @@ import com.google.gson.JsonObject;
 import com.robertx22.library_of_exile.registry.register_info.ExileRegistrationInfo;
 import com.robertx22.library_of_exile.registry.register_info.RegistrationInfoData;
 
-public interface ExileRegistry<C> extends IGUID, IWeighted {
+/**
+ * Denotes a class whose instances can be registered by Library of Exile.
+ * <p>
+ * Note that this does not actually contain the registry data;
+ * this is done in {@link ExileRegistryContainer}.
+ *
+ * @param <C> the same class that implements this interface
+ */
+public interface ExileRegistry<C extends ExileRegistry<C>> extends IGUID, IWeighted {
 
-    ExileRegistryType getExileRegistryType();
+    ExileRegistryType<C> getExileRegistryType();
 
 
     default void registerToExileRegistry(ExileRegistrationInfo info) {
-        Database.getRegistry(getExileRegistryType()).register(this, info);
+        // TODO: try to remove need for this cast
+        Database.getRegistry(getExileRegistryType()).register((C) this, info);
     }
 
     default RegistrationInfoData getRegistrationInfo() {

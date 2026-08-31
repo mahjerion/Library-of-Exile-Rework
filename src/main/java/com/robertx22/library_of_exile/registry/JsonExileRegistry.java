@@ -13,10 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public interface JsonExileRegistry<T> extends ExileRegistry<T> {
+public interface JsonExileRegistry<T extends ExileRegistry<T>> extends ExileRegistry<T> {
 
     default void addToSerializables(ExileRegistrationInfo info) {
-        Database.getRegistry(getExileRegistryType()).addSerializable(this, info);
+        // TOOD: try to remove need for this cast
+        Database.getRegistry(getExileRegistryType()).addSerializable((T) this, info);
     }
 
 

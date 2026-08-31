@@ -6,7 +6,7 @@ import com.robertx22.library_of_exile.registry.ExileRegistryContainer;
 
 import java.util.Optional;
 
-public interface iTiered<T extends ExileRegistry & iTiered<T>> {
+public interface iTiered<T extends ExileRegistry<T> & iTiered<T>> {
 
     public int getTier();
 

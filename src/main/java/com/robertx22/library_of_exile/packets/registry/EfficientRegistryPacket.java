@@ -18,19 +18,19 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry> extends MyPacket<EfficientRegistryPacket> {
+public class EfficientRegistryPacket<T extends ISerializable<T> & JsonExileRegistry<T>> extends MyPacket<EfficientRegistryPacket<T>> {
     public static final JsonParser PARSER = new JsonParser();
 
     public static ResourceLocation ID = new ResourceLocation(Ref.MODID, "eff_reg");
     private List<T> items;
 
-    ExileRegistryType type;
+    ExileRegistryType<T> type;
 
     public EfficientRegistryPacket() {
 
     }
 
-    public EfficientRegistryPacket(ExileRegistryType type, List<T> list) {
+    public EfficientRegistryPacket(ExileRegistryType<T> type, List<T> list) {
         this.type = type;
         this.items = list;
     }
@@ -43,9 +43,11 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
     @Override
     public void loadFromData(FriendlyByteBuf buf) {
 
-        this.type = ExileRegistryType.get(buf.readUtf());
+        var type = ExileRegistryType.get(buf.readUtf());
+        // TODO: try to remove this cast
+        this.type = (ExileRegistryType<T>) type;
 
-        ISerializable<T> serializer = type.getSerializer();
+        ISerializable<T> serializer = this.type.getSerializer();
 
         this.items = Lists.newArrayList();
 
@@ -72,7 +74,7 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
     @Override
     public void onReceived(ExilePacketContext ctx) {
 
-        ExileRegistryContainer reg = Database.getRegistry(type);
+        ExileRegistryContainer<T> reg = Database.getRegistry(type);
 
         items.forEach(x -> {
             x.unregisterFromExileRegistry();
@@ -84,7 +86,7 @@ public class EfficientRegistryPacket<T extends ISerializable & JsonExileRegistry
     }
 
     @Override
-    public MyPacket<EfficientRegistryPacket> newInstance() {
-        return new EfficientRegistryPacket();
+    public MyPacket<EfficientRegistryPacket<T>> newInstance() {
+        return new EfficientRegistryPacket<>();
     }
 }

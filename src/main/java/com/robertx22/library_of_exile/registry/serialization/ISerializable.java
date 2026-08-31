@@ -29,14 +29,12 @@ public interface ISerializable<T> {
     default JsonObject getDefaultJson() {
         JsonObject json = new JsonObject();
 
-        if (this instanceof IGUID) {
-            IGUID claz = (IGUID) this;
-            json.addProperty(ID, claz.GUID());
+        if (this instanceof IGUID self) {
+            json.addProperty(ID, self.GUID());
         }
 
-        if (this instanceof IWeighted) {
-            IWeighted claz = (IWeighted) this;
-            json.addProperty(WEIGHT, claz.Weight());
+        if (this instanceof IWeighted self) {
+            json.addProperty(WEIGHT, self.Weight());
         }
 
         return json;

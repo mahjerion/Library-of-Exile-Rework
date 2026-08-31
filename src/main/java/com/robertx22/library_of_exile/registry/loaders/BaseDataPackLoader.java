@@ -15,18 +15,18 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.*;
 
-public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResourceReloadListener {
-    private static Gson GSON = IAutoGson.createGson();
+public class BaseDataPackLoader<T extends ExileRegistry<T>> extends SimpleJsonResourceReloadListener {
+    private static final Gson GSON = IAutoGson.createGson();
 
 
     public String id;
     ISerializable<T> serializer;
-    public ExileRegistryType registryType;
+    public ExileRegistryType<T> registryType;
 
 
-    public static HashMap<ExileRegistryType, List<String>> INFO_MAP = new HashMap<>();
+    public static HashMap<ExileRegistryType<?>, List<String>> INFO_MAP = new HashMap<>();
 
-    public BaseDataPackLoader(ExileRegistryType registryType, String id, ISerializable<T> serializer) {
+    public BaseDataPackLoader(ExileRegistryType<T> registryType, String id, ISerializable<T> serializer) {
         super(GSON, id);
         Objects.requireNonNull(registryType);
         this.id = id;
@@ -57,7 +57,7 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
     protected void apply(Map<ResourceLocation, JsonElement> mapToLoad, ResourceManager manager, ProfilerFiller profilerIn) {
 
         try {
-            ExileRegistryContainer reg = Database.getRegistry(registryType);
+            ExileRegistryContainer<T> reg = Database.getRegistry(registryType);
 
             Watch normal = new Watch();
             normal.min = 50000;

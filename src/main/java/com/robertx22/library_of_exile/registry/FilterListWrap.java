@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class FilterListWrap<C extends ExileRegistry> {
+public class FilterListWrap<C extends ExileRegistry<C>> {
 
     public FilterListWrap(List<C> list) {
         this.list = list;

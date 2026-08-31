@@ -20,7 +20,7 @@ public abstract class MyPacket<T> {
 
     public abstract MyPacket<T> newInstance();
 
-    public final MyPacket loadFromDataUSETHIS(FriendlyByteBuf buf) {
+    public final MyPacket<T> loadFromDataUSETHIS(FriendlyByteBuf buf) {
 
         MyPacket<T> data = newInstance();
         try {

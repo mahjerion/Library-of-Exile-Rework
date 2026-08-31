@@ -10,23 +10,22 @@ import net.minecraftforge.fml.ModList;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ExileRegistryType {
+public class ExileRegistryType<T extends ExileRegistry<T>> {
 
-    private static HashMap<String, ExileRegistryType> map = new HashMap<>();
+    private static final HashMap<String, ExileRegistryType<?>> map = new HashMap<>();
 
     public String id;
-    ISerializable ser;
+    ISerializable<T> ser;
     int order;
     public SyncTime syncTime;
     public String modid;
     // used for lang file tc
     public String idWithoutModid;
 
-    public ExileRegistryType(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
+    public ExileRegistryType(String modid, String id, int order, ISerializable<T> ser, SyncTime synctime) {
 
         Preconditions.checkNotNull(modid);
         Preconditions.checkNotNull(id);
-        Preconditions.checkNotNull(order);
         Preconditions.checkNotNull(synctime);
 
         this.modid = modid;
@@ -41,11 +40,11 @@ public class ExileRegistryType {
         return ModList.get().getModContainerById(modid).get().getModInfo().getDisplayName();
     }
 
-    public static ExileRegistryType get(String id) {
+    public static ExileRegistryType<?> get(String id) {
         return map.get(id);
     }
 
-    public static ExileRegistryType register(ExileRegistryType type) {
+    public static <C extends ExileRegistry<C>> ExileRegistryType<C> register(ExileRegistryType<C> type) {
         Preconditions.checkNotNull(type);
 
         if (map.containsKey(type.id)) {
@@ -56,24 +55,23 @@ public class ExileRegistryType {
         return type;
     }
 
-    public static ExileRegistryType register(String modid, String id, int order, ISerializable ser, SyncTime synctime) {
-        ExileRegistryType type = new ExileRegistryType(modid, id, order, ser, synctime);
+    public static <C extends ExileRegistry<C>> ExileRegistryType<C> register(String modid, String id, int order, ISerializable<C> ser, SyncTime synctime) {
+        ExileRegistryType<C> type = new ExileRegistryType<>(modid, id, order, ser, synctime);
         return register(type);
     }
 
-    public static List<ExileRegistryType> getInRegisterOrder(SyncTime sync) {
-        List<ExileRegistryType> list = map.values().stream()
+    public static List<ExileRegistryType<?>> getInRegisterOrder(SyncTime sync) {
+        return map.values().stream()
                 .filter(x -> x.syncTime == sync)
+                .sorted(Comparator.comparingInt(x -> x.order))
                 .collect(Collectors.toList());
-        list.sort(Comparator.comparingInt(x -> x.order));
-        return list;
 
     }
 
-    public static List<ExileRegistryType> getAllInRegisterOrder() {
-        List<ExileRegistryType> list = new ArrayList<>();
+    public static List<ExileRegistryType<?>> getAllInRegisterOrder() {
+        List<ExileRegistryType<?>> list = new ArrayList<>();
 
-        for (Map.Entry<String, ExileRegistryType> en : map.entrySet()) {
+        for (Map.Entry<String, ExileRegistryType<?>> en : map.entrySet()) {
             if (en.getValue() == null) {
                 throw new RuntimeException(en.getKey() + " is a null registry type, how?!");
             } else {
@@ -88,7 +86,7 @@ public class ExileRegistryType {
 
 
     public static void registerJsonListeners(AddReloadListenerEvent manager) {
-        List<ExileRegistryType> list = getAllInRegisterOrder();
+        List<ExileRegistryType<?>> list = getAllInRegisterOrder();
         list.forEach(x -> {
             if (x.getLoader() != null) {
                 manager.addListener(x.getLoader());
@@ -114,7 +112,7 @@ public class ExileRegistryType {
                 .getSerializable();
     }
 
-    public final ISerializable getSerializer() {
+    public final ISerializable<T> getSerializer() {
         return ser;
     }
 
