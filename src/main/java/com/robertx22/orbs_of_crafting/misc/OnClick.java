@@ -52,8 +52,12 @@ public class OnClick {
                 if (!ctx.isValid()) {
                     return new Result(false);
                 }
+                if (ctx.refuseIfStacked()) {
+                    // cancel, so no vanilla fallback swap runs on a click we just told the player off for
+                    return new Result(true);
+                }
 
-                LocReqContext req = new LocReqContext(ctx.player, ctx.target.copy(), ctx.currency);
+                LocReqContext req = new LocReqContext(ctx.player, ctx.target.copyWithCount(1), ctx.currency);
 
                 var cur = opt.get();
                 var can = cur.canItemBeModified(req);

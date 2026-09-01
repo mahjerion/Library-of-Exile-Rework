@@ -21,8 +21,28 @@ public class MobList implements JsonExileRegistry<MobList>, IAutoGson<MobList>, 
     public int weight = 1000;
     public List<MobEntry> mobs = new ArrayList<>();
 
+    /**
+     * One mob from this list, weighted.
+     * <p>
+     * Entries whose mob isn't registered are skipped rather than rolled. A list names mobs by id and
+     * those ids belong to other mods - a modpack list routinely references a dozen, and this library
+     * ships lists naming mobs from its own addons - so an id that resolves to nothing is a normal
+     * consequence of removing a mod, not a data error. Every caller does
+     * {@code getRandomMob().getType()} straight into a spawn, so without this filter that missing
+     * mod is a crash that waits for the right roll and then hits one room in twenty.
+     * <p>
+     * Null when nothing on the list resolves. Every caller must null check: dungeon_realm's mob
+     * data blocks skip the spawner, and the strongbox / imprisoned monster encounters fall back to a
+     * zombie rather than spawning nothing at all.
+     */
     public MobEntry getRandomMob() {
-        return RandomUtils.weightedRandom(mobs);
+        List<MobEntry> present = new ArrayList<>();
+        for (MobEntry entry : mobs) {
+            if (entry.getType() != null) {
+                present.add(entry);
+            }
+        }
+        return RandomUtils.weightedRandom(present);
     }
 
     // tags
