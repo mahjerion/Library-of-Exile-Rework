@@ -55,6 +55,7 @@ public class ExileEvents {
     public static ExileEventCaller<OnProcessMapDataBlock> PROCESS_DATA_BLOCK = new ExileEventCaller<>();
     public static ExileEventCaller<OnProcessChunkData> PROCESS_CHUNK_DATA = new ExileEventCaller<>();
     public static ExileEventCaller<GrabLibMapData> GRAB_LIB_MAP_DATA = new ExileEventCaller<>();
+    public static ExileEventCaller<OpenMapDeviceEvent> OPEN_MAP_DEVICE = new ExileEventCaller<>();
     public static ExileEventCaller<DungeonDataBlockPlaced> DUNGEON_DATA_BLOCK_PLACED = new ExileEventCaller<>();
 
     // todo maybe i can add adapters to this and save stuff like registry strings into wrapper classes??
@@ -95,6 +96,24 @@ public class ExileEvents {
             this.pos = pos;
             this.blockInfo = blockInfo;
             this.structureId = structureId;
+        }
+    }
+
+    /**
+     * Fired server side by a map device block (dungeon map device, harvest block, obelisk block) when a
+     * player right-clicks it. The block entity at {@code pos} implements
+     * {@link com.robertx22.library_of_exile.dimension.device.IMapDeviceBlockEntity}; the main mod listens
+     * and opens the shared device GUI on that player's client.
+     */
+    public static class OpenMapDeviceEvent extends ExileEvent {
+        public Player player;
+        public Level level;
+        public BlockPos pos;
+
+        public OpenMapDeviceEvent(Player player, Level level, BlockPos pos) {
+            this.player = player;
+            this.level = level;
+            this.pos = pos;
         }
     }
 
