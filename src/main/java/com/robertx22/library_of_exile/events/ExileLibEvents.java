@@ -98,45 +98,62 @@ public class ExileLibEvents {
             }
         });
 
-        ApiForgeEvents.registerForgeEvent(TickEvent.PlayerTickEvent.class, event ->
+        // Driven from the END of the SERVER tick, deliberately not from PlayerTickEvent.
+        //
+        // PlayerTickEvent fires from inside ServerGamePacketListenerImpl.tick(), which does, in order:
+        // resetPosition() (snapshots the player's position into firstGoodX/Y/Z), player.doTick() (the
+        // player tick event), then absMoveTo(firstGoodX, firstGoodY, firstGoodZ). A cross-dimension
+        // teleport executed from the player tick therefore gets its position immediately overwritten
+        // with the snapshot - the OLD dimension's coordinates, now applied inside the NEW dimension.
+        // Forge's Entity.setPosRaw patch then does a blocking, generate-if-missing chunk load at that
+        // spot: on a map exit that is the overworld being generated at the dungeon instance's
+        // coordinates (2104, 664 ...), on entry it is the map dimension at the overworld home
+        // coordinates. Measured at 5.5-6.6s of server-thread park per teleport in spark, with
+        // NoiseBasedChunkGenerator busy on the workers in a session where nobody explored anything.
+        // The client's teleport-accept packet puts the player back a tick later, so nothing visible
+        // ever hinted at it. Preloading the real destination cannot help with a load at the wrong place.
+        //
+        // The connection tick runs before onPostServerTick, so firing from here means the next
+        // resetPosition() already sees the new position and the re-apply is a no-op.
+        ApiForgeEvents.registerForgeEvent(TickEvent.ServerTickEvent.class, event ->
         {
-            Player p = event.player;
-
-            if (p.level().isClientSide || event.phase != TickEvent.Phase.END) {
+            if (event.phase != TickEvent.Phase.END) {
                 return;
             }
-            if (!p.isAlive() || p.tickCount < 10) {
-                return;
-            }
-            try {
-                var cap = PlayerDataCapability.get(p);
-                if (cap != null) {
-                    var delayed = cap.delayedTeleportData;
-                    if (delayed != null) {
-                        delayed.tick(p);
+            for (ServerPlayer p : event.getServer().getPlayerList().getPlayers()) {
+                if (!p.isAlive() || p.tickCount < 10) {
+                    continue;
+                }
+                try {
+                    var cap = PlayerDataCapability.get(p);
+                    if (cap != null) {
+                        var delayed = cap.delayedTeleportData;
+                        if (delayed != null) {
+                            delayed.tick(p);
 
-                        // the destination can take a second or two to generate, and until it has the
-                        // player is still standing where they pressed the button. say so, or a slow
-                        // entry reads as nothing having happened.
-                        //
-                        // the map grace countdown can't cover this: it only runs for players already
-                        // inside a map dimension, and this is the window before they get there.
-                        if (delayed.shouldAnnounceWait() && p instanceof ServerPlayer sp) {
-                            sp.connection.send(new ClientboundSetActionBarTextPacket(
-                                    LibWords.LOADING_DESTINATION.get().withStyle(ChatFormatting.YELLOW)));
+                            // the destination can take a second or two to generate, and until it has the
+                            // player is still standing where they pressed the button. say so, or a slow
+                            // entry reads as nothing having happened.
+                            //
+                            // the map grace countdown can't cover this: it only runs for players already
+                            // inside a map dimension, and this is the window before they get there.
+                            if (delayed.shouldAnnounceWait()) {
+                                p.connection.send(new ClientboundSetActionBarTextPacket(
+                                        LibWords.LOADING_DESTINATION.get().withStyle(ChatFormatting.YELLOW)));
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    // null check, because this runs every tick and the capability is genuinely absent for
+                    // part of a normal player's life - it is invalidated between death and respawn. An NPE
+                    // thrown from inside the handler that exists to swallow errors would escape into the
+                    // event bus on every one of those ticks.
+                    var cap = PlayerDataCapability.get(p);
+                    if (cap != null) {
+                        cap.delayedTeleportData = null;
+                    }
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                // null check, because this runs every tick and the capability is genuinely absent for
-                // part of a normal player's life - it is invalidated between death and respawn. An NPE
-                // thrown from inside the handler that exists to swallow errors would escape into the
-                // event bus on every one of those ticks.
-                var cap = PlayerDataCapability.get(p);
-                if (cap != null) {
-                    cap.delayedTeleportData = null;
-                }
-                e.printStackTrace();
             }
         });
     }

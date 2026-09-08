@@ -79,8 +79,12 @@ public class MapChunkPreloader {
      * after {@link #request} adds the ticket, long before the chunk has been read from disk or
      * generated. Testing it here made the teleport fire one tick after the request, into a chunk
      * that was still loading, and Forge's {@code Entity.setPosRaw} patch then blocked the server
-     * thread for the whole load on the very next tick - exactly the freeze this class exists to
-     * prevent (6.6s of a 12s spark capture on a singleplayer map exit).
+     * thread for the rest of the load on the very next tick - the wait was decorative.
+     * <p>
+     * (The bigger stall on a map exit turned out to be separate: the teleport used to fire from the
+     * player tick, whose enclosing packet-listener tick then re-applied the OLD dimension's
+     * coordinates in the NEW dimension and generated chunks there - see the driver in
+     * ExileLibEvents. This class only guarantees the real destination is ready.)
      * <p>
      * {@code getChunkNow} instead reads the holder's completed FULL future: it returns the chunk
      * only once the load has actually finished, and never schedules or waits on anything. It is
