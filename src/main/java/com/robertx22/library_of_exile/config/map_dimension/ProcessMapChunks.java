@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
@@ -60,21 +59,23 @@ public class ProcessMapChunks {
         // It now hangs off ChunkEvent.Load (see CommonInit): a chunk load is exactly when a dropped
         // chunk starts to matter, so the repair is both earlier - the player never sees the bedrock -
         // and far cheaper than re-walking 49 chunks every second for every player.
+        // getChunkNow, not hasChunk + getChunk: hasChunk only tests the chunk's ticket level, which
+        // is set the moment the player's view distance asks for the chunk - before it has generated.
+        // getChunk on such a chunk is a blocking, generate-if-missing load on the server thread, and
+        // this runs the second a player lands in a fresh instance. getChunkNow returns the chunk only
+        // once it is actually loaded and never waits.
         for (ChunkPos cpos : processChunks) {
-            if (!level.hasChunk(cpos.x, cpos.z)) {
+            LevelChunk chunk = level.getChunkSource().getChunkNow(cpos.x, cpos.z);
+            if (chunk == null) {
                 continue;
             }
-            ChunkAccess c = level.getChunk(cpos.x, cpos.z);
+            //var chunkdata = Load.chunkData(chunk);
+            var cap = chunk.getCapability(LibChunkCap.INSTANCE).orElse(new LibChunkCap(chunk));
 
-            if (c instanceof LevelChunk chunk) {
-                //var chunkdata = Load.chunkData(chunk);
-                var cap = chunk.getCapability(LibChunkCap.INSTANCE).orElse(new LibChunkCap(chunk));
-
-                if (!cap.mapGenData.generatedData(info.structure)) {
-                    cap.mapGenData.setGeneratedData(info.structure);
-                    generateData(level, chunk);
-                    ExileEvents.PROCESS_CHUNK_DATA.callEvents(new ExileEvents.OnProcessChunkData(p, info.structure, cpos));
-                }
+            if (!cap.mapGenData.generatedData(info.structure)) {
+                cap.mapGenData.setGeneratedData(info.structure);
+                generateData(level, chunk);
+                ExileEvents.PROCESS_CHUNK_DATA.callEvents(new ExileEvents.OnProcessChunkData(p, info.structure, cpos));
             }
         }
         // the loop above only reads the invisible data blocks into LibChunkCap and takes them out of the
@@ -96,15 +97,11 @@ public class ProcessMapChunks {
         }
 
         for (ChunkPos cpos : spawnChunks) {
-            if (!level.hasChunk(cpos.x, cpos.z)) {
+            LevelChunk chunk = level.getChunkSource().getChunkNow(cpos.x, cpos.z);
+            if (chunk == null) {
                 continue;
             }
-            ChunkAccess c = level.getChunk(cpos.x, cpos.z);
-
-            if (c instanceof LevelChunk chunk) {
-                spawnDataFromChunk(level, chunk, type);
-
-            }
+            spawnDataFromChunk(level, chunk, type);
         }
     }
 

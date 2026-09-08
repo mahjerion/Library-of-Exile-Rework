@@ -21,8 +21,14 @@ public class DelayedTeleportData {
      * How long to keep waiting for the destination chunks before giving up and doing it the old,
      * blocking way. A player must never be left standing where they pressed the button, so the
      * worst case here is exactly the behaviour this class used to have unconditionally.
+     * <p>
+     * 30 seconds. Now that {@code MapChunkPreloader.isReady} reports the real load state instead of
+     * the ticket level, the wait is honest - and a singleplayer map exit was measured at ~6s to
+     * bring 25 saved overworld chunks back, which a 5s limit would have turned straight into the
+     * blocking load this wait exists to avoid. The player is not left guessing: the action bar
+     * says "loading destination" once a second for the whole wait (see ExileLibEvents).
      */
-    private static final int MAX_WAIT_TICKS = 100;
+    private static final int MAX_WAIT_TICKS = 600;
 
     /**
      * Whether arriving should stamp {@code lastMapEnterTime}, which is what MapEntryGrace measures

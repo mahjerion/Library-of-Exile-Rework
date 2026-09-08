@@ -51,8 +51,9 @@ public abstract class SimplePrebuiltMapStructure extends MapStructure<SimplePreb
         Map<ChunkPos, List<ChunkPos>> byInstance = new HashMap<>();
         for (ChunkPos cpos : chunks) {
             // never let the repair be the thing that generates a chunk - that is the hang this whole
-            // change exists to stop.
-            if (level.hasChunk(cpos.x, cpos.z)) {
+            // change exists to stop. getChunkNow, not hasChunk: hasChunk only tests the ticket level,
+            // which is set before the chunk has loaded; getChunkNow is non-null only once it has.
+            if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) {
                 byInstance.computeIfAbsent(getStartChunkPos(cpos), k -> new ArrayList<>()).add(cpos);
             }
         }

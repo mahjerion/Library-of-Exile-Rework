@@ -72,15 +72,25 @@ public class MapChunkPreloader {
     }
 
     /**
-     * Whether every chunk of the square is loaded to FULL. Non-blocking:
-     * {@code ServerChunkCache.hasChunk} only asks whether the chunk holder has reached that level
-     * and never starts or waits on work, which is the same test {@code repairChunksAround} uses
-     * before it will touch a chunk.
+     * Whether every chunk of the square is loaded to FULL right now. Non-blocking.
+     * <p>
+     * This must NOT be {@code ServerChunkCache.hasChunk}. That answers whether a chunk holder
+     * exists whose <i>ticket</i> level is at or below FULL - and the ticket level is set the tick
+     * after {@link #request} adds the ticket, long before the chunk has been read from disk or
+     * generated. Testing it here made the teleport fire one tick after the request, into a chunk
+     * that was still loading, and Forge's {@code Entity.setPosRaw} patch then blocked the server
+     * thread for the whole load on the very next tick - exactly the freeze this class exists to
+     * prevent (6.6s of a 12s spark capture on a singleplayer map exit).
+     * <p>
+     * {@code getChunkNow} instead reads the holder's completed FULL future: it returns the chunk
+     * only once the load has actually finished, and never schedules or waits on anything. It is
+     * main-thread only (returns null from any other thread); the caller is the player tick.
      */
     public static boolean isReady(ServerLevel level, ChunkPos center, int radius) {
+        var source = level.getChunkSource();
         for (int x = center.x - radius; x <= center.x + radius; x++) {
             for (int z = center.z - radius; z <= center.z + radius; z++) {
-                if (!level.getChunkSource().hasChunk(x, z)) {
+                if (source.getChunkNow(x, z) == null) {
                     return false;
                 }
             }
