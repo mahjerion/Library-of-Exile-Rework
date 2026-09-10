@@ -3,16 +3,22 @@ package com.robertx22.library_of_exile.registry.loaders;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.robertx22.library_of_exile.main.ExileLog;
 import com.robertx22.library_of_exile.registry.*;
 import com.robertx22.library_of_exile.registry.register_info.FromDatapackRegistration;
 import com.robertx22.library_of_exile.registry.serialization.ISerializable;
 import com.robertx22.library_of_exile.utils.Watch;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 
 public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResourceReloadListener {
@@ -39,11 +45,59 @@ public class BaseDataPackLoader<T extends ExileRegistry> extends SimpleJsonResou
     }
 
 
+    /**
+     * Like vanilla's scanDirectory, but a real datapack always beats a mod jar for the same file.
+     * <p>
+     * Vanilla resolves each file to the highest enabled pack. That order lives in the world's level.dat,
+     * and Forge appends any mod that joined the world after its creation to the END of that list - on top
+     * of every datapack, OpenLoader folders included. A pack author's override of a registry entry then
+     * silently loses to the jar's own generated json in exactly the worlds that got the mod later, while
+     * working everywhere else. A mod jar's json is only the shipped default and a datapack is always
+     * deliberate, so for these registries the world's pack order must not decide: take the highest
+     * non-built-in source when there is one, else the highest source as before. Only Exile registries go
+     * through here - vanilla folders (recipes, loot tables, tags...) keep vanilla's rules.
+     * <p>
+     * "Built-in" is the flag Forge sets on every mod jar pack (ResourcePackLoader.createPackForMod) and
+     * vanilla sets on its own data; world datapacks and OpenLoader folders are created with it false. The
+     * pack id is no use here - Forge's is the jar file name, "mod:modid" is only the repository entry.
+     */
     @Override
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<ResourceLocation, JsonElement> map = new HashMap<>();
+        FileToIdConverter converter = FileToIdConverter.json(this.id);
+        int takenFromDatapacks = 0;
 
+        for (Map.Entry<ResourceLocation, List<Resource>> entry : converter.listMatchingResourceStacks(manager).entrySet()) {
+            ResourceLocation file = entry.getKey();
+            ResourceLocation key = converter.fileToId(file);
+            List<Resource> stack = entry.getValue(); // lowest pack first, highest last
+            if (stack.isEmpty()) {
+                continue;
+            }
 
-        return super.prepare(manager, profiler);
+            Resource chosen = stack.get(stack.size() - 1);
+            for (int i = stack.size() - 1; i >= 0; i--) {
+                Resource res = stack.get(i);
+                if (!res.isBuiltin()) {
+                    if (res != chosen) {
+                        takenFromDatapacks++;
+                    }
+                    chosen = res;
+                    break;
+                }
+            }
+
+            try (Reader reader = chosen.openAsReader()) {
+                map.put(key, GsonHelper.fromJson(GSON, reader, JsonElement.class));
+            } catch (IllegalArgumentException | IOException | JsonParseException e) {
+                ExileLog.get().error("Couldn't parse data file " + key + " from " + file + " (pack " + chosen.sourcePackId() + ")", e);
+            }
+        }
+
+        if (takenFromDatapacks > 0) {
+            ExileLog.get().log(takenFromDatapacks + " " + this.id + " entries taken from datapacks over built-in mod packs placed above them in the world's pack order");
+        }
+        return map;
     }
 
     public static String ENABLED = "enabled";
