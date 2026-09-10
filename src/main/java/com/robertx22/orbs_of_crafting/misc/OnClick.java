@@ -52,10 +52,6 @@ public class OnClick {
                 if (!ctx.isValid()) {
                     return new Result(false);
                 }
-                if (ctx.refuseIfStacked()) {
-                    // cancel, so no vanilla fallback swap runs on a click we just told the player off for
-                    return new Result(true);
-                }
 
                 LocReqContext req = new LocReqContext(ctx.player, ctx.target.copyWithCount(1), ctx.currency);
 
@@ -66,6 +62,13 @@ public class OnClick {
                     SoundUtils.playSound(ctx.player.level(), ctx.player.blockPosition(), SoundEvents.VILLAGER_NO, 1, 1);
                     ctx.player.sendSystemMessage(can.answer);
                     return new Result(false);
+                }
+
+                // only once the currency is known to apply to this item, so an orb dropped on a stack of
+                // runes gets the real requirement message instead of "must be a single item"
+                if (ctx.refuseIfStacked()) {
+                    // cancel, so no vanilla fallback swap runs on a click we just told the player off for
+                    return new Result(true);
                 }
 
                 var result = cur.modifyItem(req);
